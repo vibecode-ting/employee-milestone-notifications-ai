@@ -1,0 +1,121 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// 1. Global Application & Easy Email Settings
+model AppSettings {
+  id                      String   @id @default("default_org")
+  companyName             String   @default("Acme JAPAC Technologies")
+  companyLogoUrl          String?
+  timezone                String   @default("Asia/Singapore")
+  dailyTriggerTime        String   @default("08:30")
+
+  // Master & Easy Auto-Email Settings
+  enableAutoEmail         Boolean  @default(true)
+  emailProvider           String   @default("ethereal_sandbox")
+  smtpHost                String?  @default("smtp.gmail.com")
+  smtpPort                Int?     @default(587)
+  smtpSecure              Boolean  @default(false)
+  smtpUser                String?
+  smtpPassEncrypted       String?
+  senderName              String   @default("People & Culture AI")
+  senderEmail             String?
+  replyToEmail            String?
+  ccManagerOnEmail        Boolean  @default(false)
+
+  // Omnichannel Webhook Settings
+  enableTeamsWebhook      Boolean  @default(false)
+  teamsWebhookUrl         String?
+  enableTelegram          Boolean  @default(false)
+  telegramBotToken        String?
+  telegramChatId          String?
+
+  // AI Personalization & Card Studio Preferences
+  aiTone                  String   @default("warm_professional")
+  cardVisualStyle         String   @default("modern_gradient")
+  useImagenBackground     Boolean  @default(false)
+  defaultGiftBudgetUsd    Int      @default(50)
+
+  // Dynamic Custom Column Registry (JSON stored as String in SQLite)
+  customColumnSchema      String   @default("[]")
+
+  updatedAt               DateTime @updatedAt
+}
+
+// 2. Employee Master Table
+model Employee {
+  id                   String    @id @default(uuid())
+  fullName             String
+  email                String    @unique
+  birthDate            DateTime?
+  hireDate             DateTime?
+  role                 String?
+  department           String?
+  managerEmail         String?
+  avatarUrl            String?
+
+  // Per-Employee Notification Controls
+  isActive             Boolean   @default(true)
+  autoSendEmail        Boolean   @default(true)
+  notifyOnBirthday     Boolean   @default(true)
+  notifyOnAnniversary  Boolean   @default(true)
+  preferredLanguage    String    @default("English")
+
+  // Dynamic User-Defined Columns (JSON key-value)
+  customAttributes     String    @default("{}")
+
+  // Data Lineage
+  dataSource           String    @default("manual")
+  externalConnectionId String?
+  externalRecordId     String?
+
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  notificationLogs     NotificationLog[]
+}
+
+// 3. Metabase-Style External Database Connections
+model ExternalDbConnection {
+  id                  String    @id @default(uuid())
+  name                String
+  dbType              String
+  connectionConfig    String    // JSON stored as String
+  sourceMode          String    @default("table")
+  tableName           String?
+  customSqlQuery      String?
+  columnMapping       String    @default("{}")
+  autoSyncSchedule    String    @default("daily")
+  lastSyncedAt        DateTime?
+  lastSyncRecordCount Int?      @default(0)
+  lastSyncStatus      String?
+  lastSyncError       String?
+  createdAt           DateTime  @default(now())
+}
+
+// 4. Celebration Audit & Email Delivery Logs
+model NotificationLog {
+  id                  String    @id @default(uuid())
+  employeeId          String
+  employee            Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  eventType           String
+  milestoneYear       Int?
+  emailSubject        String
+  generatedMessage    String
+  cardImageDataUrl    String?
+  giftSuggestions     String?   // JSON stored as String
+  channelsDispatched  String    @default("[]")
+  recipientEmail      String
+  deliveryStatus      String
+  smtpMessageId       String?
+  previewUrl          String?
+  errorMessage        String?
+  sentAt              DateTime  @default(now())
+}
