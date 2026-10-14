@@ -1,0 +1,67 @@
+/* ── i18n-typography.css ─────────────────────────────────────────────────────
+   Script-Adaptive Typography for CultureOS AI
+   Handles: English, Burmese (Myanmar), Chinese (Simplified),
+            Vietnamese (Latin + tonemarks), Hindi (Devanagari)
+   ─────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --line-height-base: 1.5;
+  --line-height-heading: 1.25;
+  --letter-spacing-ui: -0.01em;
+}
+
+/* 1. Burmese (Myanmar Unicode) — Requires taller line-height for stacked vowel/consonant glyphs */
+html[data-lang="my"] {
+  --font-sans: 'Noto Sans Myanmar', 'Padauk', 'Inter', sans-serif;
+  --line-height-base: 1.85;
+  --line-height-heading: 1.55;
+  --letter-spacing-ui: 0em;
+}
+
+/* 2. Chinese (Simplified) — Clean, dense CJK glyph alignment */
+html[data-lang="zh"] {
+  --font-sans: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', 'Inter', sans-serif;
+  --line-height-base: 1.65;
+  --line-height-heading: 1.35;
+  --letter-spacing-ui: 0.02em;
+}
+
+/* 3. Vietnamese — Optimized for stacked Latin tone marks (ệ, ữ, ắ, ồ) */
+html[data-lang="vi"] {
+  --font-sans: 'Be Vietnam Pro', 'Inter', sans-serif;
+  --line-height-base: 1.6;
+  --line-height-heading: 1.3;
+  --letter-spacing-ui: 0em;
+}
+
+/* 4. Indian (Hindi Devanagari) — Accommodates Shirorekha top bar & matras */
+html[data-lang="hi"] {
+  --font-sans: 'Noto Sans Devanagari', 'Inter', sans-serif;
+  --line-height-base: 1.75;
+  --line-height-heading: 1.45;
+  --letter-spacing-ui: 0em;
+}
+
+body {
+  font-family: var(--font-sans);
+  line-height: var(--line-height-base);
+  letter-spacing: var(--letter-spacing-ui);
+}
+
+h1, h2, h3, h4, .heading-safe {
+  line-height: var(--line-height-heading);
+}
+
+/* Script-safe: Never clip tall scripts — always use min-h instead of fixed h */
+.script-safe {
+  min-height: 1.5em;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  line-height: var(--line-height-base);
+}
+
+/* Language transition animation */
+html {
+  transition: font-family 100ms ease;
+}

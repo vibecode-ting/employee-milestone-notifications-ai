@@ -1,0 +1,48 @@
+# ── .dockerignore ─────────────────────────────────────────────────────────────
+# Excludes files from Docker build context to speed up builds and reduce image size
+# ──────────────────────────────────────────────────────────────────────────────
+
+# Dependencies (reinstalled inside container)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build output (rebuilt inside container)
+dist/
+
+# Development & local files
+.env
+.env.local
+.env.development
+.env.test
+tmp/
+
+# Version control
+.git/
+.gitignore
+
+# Editor and OS files
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db
+
+# Test files
+**/*.test.ts
+**/*.spec.ts
+**/__tests__/
+
+# Documentation (not needed in production image)
+*.md
+design.md
+plan.md
+
+# Docker files themselves (avoid recursive includes)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# TypeScript source (compiled output is used in production)
+# Note: Do NOT ignore prisma/ — migrations must be included
+# src/ is needed if you're not pre-compiling, but we compile in Stage 2
