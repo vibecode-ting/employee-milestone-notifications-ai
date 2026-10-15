@@ -11,6 +11,7 @@ import DashboardView from './components/DashboardView';
 import EmployeeDataHub from './components/EmployeeDataHub';
 import EmailSettingsView from './components/EmailSettingsView';
 import AiCopilotChat from './components/AiCopilotChat';
+import VoiceCommandOrb from './components/VoiceCommandOrb';
 
 export type NavView = 'dashboard' | 'employees' | 'email' | 'copilot' | 'logs';
 
@@ -291,6 +292,8 @@ function AppShell() {
         </div>
 
         {/* Zone 4: AI Copilot Drawer (slide-over) */}
+        <VoiceCommandOrb onCommandTranscribed={(txt) => { setCopilotOpen(true); }} />
+
         {copilotOpen && (
           <div className="w-96 bg-white dark:bg-gray-900 border-l border-slate-200 dark:border-slate-800 flex flex-col h-full shrink-0">
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-800">

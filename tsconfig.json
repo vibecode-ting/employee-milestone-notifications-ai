@@ -18,10 +18,11 @@
     "emitDecoratorMetadata": true,
     "moduleResolution": "node",
     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "paths": {
       "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*", "prisma/**/*"],
-  "exclude": ["node_modules", "dist", "src/client"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "src/client", "prisma"]
 }

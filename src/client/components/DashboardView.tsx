@@ -1,5 +1,6 @@
 // DashboardView.tsx — Executive Dashboard
 import React, { useState, useEffect } from 'react';
+import RetentionPulseDashboard from './RetentionPulseDashboard';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { useLanguage } from '../i18n/LanguageContext';
 import type { NavView } from '../App';
@@ -127,6 +128,9 @@ export default function DashboardView({ onNavigate }: Props) {
 
   return (
     <div className="space-y-6">
+      {/* JAPAC Culture & Retention Pulse */}
+      <RetentionPulseDashboard />
+
       {/* Row 1: KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <KpiCard

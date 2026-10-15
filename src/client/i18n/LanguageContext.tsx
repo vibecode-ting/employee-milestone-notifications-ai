@@ -25,14 +25,14 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   // Apply CSS data-lang and lang attributes on mount + on every locale change
   useEffect(() => {
-    document.documentElement.setAttribute('data-lang', locale);
+    document.documentElement.setAttribute('data-lang', locale); document.documentElement.setAttribute('data-cultural-theme', locale.toUpperCase());
     document.documentElement.lang = locale;
   }, [locale]);
 
   const setLocale = useCallback((newLocale: SupportedLocale) => {
     setLocaleState(newLocale);
     localStorage.setItem(STORAGE_KEY, newLocale);
-    document.documentElement.setAttribute('data-lang', newLocale);
+    document.documentElement.setAttribute('data-lang', newLocale); document.documentElement.setAttribute('data-cultural-theme', newLocale.toUpperCase());
     document.documentElement.lang = newLocale;
   }, []);
 

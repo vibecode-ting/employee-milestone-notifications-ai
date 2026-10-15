@@ -187,6 +187,7 @@ export default function AiCopilotChat({ isDrawer }: Props) {
               {/* Message content */}
               <div className="text-sm leading-relaxed script-safe whitespace-pre-wrap">
                 {renderMarkdown(msg.content)}
+              {msg.role === 'model' && (<button onClick={() => { const audio = new Audio('/api/voice/tts?text=' + encodeURIComponent(msg.content.slice(0, 150)) + '&lang=' + locale); audio.play().catch(()=>{}); }} className='mt-2 inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 transition-colors'>🔊 Listen to AI Cultural Greeting</button>)}
               </div>
 
               {/* Inline card preview */}
