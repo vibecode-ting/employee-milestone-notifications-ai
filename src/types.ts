@@ -74,6 +74,15 @@ export const PLAN_LIMITS: Record<Role, number> = {
 export const PLAN_NAMES: Record<Role, string> = {
   user: 'Free Plan',
   pro: 'Pro Plan',
-  pro_plus: 'Pro Plus',
+  pro_plus: 'Ultra Plan',
   admin: 'Mod Admin',
 };
+
+export interface SystemBroadcast {
+  id: string;
+  message: string;
+  createdAt: string;
+  active?: boolean;
+  createdBy?: string;
+}
+

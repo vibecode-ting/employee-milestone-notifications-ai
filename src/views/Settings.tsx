@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import type { NotificationSettings } from '../types';
 import { CheckCircle2 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { GeminiBadge } from '../components/common/GeminiBadge';
 
 const DEFAULT_SETTINGS: NotificationSettings = {
   userId: '',
@@ -157,9 +158,7 @@ export default function Settings() {
                 {appUser?.email}
               </h2>
               <div className="flex items-center justify-center sm:justify-start gap-2">
-                <span className="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-corp-blue/10 text-corp-blue dark:bg-gold-500/20 dark:text-gold-400 uppercase">
-                  {appUser?.role}
-                </span>
+                {appUser && <GeminiBadge role={appUser.role} size="md" />}
                 <span className="text-xs text-slate-400 font-mono truncate">
                   UID: {appUser?.uid}
                 </span>

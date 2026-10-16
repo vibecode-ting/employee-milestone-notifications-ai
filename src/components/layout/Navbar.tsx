@@ -1,13 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { db } from '../../lib/firebase';
 import {
   LayoutDashboard, Users, Settings, Shield, Zap, Moon, Sun, LogOut, Pin, PinOff,
+  Bell, MessageSquare,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 import i18n, { LOCALES } from '../../lib/i18n';
 import { cn } from '../../lib/utils';
-import { PLAN_NAMES, PLAN_LIMITS, type Role } from '../../types';
+import { PLAN_LIMITS, type Role, type SystemBroadcast } from '../../types';
+import { GeminiBadge, GeminiAvatarRing } from '../common/GeminiBadge';
+import { FeedbackModal } from './FeedbackModal';
+import { NotificationsFlyout } from './NotificationsFlyout';
 
 function cycleLocale() {
   const codes = LOCALES.map((l) => l.code);
@@ -45,6 +51,85 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
     localStorage.setItem('sidebar_pinned', String(next));
   }
 
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [broadcasts, setBroadcasts] = useState<SystemBroadcast[]>(() => {
+    try {
+      const list: SystemBroadcast[] = JSON.parse(localStorage.getItem('system_broadcasts_list') || '[]');
+      const single = localStorage.getItem('admin_system_broadcast');
+      if (single && !list.some((b) => b.message === single)) {
+        list.unshift({
+          id: 'broadcast-init',
+          message: single,
+          createdAt: new Date().toISOString(),
+          active: true,
+        });
+      }
+      return list;
+    } catch {
+      return [];
+    }
+  });
+
+  const [readBroadcastIds, setReadBroadcastIds] = useState<string[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('read_broadcast_ids') || '[]');
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      const unsub = onSnapshot(collection(db, 'system_broadcasts'), (snapshot) => {
+        const items: SystemBroadcast[] = [];
+        snapshot.forEach((docSnap) => {
+          const d = docSnap.data();
+          items.push({
+            id: docSnap.id,
+            message: d.message || '',
+            createdAt: d.createdAt || new Date().toISOString(),
+            active: d.active !== false,
+            createdBy: d.createdBy,
+          });
+        });
+        if (items.length > 0) {
+          items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          setBroadcasts(items);
+          localStorage.setItem('system_broadcasts_list', JSON.stringify(items));
+        }
+      });
+      return unsub;
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    function handleStorage() {
+      try {
+        const stored = JSON.parse(localStorage.getItem('system_broadcasts_list') || '[]');
+        setBroadcasts(stored);
+      } catch {}
+    }
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
+  const handleMarkBroadcastRead = (id: string) => {
+    setReadBroadcastIds((prev) => {
+      const updated = Array.from(new Set([...prev, id]));
+      localStorage.setItem('read_broadcast_ids', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const handleMarkAllBroadcastsRead = () => {
+    const allIds = broadcasts.map((b) => b.id);
+    setReadBroadcastIds(allIds);
+    localStorage.setItem('read_broadcast_ids', JSON.stringify(allIds));
+  };
+
+  const unreadBroadcastsCount = broadcasts.filter((b) => !readBroadcastIds.includes(b.id)).length;
+
   const navItems = appUser?.role === 'admin'
     ? [
         { to: '/', icon: Shield, label: t('Admin Dashboard') || 'Admin Dashboard' },
@@ -57,7 +142,6 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
         { to: '/settings', icon: Settings, label: t('Settings') },
       ];
 
-  const planName = (appUser && appUser.role && PLAN_NAMES[appUser.role]) ? PLAN_NAMES[appUser.role] : 'Free Plan';
   const limit = (appUser && appUser.role && PLAN_LIMITS[appUser.role] !== undefined) ? PLAN_LIMITS[appUser.role] : 100;
   const limitLabel = limit === Infinity ? '∞' : limit;
 
@@ -99,7 +183,7 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 px-2 space-y-1 overflow-hidden">
+        <nav className="flex-1 px-2 space-y-1 overflow-visible">
           {navItems.map(({ to, icon: Icon, label }) => (
             <NavLink
               key={to}
@@ -119,6 +203,60 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
               {open && <span className="whitespace-nowrap">{label}</span>}
             </NavLink>
           ))}
+
+          {/* System Notifications */}
+          <div className="relative pt-1">
+            <button
+              type="button"
+              onClick={() => setShowNotifications(!showNotifications)}
+              aria-label={t('Notifications')}
+              className={cn(
+                'flex items-center gap-3 w-full px-3 py-2.5 rounded-xl transition-all text-sm font-medium cursor-pointer',
+                showNotifications
+                  ? 'bg-corp-blue/10 text-corp-blue dark:bg-gold-500/15 dark:text-gold-400 font-bold'
+                  : 'text-slate-600 hover:bg-slate-500/10 dark:text-zinc-400 dark:hover:bg-zinc-800/50'
+              )}
+            >
+              <div className="relative shrink-0">
+                <Bell size={20} />
+                {unreadBroadcastsCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-pulse shadow-xs">
+                    {unreadBroadcastsCount > 9 ? '9+' : unreadBroadcastsCount}
+                  </span>
+                )}
+              </div>
+              {open && (
+                <div className="flex items-center justify-between flex-1 min-w-0">
+                  <span className="whitespace-nowrap">{t('Notifications')}</span>
+                  {unreadBroadcastsCount > 0 && (
+                    <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-red-500 text-white font-mono">
+                      {unreadBroadcastsCount}
+                    </span>
+                  )}
+                </div>
+              )}
+            </button>
+
+            <NotificationsFlyout
+              isOpen={showNotifications}
+              onClose={() => setShowNotifications(false)}
+              broadcasts={broadcasts}
+              readIds={readBroadcastIds}
+              onMarkRead={handleMarkBroadcastRead}
+              onMarkAllRead={handleMarkAllBroadcastsRead}
+            />
+          </div>
+
+          {/* Feedback Button */}
+          <button
+            type="button"
+            onClick={() => setShowFeedback(true)}
+            aria-label={t('Feedback')}
+            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-500/10 dark:text-zinc-400 dark:hover:bg-zinc-800/50 transition-all text-sm font-medium cursor-pointer"
+          >
+            <MessageSquare size={20} className="shrink-0 text-amber-500 dark:text-amber-400" />
+            {open && <span className="whitespace-nowrap">{t('Feedback')}</span>}
+          </button>
         </nav>
 
         {/* Bottom section */}
@@ -127,11 +265,41 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
           {open ? (
             <div className="glass-panel px-3 py-2">
               <div className="flex items-center gap-2 mb-1">
+                <GeminiAvatarRing role={appUser?.role}>
+                  {appUser?.photoURL ? (
+                    <img
+                      src={appUser.photoURL}
+                      alt={appUser.email}
+                      className="w-8 h-8 rounded-full object-cover shrink-0"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLElement).style.display = 'none';
+                      }}
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-corp-blue dark:bg-gold-500 flex items-center justify-center text-white dark:text-zinc-900 font-bold text-sm shrink-0">
+                      {appUser?.email?.[0]?.toUpperCase() ?? '?'}
+                    </div>
+                  )}
+                </GeminiAvatarRing>
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs font-semibold text-slate-800 dark:text-white truncate">{appUser?.email}</div>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    {appUser && <GeminiBadge role={appUser.role} size="sm" />}
+                    <span className="text-[10px] text-slate-400 dark:text-zinc-500 truncate">
+                      {appUser?.role === 'admin' ? 'Superuser' : `${employeeCount}/${limitLabel}`}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex justify-center py-1">
+              <GeminiAvatarRing role={appUser?.role}>
                 {appUser?.photoURL ? (
                   <img
                     src={appUser.photoURL}
                     alt={appUser.email}
-                    className="w-8 h-8 rounded-full object-cover shrink-0 border border-slate-200 dark:border-zinc-700"
+                    className="w-8 h-8 rounded-full object-cover shrink-0"
                     onError={(e) => {
                       (e.currentTarget as HTMLElement).style.display = 'none';
                     }}
@@ -141,40 +309,7 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
                     {appUser?.email?.[0]?.toUpperCase() ?? '?'}
                   </div>
                 )}
-                <div className="min-w-0">
-                  <div className="text-xs font-semibold text-slate-800 dark:text-white truncate">{appUser?.email}</div>
-                  <div className={cn('text-xs',
-                    appUser?.role === 'pro_plus' ? 'text-purple-600 dark:text-purple-400' :
-                    appUser?.role === 'pro' ? 'text-corp-blue dark:text-gold-500' :
-                    appUser?.role === 'admin' ? 'text-emerald-600 dark:text-emerald-400' :
-                    'text-slate-500 dark:text-zinc-500',
-                  )}>
-                    {t(planName)}
-                    {appUser?.role === 'pro_plus' && <Zap size={10} className="inline ml-1" />}
-                    {appUser?.role === 'pro' && <Shield size={10} className="inline ml-1" />}
-                  </div>
-                  <div className="text-xs text-slate-400 dark:text-zinc-500">
-                    {appUser?.role === 'admin' ? 'Platform Superuser' : `${employeeCount} / ${limitLabel}`}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="flex justify-center py-1">
-              {appUser?.photoURL ? (
-                <img
-                  src={appUser.photoURL}
-                  alt={appUser.email}
-                  className="w-8 h-8 rounded-full object-cover shrink-0 border border-slate-200 dark:border-zinc-700"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLElement).style.display = 'none';
-                  }}
-                />
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-corp-blue dark:bg-gold-500 flex items-center justify-center text-white dark:text-zinc-900 font-bold text-sm shrink-0">
-                  {appUser?.email?.[0]?.toUpperCase() ?? '?'}
-                </div>
-              )}
+              </GeminiAvatarRing>
             </div>
           )}
 
@@ -198,7 +333,7 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
                           : 'text-purple-700 dark:text-purple-300 hover:bg-purple-500/20'
                       )}
                     >
-                      {r === 'pro_plus' ? 'Pro+' : r === 'user' ? 'Free' : r.toUpperCase()}
+                      {r === 'pro_plus' ? 'Ultra' : r === 'user' ? 'Free' : r.toUpperCase()}
                     </button>
                   ))}
                 </div>
@@ -212,7 +347,7 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
                   title="Click to cycle Demo plan"
                   className="w-full text-[10px] font-bold py-1 bg-purple-600 text-white rounded text-center cursor-pointer"
                 >
-                  {appUser?.role === 'pro_plus' ? 'P+' : appUser?.role?.[0]?.toUpperCase()}
+                  {appUser?.role === 'pro_plus' ? 'U' : appUser?.role?.[0]?.toUpperCase()}
                 </button>
               )}
             </div>
@@ -269,6 +404,9 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
           if (!pinned) setHovered(false);
         }}
       />
+
+      {/* Feedback Modal */}
+      <FeedbackModal isOpen={showFeedback} onClose={() => setShowFeedback(false)} />
     </>
   );
 }
