@@ -12,9 +12,10 @@ import { getDemoEmployees, saveDemoEmployees } from '../utils/demoData';
 import { useTranslation } from 'react-i18next';
 import {
   Plus, Upload, Download, Search, Pencil, Trash2, X,
-  FileSpreadsheet, Cake, Briefcase, CheckCircle2,
+  FileSpreadsheet, Cake, Briefcase, CheckCircle2, ChevronDown, Database,
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { DatabaseConnectionModal } from '../components/employees/DatabaseConnectionModal';
 
 const EMPTY_FORM: Omit<Employee, 'id' | 'userId' | 'createdAt'> = {
   employeeId: '', name: '', email: '', phone: '',
@@ -195,7 +196,20 @@ export default function Employees({ onCountChange }: { onCountChange: (n: number
   const [deleteTarget, setDeleteTarget] = useState<Employee | null>(null);
   const [importPreview, setImportPreview] = useState<Partial<Employee>[] | null>(null);
   const [planAlert, setPlanAlert] = useState(false);
+  const [excelDropdownOpen, setExcelDropdownOpen] = useState(false);
+  const [dbModalOpen, setDbModalOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const excelDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (excelDropdownRef.current && !excelDropdownRef.current.contains(e.target as Node)) {
+        setExcelDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const isDemo =
     Boolean(localStorage.getItem('demo_session')) ||
@@ -392,6 +406,49 @@ export default function Employees({ onCountChange }: { onCountChange: (n: number
     }
   }
 
+  async function handleDatabaseImport(importedRows: Omit<Employee, 'id' | 'userId' | 'createdAt'>[]) {
+    const remaining = limit - employees.length;
+    if (remaining <= 0 && limit !== Infinity) {
+      setPlanAlert(true);
+      return;
+    }
+
+    const toImport = importedRows.slice(0, remaining === Infinity ? undefined : remaining);
+    const userId = appUser?.uid || 'demo-uid';
+
+    const newEmployees: Employee[] = toImport.map((row, idx) => ({
+      id: `db-import-${Date.now()}-${idx}`,
+      userId,
+      employeeId: row.employeeId || `EMP${String(employees.length + idx + 1).padStart(3, '0')}`,
+      name: row.name || 'Unnamed Employee',
+      email: row.email || '',
+      phone: row.phone || '',
+      department: row.department || 'General',
+      dob: row.dob || '',
+      joinedDate: row.joinedDate || '',
+      status: (row.status as 'active' | 'inactive') || 'active',
+      createdAt: new Date().toISOString() as any,
+    }));
+
+    const updated = [...employees, ...newEmployees];
+    setEmployees(updated);
+    saveDemoEmployees(updated);
+    onCountChange(updated.length);
+
+    if (isDemo) return;
+
+    try {
+      const batch = writeBatch(db);
+      toImport.forEach((row) => {
+        const ref = doc(collection(db, 'employees'));
+        batch.set(ref, { ...row, userId, createdAt: serverTimestamp() });
+      });
+      await batch.commit();
+    } catch (err) {
+      console.warn('Batch DB import in Firestore failed (saved locally):', err);
+    }
+  }
+
   const initials = (name: string) => name.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2);
 
   return (
@@ -399,16 +456,87 @@ export default function Employees({ onCountChange }: { onCountChange: (n: number
       {/* Header */}
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex-1">{t('Employees')}</h1>
-        <button onClick={downloadTemplate} className="btn-secondary text-sm flex items-center gap-2">
-          <Download size={15} /> {t('Template')}
+
+        {/* Combined Excel Actions Dropdown */}
+        <div className="relative" ref={excelDropdownRef}>
+          <button
+            type="button"
+            onClick={() => setExcelDropdownOpen(!excelDropdownOpen)}
+            className="btn-secondary text-sm flex items-center gap-2 cursor-pointer"
+          >
+            <FileSpreadsheet size={15} className="text-emerald-500" />
+            <span>{t('Excel Actions')}</span>
+            <ChevronDown size={14} className={cn('transition-transform duration-200', excelDropdownOpen && 'rotate-180')} />
+          </button>
+          <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleFileChange} />
+
+          {excelDropdownOpen && (
+            <div className="absolute right-0 top-full mt-1.5 w-56 glass-panel shadow-2xl border border-slate-200 dark:border-zinc-800 rounded-xl overflow-hidden z-30 py-1 text-xs animate-in fade-in zoom-in-95 duration-150">
+              <button
+                type="button"
+                onClick={() => {
+                  setExcelDropdownOpen(false);
+                  downloadTemplate();
+                }}
+                className="w-full px-3.5 py-2.5 text-left flex items-center gap-2.5 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors text-slate-700 dark:text-zinc-200 cursor-pointer"
+              >
+                <Download size={14} className="text-corp-blue dark:text-gold-400 shrink-0" />
+                <div>
+                  <div className="font-semibold">{t('Download Template')}</div>
+                  <div className="text-[10px] text-slate-400">{t('Standard format (.xlsx)')}</div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setExcelDropdownOpen(false);
+                  fileRef.current?.click();
+                }}
+                className="w-full px-3.5 py-2.5 text-left flex items-center gap-2.5 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors text-slate-700 dark:text-zinc-200 cursor-pointer"
+              >
+                <Upload size={14} className="text-emerald-500 shrink-0" />
+                <div>
+                  <div className="font-semibold">{t('Import Excel / CSV')}</div>
+                  <div className="text-[10px] text-slate-400">{t('Upload spreadsheet data')}</div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setExcelDropdownOpen(false);
+                  exportToExcel(employees);
+                }}
+                className="w-full px-3.5 py-2.5 text-left flex items-center gap-2.5 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors text-slate-700 dark:text-zinc-200 border-t border-slate-100 dark:border-zinc-800/80 cursor-pointer"
+              >
+                <Download size={14} className="text-purple-500 shrink-0" />
+                <div>
+                  <div className="font-semibold">{t('Export to Excel')}</div>
+                  <div className="text-[10px] text-slate-400">{t('Download current list ({{count}})', { count: employees.length })}</div>
+                </div>
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Database Connection Button (Same size as Add Employee) */}
+        <button
+          type="button"
+          onClick={() => setDbModalOpen(true)}
+          className={cn(
+            'text-sm flex items-center gap-2 py-2 px-3.5 rounded-xl font-semibold transition-all cursor-pointer',
+            appUser?.role === 'user'
+              ? 'btn-secondary text-slate-500 dark:text-zinc-400'
+              : 'bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-600 hover:opacity-95 text-white shadow-md'
+          )}
+          title={appUser?.role === 'user' ? t('Requires Pro or Ultra plan') : t('Connect external database')}
+        >
+          <Database size={15} className={appUser?.role === 'user' ? 'text-amber-500' : 'text-indigo-200'} />
+          <span>{t('Database Connection')}</span>
         </button>
-        <button onClick={() => fileRef.current?.click()} className="btn-secondary text-sm flex items-center gap-2">
-          <Upload size={15} /> {t('Import')}
-        </button>
-        <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleFileChange} />
-        <button onClick={() => exportToExcel(employees)} className="btn-secondary text-sm flex items-center gap-2">
-          <Download size={15} /> {t('Export')}
-        </button>
+
+        {/* Add Employee Button */}
         <button
           onClick={() => { if (employees.length >= limit) { setPlanAlert(true); return; } setEditTarget(null); setModalOpen(true); }}
           className="btn-primary text-sm flex items-center gap-2"
@@ -438,7 +566,7 @@ export default function Employees({ onCountChange }: { onCountChange: (n: number
                     : 'bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-900/50'
                 )}
               >
-                {r === 'pro_plus' ? 'Pro+' : r === 'user' ? 'Free (100)' : r === 'pro' ? 'Pro (1k)' : 'Admin'}
+                {r === 'pro_plus' ? 'Ultra' : r === 'user' ? 'Free (100)' : r === 'pro' ? 'Pro (1k)' : 'Admin'}
               </button>
             ))}
           </div>
@@ -690,6 +818,16 @@ export default function Employees({ onCountChange }: { onCountChange: (n: number
           </div>
         </div>
       )}
+
+      {/* Database Connection Modal */}
+      <DatabaseConnectionModal
+        isOpen={dbModalOpen}
+        onClose={() => setDbModalOpen(false)}
+        userRole={appUser?.role}
+        onImportEmployees={handleDatabaseImport}
+        currentCount={employees.length}
+        limit={limit}
+      />
     </div>
   );
 }

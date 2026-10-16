@@ -9,8 +9,8 @@ const PLANS = [
   { key: 'free', name: 'Free Forever', mmk: '0', usdt: '0', desc: 'Up to 100 employees', limit: 100 },
   { key: 'pro_6m', name: 'Pro 6 Months', mmk: '5,000', usdt: '1.50', desc: 'Up to 1,000 employees', limit: 1000 },
   { key: 'pro_12m', name: 'Pro 12 Months', mmk: '10,000', usdt: '3.00', desc: 'Up to 1,000 employees', limit: 1000 },
-  { key: 'pro_plus_6m', name: 'Pro Plus 6 Months', mmk: '15,000', usdt: '4.50', desc: 'Unlimited employees', limit: Infinity },
-  { key: 'pro_plus_life', name: 'Pro Plus Lifetime', mmk: '30,000', usdt: '9.00', desc: 'Unlimited employees forever', limit: Infinity, popular: true },
+  { key: 'pro_plus_6m', name: 'Ultra 6 Months', mmk: '15,000', usdt: '4.50', desc: 'Unlimited employees', limit: Infinity },
+  { key: 'pro_plus_life', name: 'Ultra Lifetime', mmk: '30,000', usdt: '9.00', desc: 'Unlimited employees forever', limit: Infinity, popular: true },
 ];
 
 const WALLETS = [
