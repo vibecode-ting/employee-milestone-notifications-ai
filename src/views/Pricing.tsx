@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Clock, QrCode } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -20,6 +21,7 @@ const WALLETS = [
 ];
 
 export default function Pricing() {
+  const { t } = useTranslation();
   const [step, setStep] = useState<Step>('pricing');
   const [selectedPlan, setSelectedPlan] = useState(PLANS[4]);
   const [selectedWallet, setSelectedWallet] = useState(WALLETS[0]);
@@ -49,7 +51,7 @@ export default function Pricing() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500 max-w-4xl">
-      <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Upgrade Plan</h1>
+      <h1 className="text-2xl font-bold text-slate-800 dark:text-white">{t('Upgrade Plan')}</h1>
 
       {step === 'pricing' && (
         <div className="space-y-6">
@@ -69,14 +71,14 @@ export default function Pricing() {
                   <div>
                     {plan.popular && (
                       <span className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-gold-500 text-zinc-900 mb-2 inline-block">
-                        Recommended
+                        {t('Recommended')}
                       </span>
                     )}
                     <h3 className={cn("font-bold text-sm mb-1", plan.popular ? "text-white" : "text-slate-800 dark:text-white")}>
-                      {plan.name}
+                      {t(plan.name)}
                     </h3>
                     <p className={cn("text-xs mb-3", plan.popular ? "text-purple-200" : "text-slate-500 dark:text-zinc-400")}>
-                      {plan.desc}
+                      {t(plan.desc)}
                     </p>
                   </div>
                   <div>
@@ -88,13 +90,13 @@ export default function Pricing() {
                     </div>
                     <button
                       className={cn(
-                        "w-full py-1.5 rounded-lg text-xs font-semibold transition-all",
+                        "w-full py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
                         isSelected
                           ? "bg-purple-600 text-white"
                           : "btn-secondary"
                       )}
                     >
-                      {isSelected ? 'Selected' : 'Choose'}
+                      {isSelected ? t('Selected') : t('Choose')}
                     </button>
                   </div>
                 </div>
@@ -106,9 +108,9 @@ export default function Pricing() {
             <button
               onClick={() => setStep('checkout')}
               disabled={selectedPlan.key === 'free'}
-              className="btn-primary text-sm flex items-center gap-2 disabled:opacity-50"
+              className="btn-primary text-sm flex items-center gap-2 disabled:opacity-50 cursor-pointer"
             >
-              Continue to Payment
+              {t('Continue to Payment')}
             </button>
           </div>
         </div>
@@ -118,7 +120,7 @@ export default function Pricing() {
         <div className="glass-panel p-6 max-w-lg space-y-4">
           <div className="flex justify-between items-center border-b border-slate-100 dark:border-zinc-800 pb-3">
             <div>
-              <h2 className="font-bold text-slate-800 dark:text-white">{selectedPlan.name}</h2>
+              <h2 className="font-bold text-slate-800 dark:text-white">{t(selectedPlan.name)}</h2>
               <p className="text-xs text-slate-500">{selectedPlan.mmk} MMK / ${selectedPlan.usdt} USDT</p>
             </div>
             <div className="text-xs font-mono bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 px-2.5 py-1 rounded-full flex items-center gap-1">
@@ -127,14 +129,14 @@ export default function Pricing() {
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-600 dark:text-zinc-400 mb-2">Select Payment Method</label>
+            <label className="block text-xs font-medium text-slate-600 dark:text-zinc-400 mb-2">{t('Select Payment Method')}</label>
             <div className="grid grid-cols-2 gap-2">
               {WALLETS.map((w) => (
                 <button
                   key={w.id}
                   onClick={() => setSelectedWallet(w)}
                   className={cn(
-                    'p-3 rounded-xl border text-left transition-all',
+                    'p-3 rounded-xl border text-left transition-all cursor-pointer',
                     selectedWallet.id === w.id
                       ? 'border-purple-500 bg-purple-50/50 dark:bg-purple-950/20'
                       : 'border-slate-200 dark:border-zinc-800'
@@ -152,15 +154,15 @@ export default function Pricing() {
               <QrCode size={48} className="text-slate-800" />
             </div>
             <div className="text-xs space-y-1">
-              <div className="font-semibold text-slate-700 dark:text-zinc-300">Scan & Transfer</div>
+              <div className="font-semibold text-slate-700 dark:text-zinc-300">{t('Scan & Transfer')}</div>
               <div className="text-slate-500">{selectedWallet.name}</div>
               <div className="font-mono text-purple-600 dark:text-purple-400 select-all">{selectedWallet.account}</div>
             </div>
           </div>
 
           <div className="flex gap-2">
-            <button onClick={() => setStep('pricing')} className="btn-secondary text-sm flex-1">Back</button>
-            <button onClick={() => setStep('processing')} className="btn-primary text-sm flex-1">Completed Paid</button>
+            <button onClick={() => setStep('pricing')} className="btn-secondary text-sm flex-1 cursor-pointer">{t('Back')}</button>
+            <button onClick={() => setStep('processing')} className="btn-primary text-sm flex-1 cursor-pointer">{t('Completed Paid')}</button>
           </div>
         </div>
       )}
@@ -168,15 +170,15 @@ export default function Pricing() {
       {step === 'processing' && (
         <div className="glass-panel p-8 max-w-md text-center space-y-4">
           <Clock size={48} className="text-amber-500 mx-auto animate-pulse" />
-          <h2 className="text-lg font-bold text-slate-800 dark:text-white">Payment Under Review</h2>
+          <h2 className="text-lg font-bold text-slate-800 dark:text-white">{t('Payment Under Review')}</h2>
           <p className="text-xs text-slate-500 dark:text-zinc-400">
-            Admin will verify your payment and activate your plan within 24 hours.
+            {t('Admin will verify your payment and activate your plan within 24 hours.')}
           </p>
           <div className="border-t border-slate-100 dark:border-zinc-800 pt-3 text-xs text-slate-500">
-            Need faster activation? Contact support:
+            {t('Need faster activation? Contact support:')}
             <div className="mt-1 font-mono text-corp-blue dark:text-gold-400">t.me/milestone_support</div>
           </div>
-          <button onClick={() => setStep('pricing')} className="btn-secondary text-sm w-full">Back to Plans</button>
+          <button onClick={() => setStep('pricing')} className="btn-secondary text-sm w-full cursor-pointer">{t('Back to Plans')}</button>
         </div>
       )}
     </div>
