@@ -1,0 +1,6 @@
+{
+  "name": "milestone-app",
+  "version": "1.0.0",
+  "description": "Employee milestone notification system with Firebase",
+  "stack": "React 19 + Vite 6 + Tailwind CSS v4 + Firebase v10"
+}
