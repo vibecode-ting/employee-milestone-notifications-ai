@@ -1,0 +1,23 @@
+name: PR CI Build & Test Check
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  pr_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Run Build & Typecheck
+        run: npm run build
