@@ -54,8 +54,8 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
         onMouseLeave={() => setOpen(false)}
         className={cn(
           'fixed left-0 top-0 h-screen z-40 flex flex-col transition-all duration-300',
-          'border-r border-purple-500/20 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl',
-          'shadow-[4px_0_24px_-4px_rgba(168,85,247,0.3)]',
+          'border-r border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950',
+          'shadow-md',
           open ? 'w-72' : 'w-20',
         )}
         onClick={(e) => e.stopPropagation()}

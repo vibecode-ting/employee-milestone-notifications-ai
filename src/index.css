@@ -25,33 +25,33 @@ html {
 
 body {
   font-family: 'Roboto', 'Noto Sans Myanmar', 'Microsoft JhengHei', 'PingFang TC', sans-serif;
-  @apply bg-gradient-to-br from-corp-cyan to-white dark:from-black dark:to-zinc-950 min-h-screen;
+  @apply bg-slate-50 text-slate-900 dark:bg-zinc-950 dark:text-zinc-100 min-h-screen;
 }
 
-/* ── Component classes ── */
+/* ── Component classes (Clean, Solid, Sharp UI — No Blurry Glassmorphism) ── */
 
 .glass-panel {
-  @apply bg-white/60 backdrop-blur-md border border-white/30 rounded-2xl shadow-lg
-         dark:bg-zinc-900/40 dark:border-white/10;
+  @apply bg-white border border-slate-200 rounded-2xl shadow-sm
+         dark:bg-zinc-900 dark:border-zinc-800;
 }
 
 .glass-input {
-  @apply bg-white/50 backdrop-blur-sm border border-slate-200 rounded-lg px-3 py-2 w-full
+  @apply bg-white border border-slate-300 text-slate-800 rounded-lg px-3 py-2 w-full
          outline-none transition-all
          focus:border-corp-blue focus:ring-2 focus:ring-corp-blue/20
-         dark:bg-zinc-800/50 dark:border-zinc-700 dark:text-white
+         dark:bg-zinc-800 dark:border-zinc-700 dark:text-white
          dark:focus:border-gold-500 dark:focus:ring-gold-500/20;
 }
 
 .btn-primary {
   @apply bg-corp-blue text-white font-semibold px-4 py-2 rounded-lg transition-all
-         hover:bg-corp-blue/90 active:scale-95
+         hover:bg-blue-800 active:scale-95 shadow-sm
          dark:bg-gradient-to-r dark:from-gold-600 dark:to-gold-500 dark:text-zinc-900;
 }
 
 .btn-secondary {
-  @apply bg-white border border-slate-200 text-slate-700 font-semibold px-4 py-2 rounded-lg
-         transition-all hover:bg-slate-50 active:scale-95
+  @apply bg-white border border-slate-300 text-slate-700 font-semibold px-4 py-2 rounded-lg
+         transition-all hover:bg-slate-100 active:scale-95 shadow-xs
          dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-700;
 }
 
@@ -64,10 +64,10 @@ body {
 }
 
 .table-header {
-  @apply text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400
-         bg-slate-50 dark:bg-zinc-900/60;
+  @apply text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300
+         bg-slate-100 dark:bg-zinc-800/80;
 }
 
 .table-row-hover {
-  @apply hover:bg-slate-50/80 dark:hover:bg-zinc-800/40 transition-colors;
+  @apply hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors;
 }
