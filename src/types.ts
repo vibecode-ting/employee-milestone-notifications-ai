@@ -6,7 +6,10 @@ export interface AppUser {
   uid: string;
   email: string;
   role: Role;
-  createdAt: Timestamp;
+  createdAt: Timestamp | null;
+  status?: 'active' | 'suspended';
+  employeeCount?: number;
+  lastActive?: string | null;
 }
 
 export interface Employee {
