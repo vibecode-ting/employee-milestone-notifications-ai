@@ -12,6 +12,9 @@ jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
 
@@ -34,8 +37,18 @@ jobs:
           VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID || '450336299659' }}
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID || '1:450336299659:web:d1514bbe8469fd710e528e' }}
 
+      - id: auth
+        name: Authenticate to Google Cloud (Workload Identity)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: 'projects/450336299659/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
+          service_account: 'github-deployer@myanmardev.iam.gserviceaccount.com'
+          create_credentials_file: true
+
       - name: Deploy to Firebase Hosting
-        run: npx firebase-tools deploy --only hosting --token "${{ secrets.FIREBASE_TOKEN }}" --project myanmardev
+        run: npx firebase-tools deploy --only hosting --project myanmardev
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
 
   daily_email_cron:
     runs-on: ubuntu-latest
