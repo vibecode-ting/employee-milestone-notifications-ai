@@ -187,7 +187,7 @@ function DeleteModal({
 
 export default function Employees({ onCountChange }: { onCountChange: (n: number) => void }) {
   const { t } = useTranslation();
-  const { appUser } = useAuth();
+  const { appUser, switchDemoPlan } = useAuth();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
@@ -198,6 +198,7 @@ export default function Employees({ onCountChange }: { onCountChange: (n: number
   const fileRef = useRef<HTMLInputElement>(null);
 
   const isDemo =
+    Boolean(localStorage.getItem('demo_session')) ||
     !appUser ||
     appUser.uid.startsWith('demo') ||
     !import.meta.env.VITE_FIREBASE_API_KEY ||
@@ -415,6 +416,34 @@ export default function Employees({ onCountChange }: { onCountChange: (n: number
           <Plus size={15} /> {t('Add Employee')}
         </button>
       </div>
+
+      {/* Demo Mode Notice & Quick Plan Switcher */}
+      {isDemo && (
+        <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-xs">
+          <div className="flex items-center gap-2 text-purple-700 dark:text-purple-300 font-medium">
+            <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+            <span>{t('Demo Mode: Employees are stored locally only (no database writes).')}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-slate-500 dark:text-zinc-400 font-semibold">{t('Switch Plan:')}</span>
+            {(['user', 'pro', 'pro_plus', 'admin'] as const).map((r) => (
+              <button
+                key={r}
+                type="button"
+                onClick={() => switchDemoPlan(r)}
+                className={cn(
+                  'px-2 py-0.5 rounded text-xs font-semibold transition-all cursor-pointer',
+                  appUser?.role === r
+                    ? 'bg-purple-600 text-white shadow-xs'
+                    : 'bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-900/50'
+                )}
+              >
+                {r === 'pro_plus' ? 'Pro+' : r === 'user' ? 'Free (100)' : r === 'pro' ? 'Pro (1k)' : 'Admin'}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Plan alert */}
       {planAlert && (

@@ -10,6 +10,7 @@ export interface AppUser {
   status?: 'active' | 'suspended';
   employeeCount?: number;
   lastActive?: string | null;
+  photoURL?: string | null;
 }
 
 export interface Employee {

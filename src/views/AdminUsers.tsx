@@ -8,6 +8,7 @@ import {
   Shield,
   Search,
   Clock,
+  X,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../lib/utils';
@@ -19,6 +20,7 @@ export default function AdminUsers() {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<'all' | Role>('all');
   const [quotaFilter, setQuotaFilter] = useState<'all' | 'warning' | 'normal'>('all');
+  const [selectedPhotoUser, setSelectedPhotoUser] = useState<AppUser | null>(null);
 
   const defaultMockUsers: AppUser[] = [
     {
@@ -27,6 +29,7 @@ export default function AdminUsers() {
       role: 'admin',
       status: 'active',
       employeeCount: 6,
+      photoURL: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80',
       createdAt: null,
       lastActive: 'Just now',
     },
@@ -36,6 +39,7 @@ export default function AdminUsers() {
       role: 'pro_plus',
       status: 'active',
       employeeCount: 1420,
+      photoURL: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80',
       createdAt: null,
       lastActive: '12m ago',
     },
@@ -45,6 +49,7 @@ export default function AdminUsers() {
       role: 'pro',
       status: 'active',
       employeeCount: 885, // 88.5% of 1000 - Warning!
+      photoURL: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&auto=format&fit=crop&q=80',
       createdAt: null,
       lastActive: '1h ago',
     },
@@ -54,6 +59,7 @@ export default function AdminUsers() {
       role: 'user',
       status: 'active',
       employeeCount: 94, // 94% of 100 - Warning!
+      photoURL: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&auto=format&fit=crop&q=80',
       createdAt: null,
       lastActive: '3h ago',
     },
@@ -63,6 +69,7 @@ export default function AdminUsers() {
       role: 'user',
       status: 'active',
       employeeCount: 18,
+      photoURL: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&auto=format&fit=crop&q=80',
       createdAt: null,
       lastActive: '2d ago',
     },
@@ -72,6 +79,7 @@ export default function AdminUsers() {
       role: 'user',
       status: 'suspended',
       employeeCount: 0,
+      photoURL: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&auto=format&fit=crop&q=80',
       createdAt: null,
       lastActive: '30d ago',
     },
@@ -319,18 +327,36 @@ export default function AdminUsers() {
                       {/* Tenant User Identity */}
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2.5">
-                          <div
-                            className={cn(
-                              'w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0',
-                              u.role === 'admin'
-                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
-                                : u.role === 'pro_plus'
-                                ? 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300'
-                                : 'bg-slate-100 text-slate-800 dark:bg-zinc-800 dark:text-zinc-200'
-                            )}
+                          <button
+                            type="button"
+                            onClick={() => setSelectedPhotoUser(u)}
+                            title={t('Click to view full photo')}
+                            className="relative group rounded-full shrink-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-corp-blue"
                           >
-                            {u.email[0].toUpperCase()}
-                          </div>
+                            {u.photoURL ? (
+                              <img
+                                src={u.photoURL}
+                                alt={u.email}
+                                className="w-8 h-8 rounded-full object-cover border border-slate-200 dark:border-zinc-700 group-hover:scale-105 transition-transform"
+                                onError={(e) => {
+                                  (e.currentTarget as HTMLElement).style.display = 'none';
+                                }}
+                              />
+                            ) : (
+                              <div
+                                className={cn(
+                                  'w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs group-hover:scale-105 transition-transform',
+                                  u.role === 'admin'
+                                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                                    : u.role === 'pro_plus'
+                                    ? 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300'
+                                    : 'bg-slate-100 text-slate-800 dark:bg-zinc-800 dark:text-zinc-200'
+                                )}
+                              >
+                                {u.email[0].toUpperCase()}
+                              </div>
+                            )}
+                          </button>
                           <div className="min-w-0">
                             <div className="font-semibold text-slate-800 dark:text-white flex items-center gap-1.5 truncate">
                               {u.email}
@@ -461,6 +487,51 @@ export default function AdminUsers() {
           </table>
         </div>
       </div>
+
+      {/* Fullscreen Photo Lightbox Modal */}
+      {selectedPhotoUser && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4 animate-in fade-in duration-200"
+          onClick={() => setSelectedPhotoUser(null)}
+        >
+          <div
+            className="relative max-w-sm sm:max-w-md w-full bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-2xl flex flex-col items-center text-center space-y-4 border border-slate-200 dark:border-zinc-800"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setSelectedPhotoUser(null)}
+              aria-label="Close"
+              className="absolute top-4 right-4 p-1.5 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
+            >
+              <X size={20} />
+            </button>
+
+            {selectedPhotoUser.photoURL ? (
+              <img
+                src={selectedPhotoUser.photoURL}
+                alt={selectedPhotoUser.email}
+                className="w-48 h-48 sm:w-64 sm:h-64 rounded-2xl object-cover shadow-lg border border-slate-200 dark:border-zinc-700"
+              />
+            ) : (
+              <div className="w-48 h-48 sm:w-64 sm:h-64 rounded-2xl bg-gradient-to-tr from-corp-blue to-indigo-600 dark:from-zinc-800 dark:to-zinc-700 flex items-center justify-center text-white text-6xl font-black shadow-lg">
+                {selectedPhotoUser.email[0].toUpperCase()}
+              </div>
+            )}
+
+            <div className="space-y-1">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                {selectedPhotoUser.email}
+              </h3>
+              <p className="text-xs font-mono text-slate-400 dark:text-zinc-500">
+                UID: {selectedPhotoUser.uid}
+              </p>
+              <div className="inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300">
+                Plan: {selectedPhotoUser.role.toUpperCase()} • Status: {selectedPhotoUser.status || 'active'}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

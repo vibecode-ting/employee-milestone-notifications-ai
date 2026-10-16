@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, Users, Settings, Shield, Zap, Moon, Sun, LogOut,
+  LayoutDashboard, Users, Settings, Shield, Zap, Moon, Sun, LogOut, Pin, PinOff,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 import i18n, { LOCALES } from '../../lib/i18n';
 import { cn } from '../../lib/utils';
-import { PLAN_NAMES, PLAN_LIMITS } from '../../types';
+import { PLAN_NAMES, PLAN_LIMITS, type Role } from '../../types';
 
 function cycleLocale() {
   const codes = LOCALES.map((l) => l.code);
@@ -21,9 +21,11 @@ function currentFlag() {
 
 export default function Navbar({ employeeCount }: { employeeCount: number }) {
   const { t } = useTranslation();
-  const { appUser, signOut } = useAuth();
+  const { appUser, signOut, isDemo, switchDemoPlan } = useAuth();
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
+  const [pinned, setPinned] = useState(() => localStorage.getItem('sidebar_pinned') === 'true');
+  const [hovered, setHovered] = useState(false);
+  const open = pinned || hovered;
   const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'));
 
   function toggleDark() {
@@ -31,6 +33,16 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
     setDark(next);
     document.documentElement.classList.toggle('dark', next);
     localStorage.setItem('theme', next ? 'dark' : 'light');
+  }
+
+  function togglePin(e?: React.MouseEvent) {
+    if (e) e.stopPropagation();
+    const next = !pinned;
+    setPinned(next);
+    if (!next) {
+      setHovered(false);
+    }
+    localStorage.setItem('sidebar_pinned', String(next));
   }
 
   const navItems = appUser?.role === 'admin'
@@ -53,8 +65,8 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
     <>
       {/* Sidebar */}
       <aside
-        onMouseEnter={() => setOpen(true)}
-        onMouseLeave={() => setOpen(false)}
+        onMouseEnter={() => { if (!pinned) setHovered(true); }}
+        onMouseLeave={() => { if (!pinned) setHovered(false); }}
         className={cn(
           'fixed left-0 top-0 h-screen z-40 flex flex-col transition-all duration-300',
           'border-r border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950',
@@ -63,10 +75,27 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
         )}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Logo */}
-        <div className="flex items-center gap-3 px-4 py-5 shrink-0">
-          <img src="/logo.svg" alt="Milestone" className={cn('transition-all duration-300', open ? 'w-12' : 'w-8')} />
-          {open && <span className="font-bold text-lg text-corp-blue dark:text-gold-500 whitespace-nowrap">Milestone</span>}
+        {/* Logo & Pin Header */}
+        <div className="flex items-center justify-between px-4 py-5 shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <img src="/logo.svg" alt="Milestone" className={cn('transition-all duration-300', open ? 'w-10' : 'w-8')} />
+            {open && <span className="font-bold text-lg text-corp-blue dark:text-gold-500 whitespace-nowrap">Milestone</span>}
+          </div>
+          {open && (
+            <button
+              onClick={togglePin}
+              title={pinned ? t('Unpin sidebar (auto-fold on mouse leave)') : t('Pin sidebar (always open)')}
+              aria-label={pinned ? 'Unpin sidebar' : 'Pin sidebar'}
+              className={cn(
+                'p-1.5 rounded-lg transition-colors cursor-pointer',
+                pinned
+                  ? 'bg-corp-blue/10 text-corp-blue dark:bg-gold-500/20 dark:text-gold-400'
+                  : 'text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800'
+              )}
+            >
+              {pinned ? <Pin size={16} className="fill-current" /> : <PinOff size={16} />}
+            </button>
+          )}
         </div>
 
         {/* Nav */}
@@ -95,29 +124,99 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
         {/* Bottom section */}
         <div className="px-2 pb-4 space-y-2 shrink-0">
           {/* User info */}
-          <div className={cn('glass-panel px-3 py-2', open ? 'block' : 'hidden')}>
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-8 h-8 rounded-full bg-corp-blue dark:bg-gold-500 flex items-center justify-center text-white dark:text-zinc-900 font-bold text-sm shrink-0">
-                {appUser?.email?.[0]?.toUpperCase() ?? '?'}
-              </div>
-              <div className="min-w-0">
-                <div className="text-xs font-semibold text-slate-800 dark:text-white truncate">{appUser?.email}</div>
-                <div className={cn('text-xs',
-                  appUser?.role === 'pro_plus' ? 'text-purple-600 dark:text-purple-400' :
-                  appUser?.role === 'pro' ? 'text-corp-blue dark:text-gold-500' :
-                  appUser?.role === 'admin' ? 'text-emerald-600 dark:text-emerald-400' :
-                  'text-slate-500 dark:text-zinc-500',
-                )}>
-                  {t(planName)}
-                  {appUser?.role === 'pro_plus' && <Zap size={10} className="inline ml-1" />}
-                  {appUser?.role === 'pro' && <Shield size={10} className="inline ml-1" />}
-                </div>
-                <div className="text-xs text-slate-400 dark:text-zinc-500">
-                  {appUser?.role === 'admin' ? 'Platform Superuser' : `${employeeCount} / ${limitLabel}`}
+          {open ? (
+            <div className="glass-panel px-3 py-2">
+              <div className="flex items-center gap-2 mb-1">
+                {appUser?.photoURL ? (
+                  <img
+                    src={appUser.photoURL}
+                    alt={appUser.email}
+                    className="w-8 h-8 rounded-full object-cover shrink-0 border border-slate-200 dark:border-zinc-700"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLElement).style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-corp-blue dark:bg-gold-500 flex items-center justify-center text-white dark:text-zinc-900 font-bold text-sm shrink-0">
+                    {appUser?.email?.[0]?.toUpperCase() ?? '?'}
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold text-slate-800 dark:text-white truncate">{appUser?.email}</div>
+                  <div className={cn('text-xs',
+                    appUser?.role === 'pro_plus' ? 'text-purple-600 dark:text-purple-400' :
+                    appUser?.role === 'pro' ? 'text-corp-blue dark:text-gold-500' :
+                    appUser?.role === 'admin' ? 'text-emerald-600 dark:text-emerald-400' :
+                    'text-slate-500 dark:text-zinc-500',
+                  )}>
+                    {t(planName)}
+                    {appUser?.role === 'pro_plus' && <Zap size={10} className="inline ml-1" />}
+                    {appUser?.role === 'pro' && <Shield size={10} className="inline ml-1" />}
+                  </div>
+                  <div className="text-xs text-slate-400 dark:text-zinc-500">
+                    {appUser?.role === 'admin' ? 'Platform Superuser' : `${employeeCount} / ${limitLabel}`}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="flex justify-center py-1">
+              {appUser?.photoURL ? (
+                <img
+                  src={appUser.photoURL}
+                  alt={appUser.email}
+                  className="w-8 h-8 rounded-full object-cover shrink-0 border border-slate-200 dark:border-zinc-700"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLElement).style.display = 'none';
+                  }}
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-corp-blue dark:bg-gold-500 flex items-center justify-center text-white dark:text-zinc-900 font-bold text-sm shrink-0">
+                  {appUser?.email?.[0]?.toUpperCase() ?? '?'}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Demo Plan Switcher */}
+          {isDemo && (
+            <div className={cn('rounded-xl border p-2 transition-all', 'bg-purple-500/10 border-purple-500/20')}>
+              <div className="flex items-center justify-between text-[11px] font-semibold text-purple-600 dark:text-purple-400 mb-1">
+                <span>{open ? 'Demo Plan' : 'Demo'}</span>
+                {open && <span className="text-[9px] uppercase tracking-wider font-mono bg-purple-500/20 px-1 py-0.5 rounded">1-Click</span>}
+              </div>
+              {open ? (
+                <div className="grid grid-cols-2 gap-1">
+                  {(['user', 'pro', 'pro_plus', 'admin'] as const).map((r) => (
+                    <button
+                      key={r}
+                      onClick={() => switchDemoPlan(r)}
+                      className={cn(
+                        'px-1.5 py-1 text-xs rounded-md font-medium transition-all cursor-pointer text-center',
+                        appUser?.role === r
+                          ? 'bg-purple-600 text-white shadow-xs font-bold'
+                          : 'text-purple-700 dark:text-purple-300 hover:bg-purple-500/20'
+                      )}
+                    >
+                      {r === 'pro_plus' ? 'Pro+' : r === 'user' ? 'Free' : r.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    const roles: Role[] = ['user', 'pro', 'pro_plus', 'admin'];
+                    const next = roles[(roles.indexOf(appUser?.role || 'user') + 1) % roles.length];
+                    switchDemoPlan(next);
+                  }}
+                  title="Click to cycle Demo plan"
+                  className="w-full text-[10px] font-bold py-1 bg-purple-600 text-white rounded text-center cursor-pointer"
+                >
+                  {appUser?.role === 'pro_plus' ? 'P+' : appUser?.role?.[0]?.toUpperCase()}
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Dark mode */}
           <button
@@ -166,7 +265,9 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
       {/* Main content offset */}
       <div
         className={cn('transition-all duration-300', open ? 'ml-72' : 'ml-20')}
-        onClick={() => setOpen(false)}
+        onClick={() => {
+          if (!pinned) setHovered(false);
+        }}
       />
     </>
   );

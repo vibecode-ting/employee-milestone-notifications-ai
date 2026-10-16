@@ -9,7 +9,7 @@ import {
   signInWithEmailLink,
   type User,
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db, isEmulatorMode } from '../lib/firebase';
 import type { AppUser, Role } from '../types';
 
@@ -17,7 +17,10 @@ interface AuthContextValue {
   user: User | null;
   appUser: AppUser | null;
   loading: boolean;
+  isDemo: boolean;
   loginDemo: (role?: Role) => void;
+  switchDemoPlan: (role: Role) => void;
+  updatePhotoURL: (url: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   sendPasswordlessLink: (email: string) => Promise<void>;
   signInWithEmailLinkCallback: (email: string) => Promise<void>;
@@ -28,7 +31,10 @@ const AuthContext = createContext<AuthContextValue>({
   user: null,
   appUser: null,
   loading: true,
+  isDemo: false,
   loginDemo: () => {},
+  switchDemoPlan: () => {},
+  updatePhotoURL: async () => {},
   loginWithGoogle: async () => {},
   sendPasswordlessLink: async () => {},
   signInWithEmailLinkCallback: async () => {},
@@ -90,12 +96,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           const snap = await getDoc(ref);
           if (snap.exists()) {
-            setAppUser(snap.data() as AppUser);
+            const data = snap.data() as AppUser;
+            setAppUser({ ...data, photoURL: data.photoURL || firebaseUser.photoURL || null });
           } else {
             const newUser: Omit<AppUser, 'createdAt'> & { createdAt: ReturnType<typeof serverTimestamp> } = {
               uid: firebaseUser.uid,
               email: firebaseUser.email ?? '',
               role: 'user',
+              photoURL: firebaseUser.photoURL || null,
               createdAt: serverTimestamp(),
             };
             await setDoc(ref, newUser);
@@ -107,6 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             uid: firebaseUser.uid,
             email: firebaseUser.email ?? '',
             role: 'user',
+            photoURL: firebaseUser.photoURL || null,
             createdAt: null as unknown as AppUser['createdAt'],
           });
         } finally {
@@ -122,11 +131,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const isDemo = Boolean(localStorage.getItem(DEMO_KEY)) || appUser?.uid === 'demo-uid' || Boolean(appUser?.uid?.startsWith('demo'));
+
+  const switchDemoPlan = (role: Role) => {
+    if (!appUser) return;
+    const updated: AppUser = { ...appUser, role };
+    setAppUser(updated);
+    localStorage.setItem(DEMO_KEY, JSON.stringify(updated));
+  };
+
+  const updatePhotoURL = async (url: string) => {
+    if (!appUser) return;
+    const updated: AppUser = { ...appUser, photoURL: url };
+    setAppUser(updated);
+    if (isDemo) {
+      localStorage.setItem(DEMO_KEY, JSON.stringify(updated));
+    } else {
+      try {
+        await updateDoc(doc(db, 'users', appUser.uid), { photoURL: url });
+      } catch (err) {
+        console.error('Failed to update photoURL in Firestore', err);
+      }
+    }
+  };
+
   const loginDemo = (role: Role = 'admin') => {
     const demoUser: AppUser = {
       uid: 'demo-uid',
       email: 'demo@milestone.app',
       role,
+      photoURL: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80',
       createdAt: null as unknown as AppUser['createdAt'],
     };
     localStorage.setItem(DEMO_KEY, JSON.stringify(demoUser));
@@ -169,7 +203,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         appUser,
         loading,
+        isDemo,
         loginDemo,
+        switchDemoPlan,
+        updatePhotoURL,
         loginWithGoogle,
         sendPasswordlessLink,
         signInWithEmailLinkCallback,
