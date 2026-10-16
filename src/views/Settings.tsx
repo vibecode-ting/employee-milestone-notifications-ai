@@ -3,7 +3,7 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import type { NotificationSettings } from '../types';
-import { CheckCircle2, ChevronDown } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const DEFAULT_SETTINGS: NotificationSettings = {
@@ -183,7 +183,7 @@ export default function Settings() {
                 {[['logoUrl', 'Logo URL'], ['coverImage', 'Cover Image URL'], ['detailsText', 'Footer Text']].map(([k, label]) => (
                   <div key={k}>
                     <label className="block text-xs text-slate-500 mb-1">{label}</label>
-                    <input className="glass-input text-sm" value={(settings.templates as Record<string, string>)[k] ?? ''} onChange={(e) => setTemplate(k, e.target.value)} />
+                    <input className="glass-input text-sm" value={((settings.templates as unknown as Record<string, string>)[k]) ?? ''} onChange={(e) => setTemplate(k, e.target.value)} />
                   </div>
                 ))}
                 <div className="flex gap-4">

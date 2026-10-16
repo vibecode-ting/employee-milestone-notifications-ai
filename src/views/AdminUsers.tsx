@@ -3,7 +3,7 @@ import { collection, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import type { AppUser, Role } from '../types';
-import { Shield, Zap, User } from 'lucide-react';
+import { Shield, Zap } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 export default function AdminUsers() {

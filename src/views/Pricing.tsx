@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { Zap, Shield, Clock, CheckCircle2, QrCode } from 'lucide-react';
+import { Clock, QrCode } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 type Step = 'pricing' | 'checkout' | 'processing';
@@ -21,7 +20,6 @@ const WALLETS = [
 ];
 
 export default function Pricing() {
-  const { appUser } = useAuth();
   const [step, setStep] = useState<Step>('pricing');
   const [selectedPlan, setSelectedPlan] = useState(PLANS[4]);
   const [selectedWallet, setSelectedWallet] = useState(WALLETS[0]);

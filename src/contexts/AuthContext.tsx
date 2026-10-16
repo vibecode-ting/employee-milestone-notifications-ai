@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { onAuthStateChanged, signOut as firebaseSignOut, type User } from 'firebase/auth';
+import { onAuthStateChanged, signOut as firebaseSignOut, signInWithPopup, GoogleAuthProvider, type User } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db, isEmulatorMode } from '../lib/firebase';
 import type { AppUser, Role } from '../types';
@@ -9,6 +9,7 @@ interface AuthContextValue {
   appUser: AppUser | null;
   loading: boolean;
   loginDemo: (role?: Role) => void;
+  loginWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -17,6 +18,7 @@ const AuthContext = createContext<AuthContextValue>({
   appUser: null,
   loading: true,
   loginDemo: () => {},
+  loginWithGoogle: async () => {},
   signOut: async () => {},
 });
 
@@ -118,6 +120,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initDemo(demoUser);
   };
 
+  const loginWithGoogle = async () => {
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
+  };
+
   const signOut = async () => {
     localStorage.removeItem(DEMO_KEY);
     try {
@@ -128,7 +135,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, appUser, loading, loginDemo, signOut }}>
+    <AuthContext.Provider value={{ user, appUser, loading, loginDemo, loginWithGoogle, signOut }}>
       {children}
     </AuthContext.Provider>
   );

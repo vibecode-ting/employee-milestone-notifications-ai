@@ -1,7 +1,16 @@
+# Node.js
 node_modules/
 dist/
-.env
 .DS_Store
-*.db
-*.db-journal
+
+# Env & credentials
+.env
+.env.local
+firebase-debug.log*
+firestore-debug.log*
+.firebase/
 tmp/
+*.tsbuildinfo
+
+# Git
+.git/
