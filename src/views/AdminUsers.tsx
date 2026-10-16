@@ -4,9 +4,11 @@ import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import type { AppUser, Role } from '../types';
 import { Shield, Zap } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../lib/utils';
 
 export default function AdminUsers() {
+  const { t } = useTranslation();
   const { appUser } = useAuth();
   const [users, setUsers] = useState<AppUser[]>([]);
 
@@ -34,7 +36,7 @@ export default function AdminUsers() {
   if (appUser?.role !== 'admin') {
     return (
       <div className="glass-panel p-8 text-center text-red-500 font-semibold max-w-md mx-auto mt-12">
-        Access Denied: Admins Only
+        {t('Access Denied: Admins Only')}
       </div>
     );
   }
@@ -46,15 +48,15 @@ export default function AdminUsers() {
 
   return (
     <div className="space-y-4 animate-in fade-in duration-500 max-w-3xl">
-      <h1 className="text-2xl font-bold text-slate-800 dark:text-white">User Management</h1>
+      <h1 className="text-2xl font-bold text-slate-800 dark:text-white">{t('User Management')}</h1>
 
       <div className="glass-panel overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="table-header">
-              <th className="px-4 py-3 text-left">User</th>
-              <th className="px-4 py-3 text-left">Current Role</th>
-              <th className="px-4 py-3 text-left">Change Role</th>
+              <th className="px-4 py-3 text-left">{t('User')}</th>
+              <th className="px-4 py-3 text-left">{t('Current Role')}</th>
+              <th className="px-4 py-3 text-left">{t('Change Role')}</th>
             </tr>
           </thead>
           <tbody>
@@ -86,10 +88,10 @@ export default function AdminUsers() {
                       onChange={(e) => handleRoleChange(u.uid, e.target.value as Role)}
                       className="glass-input text-xs py-1 px-2 disabled:opacity-40"
                     >
-                      <option value="user">User (Free)</option>
-                      <option value="pro">Pro</option>
-                      <option value="pro_plus">Pro Plus</option>
-                      <option value="admin">Admin</option>
+                      <option value="user">{t('User (Free)')}</option>
+                      <option value="pro">{t('Pro')}</option>
+                      <option value="pro_plus">{t('Pro Plus')}</option>
+                      <option value="admin">{t('Admin')}</option>
                     </select>
                   </td>
                 </tr>

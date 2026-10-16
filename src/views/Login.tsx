@@ -3,9 +3,11 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 import { Sparkles } from 'lucide-react';
 
 export default function Login() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { loginDemo, loginWithGoogle } = useAuth();
   const [email, setEmail] = useState('');
@@ -56,7 +58,7 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-zinc-300 mb-1">Email</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-zinc-300 mb-1">{t('Email')}</label>
             <input
               type="email"
               required
@@ -67,7 +69,7 @@ export default function Login() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-zinc-300 mb-1">Password</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-zinc-300 mb-1">{t('Password')}</label>
             <input
               type="password"
               required
@@ -80,13 +82,13 @@ export default function Login() {
 
           {error && <p className="text-red-500 text-xs">{error}</p>}
 
-          <button type="submit" disabled={loading} className="btn-primary w-full py-2.5 disabled:opacity-60 text-sm">
+          <button type="submit" disabled={loading} className="btn-primary w-full py-2.5 disabled:opacity-60 text-sm cursor-pointer">
             {loading ? (
               <span className="flex items-center justify-center gap-2">
                 <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Signing in…
+                {t('Signing in…')}
               </span>
-            ) : 'Sign In'}
+            ) : t('Sign In')}
           </button>
         </form>
 
@@ -95,7 +97,7 @@ export default function Login() {
             <div className="w-full border-t border-slate-200 dark:border-zinc-800" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-white/80 dark:bg-zinc-900/80 px-2 text-slate-400">or continue with</span>
+            <span className="bg-white/80 dark:bg-zinc-900/80 px-2 text-slate-400">{t('or continue with')}</span>
           </div>
         </div>
 
@@ -103,7 +105,7 @@ export default function Login() {
           onClick={handleGoogleLogin}
           disabled={googleLoading}
           type="button"
-          className="w-full btn-secondary py-2.5 text-xs font-semibold flex items-center justify-center gap-2 mb-3 disabled:opacity-60"
+          className="w-full btn-secondary py-2.5 text-xs font-semibold flex items-center justify-center gap-2 mb-3 disabled:opacity-60 cursor-pointer"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24">
             <path
@@ -123,16 +125,16 @@ export default function Login() {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
             />
           </svg>
-          {googleLoading ? 'Signing in with Google…' : 'Sign in with Google'}
+          {googleLoading ? t('Signing in…') : t('Sign in with Google')}
         </button>
 
         <button
           onClick={handleDemoLogin}
           type="button"
-          className="w-full btn-secondary py-2.5 text-xs font-semibold flex items-center justify-center gap-2 bg-gradient-to-r hover:from-purple-500/10 hover:to-indigo-500/10"
+          className="w-full btn-secondary py-2.5 text-xs font-semibold flex items-center justify-center gap-2 bg-gradient-to-r hover:from-purple-500/10 hover:to-indigo-500/10 cursor-pointer"
         >
           <Sparkles size={14} className="text-purple-500" />
-          Demo Mode (Offline Admin)
+          {t('Demo Mode (Offline Admin)')}
         </button>
       </div>
     </div>
