@@ -4,6 +4,7 @@ import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { calculateMilestones } from '../utils/milestones';
+import { getDemoEmployees } from '../utils/demoData';
 import type { Employee, MilestoneResult } from '../types';
 import { useTranslation } from 'react-i18next';
 import { TrendingUp, ChevronRight, Users, Bell, Calendar, Cake, Briefcase } from 'lucide-react';
@@ -52,39 +53,54 @@ export default function Dashboard({ onCountChange }: { onCountChange: (n: number
   const { t } = useTranslation();
   const { appUser } = useAuth();
   const navigate = useNavigate();
-  const [employees, setEmployees] = useState<Employee[]>([]);
+  // Initialize immediately with demo employees so cards never flash 0
+  const [employees, setEmployees] = useState<Employee[]>(() => getDemoEmployees(appUser?.uid || 'demo_user_123'));
 
   useEffect(() => {
-    if (!appUser) return;
+    onCountChange(employees.length);
+  }, [employees.length, onCountChange]);
+
+  useEffect(() => {
+    const userId = appUser?.uid || 'demo_user_123';
+    const isDemo = userId.startsWith('demo_') || !import.meta.env.VITE_FIREBASE_API_KEY;
+
+    if (isDemo) {
+      const loadDemo = () => {
+        const data = getDemoEmployees(userId);
+        setEmployees(data);
+      };
+      loadDemo();
+
+      const handleUpdate = () => loadDemo();
+      window.addEventListener('demo_employees_updated', handleUpdate);
+      window.addEventListener('storage', handleUpdate);
+      return () => {
+        window.removeEventListener('demo_employees_updated', handleUpdate);
+        window.removeEventListener('storage', handleUpdate);
+      };
+    }
+
     try {
-      const q = query(collection(db, 'employees'), where('userId', '==', appUser.uid));
+      const q = query(collection(db, 'employees'), where('userId', '==', userId));
       return onSnapshot(
         q,
         (snap) => {
           const data = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Employee));
           setEmployees(data);
-          onCountChange(data.length);
         },
         () => {
-          // Fallback to local demo data if offline/unconfigured
-          const local = localStorage.getItem('demo_employees');
-          const data: Employee[] = local ? JSON.parse(local) : [
-            { id: '1', userId: appUser.uid, employeeId: 'EMP001', name: 'Alex Morgan', department: 'Engineering', email: 'alex@company.com', phone: '0912345678', dob: '1995-10-16', joinedDate: '2021-10-16', status: 'active', createdAt: null as any },
-            { id: '2', userId: appUser.uid, employeeId: 'EMP002', name: 'Sophia Chen', department: 'Marketing', email: 'sophia@company.com', phone: '0923456789', dob: '1992-10-20', joinedDate: '2022-04-01', status: 'active', createdAt: null as any },
-            { id: '3', userId: appUser.uid, employeeId: 'EMP003', name: 'Liam Zaw', department: 'Design', email: 'liam@company.com', phone: '0934567890', dob: '1998-11-05', joinedDate: '2023-10-16', status: 'active', createdAt: null as any },
-          ];
+          const data = getDemoEmployees(userId);
           setEmployees(data);
-          onCountChange(data.length);
         }
       );
     } catch {
-      onCountChange(0);
+      const data = getDemoEmployees(userId);
+      setEmployees(data);
     }
-  }, [appUser, onCountChange]);
+  }, [appUser]);
 
   const milestones30 = calculateMilestones(employees, 30);
   const today = milestones30.filter((m) => m.isToday);
-  const active = employees.filter((e) => e.status === 'active');
   const activityData = buildActivityData(milestones30);
 
   // Dept bar data
@@ -107,15 +123,15 @@ export default function Dashboard({ onCountChange }: { onCountChange: (n: number
       key: 'upcoming' as const,
       label: t('Upcoming Milestones'),
       value: milestones30.length,
-      gradient: 'from-indigo-500 to-purple-600',
+      gradient: 'from-purple-600 to-indigo-600 dark:from-purple-500 dark:to-indigo-500',
       icon: Calendar,
       path: '/employees',
     },
     {
       key: 'alerts' as const,
       label: t('Active Alerts'),
-      value: active.length,
-      gradient: 'from-emerald-500 to-teal-600',
+      value: employees.filter((e) => e.status === 'active').length,
+      gradient: 'from-emerald-500 to-teal-600 dark:from-emerald-600 dark:to-teal-500',
       icon: Bell,
       path: '/settings',
     },
@@ -125,7 +141,7 @@ export default function Dashboard({ onCountChange }: { onCountChange: (n: number
     <div className="space-y-6 animate-in fade-in duration-500">
       <h1 className="text-2xl font-bold text-slate-800 dark:text-white">{t('Dashboard Overview')}</h1>
 
-      {/* Stat cards */}
+      {/* Stat cards — navigate smoothly to pages without popping up blur overlays */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {statCards.map(({ key, label, value, gradient, icon: Icon, path }) => (
           <button

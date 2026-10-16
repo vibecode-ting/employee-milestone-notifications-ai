@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   collection, query, where, onSnapshot,
   addDoc, updateDoc, deleteDoc, doc, writeBatch, serverTimestamp,
@@ -8,7 +8,11 @@ import { useAuth } from '../contexts/AuthContext';
 import type { Employee } from '../types';
 import { PLAN_LIMITS } from '../types';
 import { parseExcel, exportToExcel, downloadTemplate } from '../utils/excelHandler';
-import { Plus, Upload, Download, Search, Pencil, Trash2, X } from 'lucide-react';
+import { getDemoEmployees, saveDemoEmployees } from '../utils/demoData';
+import {
+  Plus, Upload, Download, Search, Pencil, Trash2, X,
+  FileSpreadsheet, Cake, Briefcase, CheckCircle2,
+} from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const EMPTY_FORM: Omit<Employee, 'id' | 'userId' | 'createdAt'> = {
@@ -26,12 +30,26 @@ function EmployeeModal({
   const [form, setForm] = useState(initial);
   const set = (k: keyof typeof EMPTY_FORM, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="glass-panel w-full max-w-lg p-6 animate-in zoom-in-95 duration-200">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-bold text-lg text-slate-800 dark:text-white">{initial.name ? 'Edit Employee' : 'Add Employee'}</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600"><X size={20} /></button>
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 animate-in fade-in duration-200"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-lg p-6 animate-in zoom-in-95 duration-200 relative bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 shadow-2xl rounded-2xl"
+      >
+        <div className="flex items-center justify-between mb-4 border-b pb-3 border-slate-200 dark:border-zinc-800">
+          <h2 className="font-bold text-lg text-slate-900 dark:text-white">{initial.name ? 'Edit Employee' : 'Add Employee'}</h2>
+          <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors" title="Close (Esc)"><X size={20} /></button>
         </div>
         <div className="grid grid-cols-2 gap-3">
           {([
@@ -44,12 +62,12 @@ function EmployeeModal({
             ['joinedDate', 'Joined Date', 'date'],
           ] as const).map(([key, label, type]) => (
             <div key={key} className={key === 'name' || key === 'email' ? 'col-span-2' : ''}>
-              <label className="block text-xs font-medium text-slate-600 dark:text-zinc-400 mb-1">{label}</label>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">{label}</label>
               <input type={type} value={form[key]} onChange={(e) => set(key, e.target.value)} className="glass-input text-sm" />
             </div>
           ))}
           <div>
-            <label className="block text-xs font-medium text-slate-600 dark:text-zinc-400 mb-1">Status</label>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">Status</label>
             <select value={form.status} onChange={(e) => set('status', e.target.value as 'active' | 'inactive')} className="glass-input text-sm">
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
@@ -57,8 +75,107 @@ function EmployeeModal({
           </div>
         </div>
         <div className="flex justify-end gap-2 mt-5">
-          <button onClick={onClose} className="btn-secondary text-sm">Cancel</button>
-          <button onClick={() => onSave(form)} className="btn-primary text-sm">Save</button>
+          <button onClick={onClose} className="bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 font-semibold px-4 py-2 rounded-lg text-sm transition-colors cursor-pointer">Cancel</button>
+          <button onClick={() => onSave(form)} className="btn-primary text-sm font-bold">Save</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DeleteModal({
+  employee,
+  onConfirm,
+  onClose,
+}: {
+  employee: Employee;
+  onConfirm: () => void;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
+  const initials = (name: string) =>
+    name.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2);
+
+  return (
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 animate-in fade-in duration-200"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-md p-6 animate-in zoom-in-95 duration-200 bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 shadow-2xl rounded-2xl relative"
+      >
+        <div className="flex items-start gap-3.5 mb-4">
+          <div className="w-11 h-11 rounded-2xl bg-red-100 text-red-600 dark:bg-red-950/60 dark:text-red-400 flex items-center justify-center shrink-0">
+            <Trash2 size={22} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white leading-tight">Delete Employee</h2>
+            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">
+              Are you sure? This action cannot be undone.
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1 -mr-1 -mt-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
+            title="Close (Esc)"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Employee preview card inside confirmation */}
+        <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700/60 mb-5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-corp-blue dark:bg-gold-500 text-white dark:text-zinc-900 flex items-center justify-center font-bold text-sm shrink-0">
+              {initials(employee.name)}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-bold text-sm text-slate-900 dark:text-white truncate">
+                {employee.name}
+              </div>
+              <div className="text-xs text-slate-500 dark:text-zinc-400 truncate" title={employee.email}>
+                {employee.email || 'No email provided'}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 mt-3 pt-2.5 border-t border-slate-200/80 dark:border-zinc-700/60 text-xs">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-md font-mono text-[11px] font-semibold bg-slate-200/80 dark:bg-zinc-700 text-slate-700 dark:text-zinc-300">
+              ID: {employee.employeeId}
+            </span>
+            {employee.department && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/70 dark:border-blue-800/50">
+                {employee.department}
+              </span>
+            )}
+            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/70 dark:border-emerald-800/50">
+              {employee.status === 'inactive' ? 'Inactive' : 'Active'}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-end gap-2.5">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-300 dark:border-zinc-700 transition-colors cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-4 py-2 rounded-lg text-sm font-bold text-white bg-red-600 hover:bg-red-700 active:scale-95 transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+          >
+            <Trash2 size={15} />
+            Delete Employee
+          </button>
         </div>
       </div>
     </div>
@@ -71,12 +188,33 @@ export default function Employees({ onCountChange }: { onCountChange: (n: number
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Employee | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Employee | null>(null);
   const [importPreview, setImportPreview] = useState<Partial<Employee>[] | null>(null);
   const [planAlert, setPlanAlert] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  const isDemo = !appUser || appUser.uid.startsWith('demo_') || !import.meta.env.VITE_FIREBASE_API_KEY;
+
   useEffect(() => {
     if (!appUser) return;
+
+    if (isDemo) {
+      const loadDemo = () => {
+        const data = getDemoEmployees(appUser.uid);
+        setEmployees(data);
+        onCountChange(data.length);
+      };
+      loadDemo();
+
+      const handleUpdate = () => loadDemo();
+      window.addEventListener('demo_employees_updated', handleUpdate);
+      window.addEventListener('storage', handleUpdate);
+      return () => {
+        window.removeEventListener('demo_employees_updated', handleUpdate);
+        window.removeEventListener('storage', handleUpdate);
+      };
+    }
+
     try {
       const q = query(collection(db, 'employees'), where('userId', '==', appUser.uid));
       return onSnapshot(
@@ -87,20 +225,17 @@ export default function Employees({ onCountChange }: { onCountChange: (n: number
           onCountChange(data.length);
         },
         () => {
-          const local = localStorage.getItem('demo_employees');
-          const data: Employee[] = local ? JSON.parse(local) : [
-            { id: '1', userId: appUser.uid, employeeId: 'EMP001', name: 'Alex Morgan', department: 'Engineering', email: 'alex@company.com', phone: '0912345678', dob: '1995-10-16', joinedDate: '2021-10-16', status: 'active', createdAt: null as any },
-            { id: '2', userId: appUser.uid, employeeId: 'EMP002', name: 'Sophia Chen', department: 'Marketing', email: 'sophia@company.com', phone: '0923456789', dob: '1992-10-20', joinedDate: '2022-04-01', status: 'active', createdAt: null as any },
-            { id: '3', userId: appUser.uid, employeeId: 'EMP003', name: 'Liam Zaw', department: 'Design', email: 'liam@company.com', phone: '0934567890', dob: '1998-11-05', joinedDate: '2023-10-16', status: 'active', createdAt: null as any },
-          ];
+          const data = getDemoEmployees(appUser.uid);
           setEmployees(data);
           onCountChange(data.length);
         }
       );
     } catch {
-      onCountChange(0);
+      const data = getDemoEmployees(appUser.uid);
+      setEmployees(data);
+      onCountChange(data.length);
     }
-  }, [appUser, onCountChange]);
+  }, [appUser, onCountChange, isDemo]);
 
   const limit = appUser ? PLAN_LIMITS[appUser.role] : 0;
 
@@ -118,20 +253,79 @@ export default function Employees({ onCountChange }: { onCountChange: (n: number
   async function handleSave(form: typeof EMPTY_FORM) {
     if (!appUser) return;
     if (!editTarget && employees.length >= limit) { setPlanAlert(true); return; }
-    if (editTarget?.id) {
-      await updateDoc(doc(db, 'employees', editTarget.id), form);
-    } else {
-      await addDoc(collection(db, 'employees'), {
-        ...form, userId: appUser.uid, createdAt: serverTimestamp(),
-      });
+
+    if (isDemo) {
+      if (editTarget?.id) {
+        const updated = employees.map((emp) =>
+          emp.id === editTarget.id ? { ...emp, ...form } : emp
+        );
+        setEmployees(updated);
+        saveDemoEmployees(updated);
+      } else {
+        const newEmp: Employee = {
+          ...form,
+          id: `demo-${Date.now()}`,
+          userId: appUser.uid,
+          createdAt: new Date().toISOString() as any,
+        };
+        const updated = [newEmp, ...employees];
+        setEmployees(updated);
+        saveDemoEmployees(updated);
+        onCountChange(updated.length);
+      }
+      setModalOpen(false);
+      setEditTarget(null);
+      return;
     }
+
+    try {
+      if (editTarget?.id) {
+        await updateDoc(doc(db, 'employees', editTarget.id), form);
+      } else {
+        await addDoc(collection(db, 'employees'), {
+          ...form, userId: appUser.uid, createdAt: serverTimestamp(),
+        });
+      }
+    } catch (err) {
+      console.warn('Error saving to Firestore, falling back to local storage:', err);
+      const newEmp: Employee = {
+        ...form,
+        id: `demo-${Date.now()}`,
+        userId: appUser.uid,
+        createdAt: new Date().toISOString() as any,
+      };
+      const updated = [newEmp, ...employees];
+      setEmployees(updated);
+      saveDemoEmployees(updated);
+    }
+
     setModalOpen(false);
     setEditTarget(null);
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm('Delete this employee?')) return;
-    await deleteDoc(doc(db, 'employees', id));
+  async function confirmDelete() {
+    if (!deleteTarget?.id) return;
+    const id = deleteTarget.id;
+
+    if (isDemo) {
+      const updated = employees.filter((e) => e.id !== id);
+      setEmployees(updated);
+      saveDemoEmployees(updated);
+      onCountChange(updated.length);
+      setDeleteTarget(null);
+      return;
+    }
+
+    try {
+      await deleteDoc(doc(db, 'employees', id));
+    } catch (err) {
+      console.warn('Error deleting in Firestore, falling back to local storage:', err);
+      const updated = employees.filter((e) => e.id !== id);
+      setEmployees(updated);
+      saveDemoEmployees(updated);
+      onCountChange(updated.length);
+    }
+    setDeleteTarget(null);
   }
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -146,12 +340,57 @@ export default function Employees({ onCountChange }: { onCountChange: (n: number
     if (!appUser || !importPreview) return;
     const remaining = limit - employees.length;
     const toImport = importPreview.slice(0, remaining === Infinity ? undefined : remaining);
-    const batch = writeBatch(db);
-    toImport.forEach((row) => {
-      const ref = doc(collection(db, 'employees'));
-      batch.set(ref, { ...row, userId: appUser.uid, createdAt: serverTimestamp() });
-    });
-    await batch.commit();
+
+    if (isDemo) {
+      const newEmployees: Employee[] = toImport.map((row, idx) => ({
+        id: `demo-import-${Date.now()}-${idx}`,
+        userId: appUser.uid,
+        employeeId: row.employeeId || `EMP${String(employees.length + idx + 1).padStart(3, '0')}`,
+        name: row.name || 'Unnamed Employee',
+        email: row.email || '',
+        phone: row.phone || '',
+        department: row.department || 'General',
+        dob: row.dob || '',
+        joinedDate: row.joinedDate || '',
+        status: (row.status as 'active' | 'inactive') || 'active',
+        createdAt: new Date().toISOString() as any,
+      }));
+
+      const updated = [...employees, ...newEmployees];
+      setEmployees(updated);
+      saveDemoEmployees(updated);
+      onCountChange(updated.length);
+      setImportPreview(null);
+      return;
+    }
+
+    try {
+      const batch = writeBatch(db);
+      toImport.forEach((row) => {
+        const ref = doc(collection(db, 'employees'));
+        batch.set(ref, { ...row, userId: appUser.uid, createdAt: serverTimestamp() });
+      });
+      await batch.commit();
+    } catch (err) {
+      console.warn('Batch import in Firestore failed, storing locally:', err);
+      const newEmployees: Employee[] = toImport.map((row, idx) => ({
+        id: `demo-import-${Date.now()}-${idx}`,
+        userId: appUser.uid,
+        employeeId: row.employeeId || `EMP${String(employees.length + idx + 1).padStart(3, '0')}`,
+        name: row.name || 'Unnamed Employee',
+        email: row.email || '',
+        phone: row.phone || '',
+        department: row.department || 'General',
+        dob: row.dob || '',
+        joinedDate: row.joinedDate || '',
+        status: (row.status as 'active' | 'inactive') || 'active',
+        createdAt: new Date().toISOString() as any,
+      }));
+      const updated = [...employees, ...newEmployees];
+      setEmployees(updated);
+      saveDemoEmployees(updated);
+      onCountChange(updated.length);
+    }
     setImportPreview(null);
   }
 
@@ -215,42 +454,50 @@ export default function Employees({ onCountChange }: { onCountChange: (n: number
             <tbody>
               {filtered.map((emp) => (
                 <tr key={emp.id} className="table-row-hover border-t border-slate-100 dark:border-zinc-800">
-                  <td className="px-4 py-3 font-mono text-xs text-slate-500 dark:text-zinc-400">{emp.employeeId}</td>
+                  <td className="px-4 py-3 font-mono text-xs text-slate-700 dark:text-zinc-300 font-bold">{emp.employeeId}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 rounded-full bg-corp-blue dark:bg-gold-500 text-white dark:text-zinc-900 flex items-center justify-center text-xs font-bold shrink-0">
                         {initials(emp.name)}
                       </div>
-                      <span className="font-medium text-slate-800 dark:text-white">{emp.name}</span>
+                      <span className="font-bold text-slate-900 dark:text-white">{emp.name}</span>
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 text-xs">{emp.department}</span>
+                    <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-semibold">{emp.department}</span>
                   </td>
-                  <td className="px-4 py-3 text-slate-500 dark:text-zinc-400 text-xs">
-                    <div>{emp.email}</div>
-                    <div>{emp.phone}</div>
+                  <td className="px-4 py-3 text-slate-600 dark:text-zinc-300 text-xs">
+                    <div className="font-medium">{emp.email}</div>
+                    <div className="text-slate-500 dark:text-zinc-400 font-mono">{emp.phone}</div>
                   </td>
-                  <td className="px-4 py-3 text-slate-500 dark:text-zinc-400 text-xs">
+                  <td className="px-4 py-3 text-slate-600 dark:text-zinc-300 text-xs font-mono">
                     <div>DOB: {emp.dob}</div>
                     <div>Joined: {emp.joinedDate}</div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={cn('px-2 py-0.5 rounded-full text-xs font-medium',
+                    <span className={cn('px-2.5 py-0.5 rounded-full text-xs font-bold',
                       emp.status === 'active'
-                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                        : 'bg-slate-100 text-slate-500 dark:bg-zinc-800 dark:text-zinc-400',
+                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
+                        : 'bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-zinc-400',
                     )}>
-                      {emp.status}
+                      {emp.status.toUpperCase()}
                     </span>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <button onClick={() => { setEditTarget(emp); setModalOpen(true); }} className="text-slate-400 hover:text-corp-blue dark:hover:text-gold-400 transition-colors">
-                        <Pencil size={15} />
+                      <button
+                        onClick={() => { setEditTarget(emp); setModalOpen(true); }}
+                        className="p-1 rounded-md text-slate-400 hover:text-corp-blue dark:hover:text-gold-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
+                        title="Edit"
+                      >
+                        <Pencil size={16} />
                       </button>
-                      <button onClick={() => handleDelete(emp.id!)} className="text-slate-400 hover:text-red-500 transition-colors">
-                        <Trash2 size={15} />
+                      <button
+                        onClick={() => setDeleteTarget(emp)}
+                        className="p-1 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50 transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 size={16} />
                       </button>
                     </div>
                   </td>
@@ -273,40 +520,137 @@ export default function Employees({ onCountChange }: { onCountChange: (n: number
         />
       )}
 
-      {/* Import preview modal */}
+      {/* Modern In-App Delete Confirmation Modal */}
+      {deleteTarget && (
+        <DeleteModal
+          employee={deleteTarget}
+          onConfirm={confirmDelete}
+          onClose={() => setDeleteTarget(null)}
+        />
+      )}
+
+      {/* Professional Import Preview Modal */}
       {importPreview && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="glass-panel w-full max-w-3xl max-h-[80vh] flex flex-col p-6 animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-bold text-lg text-slate-800 dark:text-white">Import Preview — {importPreview.length} Employees</h2>
-              <button onClick={() => setImportPreview(null)}><X size={20} className="text-slate-400" /></button>
+        <div
+          onClick={() => setImportPreview(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 animate-in fade-in duration-200"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-4xl max-h-[85vh] flex flex-col p-6 animate-in zoom-in-95 duration-200 bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 shadow-2xl rounded-2xl"
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between mb-4 border-b pb-3 border-slate-200 dark:border-zinc-800">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-corp-blue/10 dark:bg-gold-500/15 text-corp-blue dark:text-gold-500 flex items-center justify-center shrink-0">
+                  <FileSpreadsheet size={22} />
+                </div>
+                <div>
+                  <h2 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                    Import Preview
+                    <span className="text-xs px-2.5 py-0.5 rounded-full bg-corp-blue/10 text-corp-blue dark:bg-gold-500/20 dark:text-gold-400 font-bold">
+                      {importPreview.length} {importPreview.length === 1 ? 'Employee' : 'Employees'}
+                    </span>
+                  </h2>
+                  <p className="text-xs text-slate-600 dark:text-zinc-300 font-medium">
+                    Review and verify employee details and milestone dates before saving.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setImportPreview(null)}
+                className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 dark:hover:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
+                title="Close (Esc)"
+              >
+                <X size={20} />
+              </button>
             </div>
-            <div className="flex-1 overflow-auto">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="table-header">
-                    {['ID', 'Name', 'Department', 'Email', 'DOB', 'Joined'].map((h) => (
-                      <th key={h} className="px-3 py-2 text-left">{h}</th>
-                    ))}
+
+            {/* Table Area */}
+            <div className="flex-1 overflow-auto border border-slate-200 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-900">
+              <table className="w-full text-xs text-left">
+                <thead className="bg-slate-100 dark:bg-zinc-800 sticky top-0 text-slate-800 dark:text-zinc-200 font-bold uppercase tracking-wider border-b border-slate-200 dark:border-zinc-700">
+                  <tr>
+                    <th className="px-3.5 py-3">ID</th>
+                    <th className="px-3.5 py-3">Employee</th>
+                    <th className="px-3.5 py-3">Department</th>
+                    <th className="px-3.5 py-3">Contact</th>
+                    <th className="px-3.5 py-3">Date of Birth</th>
+                    <th className="px-3.5 py-3">Joined Date</th>
+                    <th className="px-3.5 py-3">Status</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-slate-100 dark:divide-zinc-800">
                   {importPreview.map((r, i) => (
-                    <tr key={i} className="border-t border-slate-100 dark:border-zinc-800 table-row-hover">
-                      <td className="px-3 py-2">{r.employeeId}</td>
-                      <td className="px-3 py-2 font-medium">{r.name}</td>
-                      <td className="px-3 py-2">{r.department}</td>
-                      <td className="px-3 py-2">{r.email}</td>
-                      <td className="px-3 py-2">{r.dob}</td>
-                      <td className="px-3 py-2">{r.joinedDate}</td>
+                    <tr key={i} className="hover:bg-slate-50 dark:hover:bg-zinc-800/60 transition-colors">
+                      <td className="px-3.5 py-3 font-mono text-xs text-slate-800 dark:text-zinc-200 font-bold">
+                        {r.employeeId || `EMP${String(employees.length + i + 1).padStart(3, '0')}`}
+                      </td>
+                      <td className="px-3.5 py-3">
+                        <div className="font-bold text-slate-900 dark:text-white text-sm">{r.name || '—'}</div>
+                      </td>
+                      <td className="px-3.5 py-3">
+                        <span className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-zinc-800 text-slate-800 dark:text-zinc-200 font-semibold text-xs border border-slate-200 dark:border-zinc-700">
+                          {r.department || 'General'}
+                        </span>
+                      </td>
+                      <td className="px-3.5 py-3 text-slate-800 dark:text-zinc-200">
+                        <div className="text-slate-900 dark:text-white font-semibold">{r.email || '—'}</div>
+                        <div className="text-xs text-slate-600 dark:text-zinc-400 font-mono mt-0.5">{r.phone || 'No phone'}</div>
+                      </td>
+                      <td className="px-3.5 py-3">
+                        {r.dob ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-pink-50 text-pink-900 border border-pink-200 dark:bg-pink-950/60 dark:text-pink-200 dark:border-pink-800 text-xs font-bold font-mono">
+                            <Cake size={14} className="text-pink-600 shrink-0" /> {r.dob}
+                          </span>
+                        ) : (
+                          <span className="text-slate-400 font-mono">—</span>
+                        )}
+                      </td>
+                      <td className="px-3.5 py-3">
+                        {r.joinedDate ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 text-blue-900 border border-blue-200 dark:bg-blue-950/60 dark:text-blue-200 dark:border-blue-800 text-xs font-bold font-mono">
+                            <Briefcase size={14} className="text-corp-blue dark:text-gold-400 shrink-0" /> {r.joinedDate}
+                          </span>
+                        ) : (
+                          <span className="text-slate-400 font-mono">—</span>
+                        )}
+                      </td>
+                      <td className="px-3.5 py-3">
+                        <span className={cn('px-2.5 py-1 rounded-md text-xs font-bold border',
+                          (r.status || 'active') === 'active'
+                            ? 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800'
+                            : 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-zinc-800 dark:text-zinc-300 dark:border-zinc-700'
+                        )}>
+                          {(r.status || 'active').toUpperCase()}
+                        </span>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-            <div className="flex justify-end gap-2 mt-4">
-              <button onClick={() => setImportPreview(null)} className="btn-secondary text-sm">Cancel</button>
-              <button onClick={handleConfirmImport} className="btn-primary text-sm">Confirm Import ({importPreview.length} Employees)</button>
+
+            {/* Modal Footer */}
+            <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-200 dark:border-zinc-800">
+              <span className="text-xs text-slate-700 dark:text-zinc-300 font-semibold flex items-center gap-1.5">
+                <CheckCircle2 size={16} className="text-emerald-600" />
+                {importPreview.length} {importPreview.length === 1 ? 'employee' : 'employees'} ready to import
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setImportPreview(null)}
+                  className="bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 border border-slate-300 dark:border-zinc-700 font-semibold text-sm px-4 py-2 rounded-lg transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmImport}
+                  className="bg-corp-blue hover:bg-blue-800 dark:bg-gradient-to-r dark:from-gold-600 dark:to-gold-500 dark:text-zinc-950 text-white font-bold text-sm px-5 py-2 rounded-lg shadow-sm transition-colors flex items-center gap-2 cursor-pointer"
+                >
+                  Confirm Import ({importPreview.length})
+                </button>
+              </div>
             </div>
           </div>
         </div>
