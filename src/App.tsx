@@ -60,9 +60,9 @@ function AppLayout() {
   const [employeeCount, setEmployeeCount] = useState(0);
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen overflow-x-hidden">
       <Navbar employeeCount={employeeCount} />
-      <main className="flex-1 p-6 transition-all duration-300">
+      <main className="flex-1 p-6 transition-all duration-300 min-w-0 max-w-full overflow-x-hidden">
         <Routes>
           <Route path="/" element={<AuthRoute><Dashboard onCountChange={setEmployeeCount} /></AuthRoute>} />
           <Route path="/employees" element={<AuthRoute><Employees onCountChange={setEmployeeCount} /></AuthRoute>} />
