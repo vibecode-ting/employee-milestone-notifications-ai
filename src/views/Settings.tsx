@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 import type { NotificationSettings } from '../types';
 import { CheckCircle2 } from 'lucide-react';
 import { cn } from '../lib/utils';
@@ -48,6 +49,7 @@ function ChannelSection({
 }
 
 export default function Settings() {
+  const { t } = useTranslation();
   const { appUser } = useAuth();
   const [settings, setSettings] = useState<NotificationSettings>(DEFAULT_SETTINGS);
   const [tab, setTab] = useState<'notifications' | 'templates'>('notifications');
@@ -86,21 +88,21 @@ export default function Settings() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500 max-w-2xl">
-      <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Settings</h1>
+      <h1 className="text-2xl font-bold text-slate-800 dark:text-white">{t('Settings')}</h1>
 
       {/* Tabs */}
       <div className="flex gap-1 glass-panel p-1 w-fit">
-        {(['notifications', 'templates'] as const).map((t) => (
+        {(['notifications', 'templates'] as const).map((tabKey) => (
           <button
-            key={t}
-            onClick={() => setTab(t)}
+            key={tabKey}
+            onClick={() => setTab(tabKey)}
             className={cn('px-4 py-2 rounded-lg text-sm font-medium transition-all capitalize',
-              tab === t
+              tab === tabKey
                 ? 'bg-corp-blue text-white dark:bg-gold-500 dark:text-zinc-900'
                 : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800',
             )}
           >
-            {t === 'notifications' ? 'Notification Settings' : 'Message Templates'}
+            {tabKey === 'notifications' ? t('Notification Settings') : t('Message Templates')}
           </button>
         ))}
       </div>
@@ -108,39 +110,39 @@ export default function Settings() {
       {tab === 'notifications' && (
         <div className="space-y-3">
           {/* SMTP */}
-          <ChannelSection title="📧 Email (SMTP)" enabled={!!settings.smtp?.enabled} onToggle={(v) => setSmtp('enabled', v)}>
+          <ChannelSection title={t('Email (SMTP)')} enabled={!!settings.smtp?.enabled} onToggle={(v) => setSmtp('enabled', v)}>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="block text-xs text-slate-500 mb-1">Host</label>
+                <label className="block text-xs text-slate-500 mb-1">{t('Host')}</label>
                 <input className="glass-input text-sm" value={settings.smtp?.host ?? ''} onChange={(e) => setSmtp('host', e.target.value)} placeholder="smtp.gmail.com" />
               </div>
               <div>
-                <label className="block text-xs text-slate-500 mb-1">Port</label>
+                <label className="block text-xs text-slate-500 mb-1">{t('Port')}</label>
                 <input className="glass-input text-sm" type="number" value={settings.smtp?.port ?? 587} onChange={(e) => setSmtp('port', +e.target.value)} />
               </div>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-xs text-slate-600 dark:text-zinc-400">Send Directly to Employees</span>
+              <span className="text-xs text-slate-600 dark:text-zinc-400">{t('Send Directly to Employees')}</span>
               <Toggle checked={!!settings.smtp?.sendToEmployee} onChange={(v) => setSmtp('sendToEmployee', v)} />
             </div>
           </ChannelSection>
 
           {/* Teams */}
-          <ChannelSection title="💬 Microsoft Teams" enabled={!!settings.teams?.enabled} onToggle={(v) => setTeams('enabled', v)}>
+          <ChannelSection title={t('Microsoft Teams')} enabled={!!settings.teams?.enabled} onToggle={(v) => setTeams('enabled', v)}>
             <div>
-              <label className="block text-xs text-slate-500 mb-1">Incoming Webhook URL</label>
+              <label className="block text-xs text-slate-500 mb-1">{t('Incoming Webhook URL')}</label>
               <input className="glass-input text-sm" value={settings.teams?.webhookUrl ?? ''} onChange={(e) => setTeams('webhookUrl', e.target.value)} placeholder="https://outlook.office.com/webhook/…" />
             </div>
           </ChannelSection>
 
           {/* Telegram */}
-          <ChannelSection title="✈️ Telegram Bot" enabled={!!settings.telegram?.enabled} onToggle={(v) => setTelegram('enabled', v)}>
+          <ChannelSection title={t('Telegram Bot')} enabled={!!settings.telegram?.enabled} onToggle={(v) => setTelegram('enabled', v)}>
             <div>
-              <label className="block text-xs text-slate-500 mb-1">Bot Token</label>
+              <label className="block text-xs text-slate-500 mb-1">{t('Bot Token')}</label>
               <input className="glass-input text-sm" value={settings.telegram?.botToken ?? ''} onChange={(e) => setTelegram('botToken', e.target.value)} placeholder="123456:ABC-…" />
             </div>
             <div>
-              <label className="block text-xs text-slate-500 mb-1">Chat ID</label>
+              <label className="block text-xs text-slate-500 mb-1">{t('Chat ID')}</label>
               <input className="glass-input text-sm" value={settings.telegram?.chatId ?? ''} onChange={(e) => setTelegram('chatId', e.target.value)} placeholder="-1001234567890" />
             </div>
           </ChannelSection>
@@ -151,7 +153,7 @@ export default function Settings() {
         <div className="space-y-4">
           {/* Template type */}
           <div className="glass-panel p-4 space-y-3">
-            <label className="block text-sm font-semibold text-slate-700 dark:text-zinc-300">Template Type</label>
+            <label className="block text-sm font-semibold text-slate-700 dark:text-zinc-300">{t('Template Type')}</label>
             <div className="flex gap-2">
               {(['normal', 'card'] as const).map((type) => (
                 <button
@@ -164,7 +166,7 @@ export default function Settings() {
                     type === 'card' && !isPro && 'opacity-50 cursor-not-allowed',
                   )}
                 >
-                  {type === 'normal' ? 'Normal Text' : 'Card Template 🔒'}
+                  {type === 'normal' ? t('Normal Text') : t('Card Template')}
                 </button>
               ))}
             </div>
@@ -175,12 +177,16 @@ export default function Settings() {
                 {!isPro && (
                   <div className="absolute inset-0 z-10 flex items-center justify-center backdrop-blur-sm rounded-xl">
                     <div className="text-center">
-                      <p className="text-sm font-semibold text-slate-700 dark:text-zinc-300">Pro feature</p>
-                      <a href="/pricing" className="text-corp-blue dark:text-gold-500 text-xs underline">Upgrade →</a>
+                      <p className="text-sm font-semibold text-slate-700 dark:text-zinc-300">{t('Pro feature')}</p>
+                      <a href="/pricing" className="text-corp-blue dark:text-gold-500 text-xs underline">{t('Upgrade →')}</a>
                     </div>
                   </div>
                 )}
-                {[['logoUrl', 'Logo URL'], ['coverImage', 'Cover Image URL'], ['detailsText', 'Footer Text']].map(([k, label]) => (
+                {[
+                  ['logoUrl', t('Logo URL')],
+                  ['coverImage', t('Cover Image URL')],
+                  ['detailsText', t('Footer Text')],
+                ].map(([k, label]) => (
                   <div key={k}>
                     <label className="block text-xs text-slate-500 mb-1">{label}</label>
                     <input className="glass-input text-sm" value={((settings.templates as unknown as Record<string, string>)[k]) ?? ''} onChange={(e) => setTemplate(k, e.target.value)} />
@@ -189,11 +195,11 @@ export default function Settings() {
                 <div className="flex gap-4">
                   <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-zinc-400 cursor-pointer">
                     <input type="checkbox" checked={!!settings.templates.includeEmojis} onChange={(e) => setTemplate('includeEmojis', e.target.checked)} className="rounded" />
-                    Allow Emoji Reactions
+                    {t('Allow Emoji Reactions')}
                   </label>
                   <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-zinc-400 cursor-pointer">
                     <input type="checkbox" checked={!!settings.templates.allowAttachments} onChange={(e) => setTemplate('allowAttachments', e.target.checked)} className="rounded" />
-                    Allow Attachments
+                    {t('Allow Attachments')}
                   </label>
                 </div>
               </div>
@@ -202,7 +208,7 @@ export default function Settings() {
 
           {/* Birthday message */}
           <div className="glass-panel p-4 space-y-2">
-            <label className="block text-sm font-semibold text-slate-700 dark:text-zinc-300">🎂 Birthday Message</label>
+            <label className="block text-sm font-semibold text-slate-700 dark:text-zinc-300">{t('Birthday Message')}</label>
             <textarea
               rows={3}
               className="glass-input text-sm resize-none"
@@ -213,7 +219,7 @@ export default function Settings() {
 
           {/* Anniversary message */}
           <div className="glass-panel p-4 space-y-2">
-            <label className="block text-sm font-semibold text-slate-700 dark:text-zinc-300">🏆 Anniversary Message</label>
+            <label className="block text-sm font-semibold text-slate-700 dark:text-zinc-300">{t('Anniversary Message')}</label>
             <textarea
               rows={3}
               className="glass-input text-sm resize-none"
@@ -225,7 +231,7 @@ export default function Settings() {
           {/* Variables */}
           <div className="glass-panel p-3">
             <p className="text-xs text-slate-500 dark:text-zinc-400 font-mono">
-              Available: <code>{'{{employee_name}}'}</code> <code>{'{{years_of_service}}'}</code> <code>{'{{department}}'}</code> <code>{'{{job_title}}'}</code>
+              {t('Available:')} <code>{'{{employee_name}}'}</code> <code>{'{{years_of_service}}'}</code> <code>{'{{department}}'}</code> <code>{'{{job_title}}'}</code>
             </p>
           </div>
 
@@ -233,7 +239,10 @@ export default function Settings() {
           {!isPro && (
             <div className="glass-panel p-3 border-l-4 border-purple-500">
               <p className="text-sm text-slate-600 dark:text-zinc-400">
-                Unlock Card Templates and more with Pro. <a href="/pricing" className="text-corp-blue dark:text-gold-500 underline font-semibold">View Pricing →</a>
+                {t('Unlock Card Templates and more with Pro.')}{' '}
+                <a href="/pricing" className="text-corp-blue dark:text-gold-500 underline font-semibold">
+                  {t('View Pricing →')}
+                </a>
               </p>
             </div>
           )}
@@ -241,8 +250,8 @@ export default function Settings() {
       )}
 
       {/* Save */}
-      <button onClick={handleSave} className="btn-primary flex items-center gap-2">
-        {saved ? <><CheckCircle2 size={16} className="text-emerald-400" /> Saved!</> : 'Save Settings'}
+      <button onClick={handleSave} className="btn-primary flex items-center gap-2 cursor-pointer">
+        {saved ? <><CheckCircle2 size={16} className="text-emerald-400" /> {t('Saved!')}</> : t('Save Settings')}
       </button>
     </div>
   );

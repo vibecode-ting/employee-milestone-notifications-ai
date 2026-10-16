@@ -9,9 +9,11 @@ import {
   Search,
   Clock,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../lib/utils';
 
 export default function AdminUsers() {
+  const { t } = useTranslation();
   const { appUser } = useAuth();
   const [users, setUsers] = useState<AppUser[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -115,7 +117,7 @@ export default function AdminUsers() {
   if (appUser?.role !== 'admin') {
     return (
       <div className="glass-panel p-8 text-center text-red-500 font-semibold max-w-md mx-auto mt-12">
-        Access Denied: Admins Only
+        {t('Access Denied: Admins Only')}
       </div>
     );
   }

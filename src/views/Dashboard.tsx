@@ -14,12 +14,19 @@ import {
 } from 'recharts';
 import { cn } from '../lib/utils';
 
-// Last 7 days mock activity — replace with real aggregation if needed
-function buildActivityData(milestones: MilestoneResult[]) {
+// Last 7 days mock activity — localized to user language
+function buildActivityData(milestones: MilestoneResult[], lang: string) {
+  const localeMap: Record<string, string> = {
+    en: 'en-US',
+    mm: 'my-MM',
+    zh: 'zh-TW',
+    vn: 'vi-VN',
+  };
+  const locale = localeMap[lang] || 'en-US';
   const days = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - (6 - i));
-    return { name: d.toLocaleDateString('en', { weekday: 'short' }), birthdays: 0, anniversaries: 0 };
+    return { name: d.toLocaleDateString(locale, { weekday: 'short' }), birthdays: 0, anniversaries: 0 };
   });
   milestones.filter((m) => m.daysUntil <= 6).forEach((m) => {
     const idx = 6 - m.daysUntil;
@@ -32,6 +39,7 @@ function buildActivityData(milestones: MilestoneResult[]) {
 }
 
 function MilestoneItem({ m }: { m: MilestoneResult }) {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center gap-3 py-2 border-b border-slate-100 dark:border-zinc-800 last:border-0">
       {m.type === 'BIRTHDAY'
@@ -40,9 +48,9 @@ function MilestoneItem({ m }: { m: MilestoneResult }) {
       <div className="flex-1 min-w-0">
         <div className="text-sm font-medium text-slate-800 dark:text-white truncate">{m.employee.name}</div>
         <div className="text-xs text-slate-500 dark:text-zinc-400">
-          {m.type === 'BIRTHDAY' ? 'Birthday' : `${m.years}yr Anniversary`}
+          {m.type === 'BIRTHDAY' ? t('Birthday') : t('{{years}}yr Anniversary', { years: m.years })}
           {' · '}
-          {m.isToday ? <span className="text-red-500 font-semibold">Today!</span> : `in ${m.daysUntil}d`}
+          {m.isToday ? <span className="text-red-500 font-semibold">{t('Today!')}</span> : t('in {{days}}d', { days: m.daysUntil })}
         </div>
       </div>
     </div>
@@ -50,7 +58,7 @@ function MilestoneItem({ m }: { m: MilestoneResult }) {
 }
 
 export default function Dashboard({ onCountChange }: { onCountChange: (n: number) => void }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { appUser } = useAuth();
   const navigate = useNavigate();
   // Initialize immediately with demo employees so cards never flash 0
@@ -61,8 +69,12 @@ export default function Dashboard({ onCountChange }: { onCountChange: (n: number
   }, [employees.length, onCountChange]);
 
   useEffect(() => {
-    const userId = appUser?.uid || 'demo_user_123';
-    const isDemo = userId.startsWith('demo_') || !import.meta.env.VITE_FIREBASE_API_KEY;
+    const userId = appUser?.uid || 'demo-uid';
+    const isDemo =
+      userId.startsWith('demo') ||
+      !import.meta.env.VITE_FIREBASE_API_KEY ||
+      import.meta.env.VITE_FIREBASE_API_KEY.includes('DemoFallback') ||
+      import.meta.env.VITE_FIREBASE_PROJECT_ID === 'demo-milestone';
 
     if (isDemo) {
       const loadDemo = () => {
@@ -101,7 +113,7 @@ export default function Dashboard({ onCountChange }: { onCountChange: (n: number
 
   const milestones30 = calculateMilestones(employees, 30);
   const today = milestones30.filter((m) => m.isToday);
-  const activityData = buildActivityData(milestones30);
+  const activityData = buildActivityData(milestones30, i18n.language);
 
   // Dept bar data
   const deptMap: Record<string, number> = {};
@@ -157,7 +169,7 @@ export default function Dashboard({ onCountChange }: { onCountChange: (n: number
               <div className="text-2xl font-bold text-slate-800 dark:text-white">{value}</div>
               <div className="text-sm text-slate-500 dark:text-zinc-400">{label}</div>
               <div className="flex items-center gap-1 text-xs text-emerald-500 mt-1">
-                <TrendingUp size={12} /> <span>Live · Click to view</span>
+                <TrendingUp size={12} /> <span>{t('Live · Click to view')}</span>
               </div>
             </div>
             <ChevronRight size={18} className="text-slate-300 group-hover:text-slate-500 dark:text-zinc-600 group-hover:translate-x-1 transition-transform" />
@@ -168,7 +180,7 @@ export default function Dashboard({ onCountChange }: { onCountChange: (n: number
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="glass-panel p-5">
-          <h2 className="text-sm font-semibold text-slate-700 dark:text-zinc-300 mb-4">7-Day Activity</h2>
+          <h2 className="text-sm font-semibold text-slate-700 dark:text-zinc-300 mb-4">{t('7-Day Activity')}</h2>
           <ResponsiveContainer width="100%" height={200}>
             <AreaChart data={activityData}>
               <defs>
@@ -185,21 +197,21 @@ export default function Dashboard({ onCountChange }: { onCountChange: (n: number
               <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} />
               <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} allowDecimals={false} />
               <Tooltip contentStyle={tooltipStyle} />
-              <Area type="monotone" dataKey="birthdays" stroke="#8b5cf6" fill="url(#gb)" name="Birthdays" />
-              <Area type="monotone" dataKey="anniversaries" stroke="#0ea5e9" fill="url(#ga)" name="Anniversaries" />
+              <Area type="monotone" dataKey="birthdays" stroke="#8b5cf6" fill="url(#gb)" name={t('Birthdays')} />
+              <Area type="monotone" dataKey="anniversaries" stroke="#0ea5e9" fill="url(#ga)" name={t('Anniversaries')} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
 
         <div className="glass-panel p-5">
-          <h2 className="text-sm font-semibold text-slate-700 dark:text-zinc-300 mb-4">Headcount by Department</h2>
+          <h2 className="text-sm font-semibold text-slate-700 dark:text-zinc-300 mb-4">{t('Headcount by Department')}</h2>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={deptData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.2} vertical={false} />
               <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} />
               <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} allowDecimals={false} />
               <Tooltip contentStyle={tooltipStyle} />
-              <Bar dataKey="count" fill="#8b5cf6" radius={[6, 6, 0, 0]} name="Employees" />
+              <Bar dataKey="count" fill="#8b5cf6" radius={[6, 6, 0, 0]} name={t('Employees')} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -214,17 +226,17 @@ export default function Dashboard({ onCountChange }: { onCountChange: (n: number
             <span className="ml-auto text-xs bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 px-2 py-0.5 rounded-full font-semibold">{today.length}</span>
           </div>
           {today.length === 0
-            ? <p className="text-sm text-slate-400 dark:text-zinc-500">Nothing today 🎉</p>
+            ? <p className="text-sm text-slate-400 dark:text-zinc-500">{t('Nothing today 🎉')}</p>
             : today.map((m, i) => <MilestoneItem key={i} m={m} />)}
         </div>
 
         <div className="glass-panel p-5">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-slate-700 dark:text-zinc-300">Upcoming (Next 30 Days)</h2>
-            <button onClick={() => navigate('/employees')} className="text-xs text-corp-blue dark:text-gold-500 hover:underline">View all →</button>
+            <h2 className="text-sm font-semibold text-slate-700 dark:text-zinc-300">{t('Upcoming (Next 30 Days)')}</h2>
+            <button onClick={() => navigate('/employees')} className="text-xs text-corp-blue dark:text-gold-500 hover:underline">{t('View all →')}</button>
           </div>
           {milestones30.slice(0, 8).map((m, i) => <MilestoneItem key={i} m={m} />)}
-          {milestones30.length === 0 && <p className="text-sm text-slate-400 dark:text-zinc-500">No milestones in next 30 days</p>}
+          {milestones30.length === 0 && <p className="text-sm text-slate-400 dark:text-zinc-500">{t('No milestones in next 30 days')}</p>}
         </div>
       </div>
     </div>
