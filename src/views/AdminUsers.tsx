@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../lib/utils';
+import { GeminiAvatarRing, GeminiBadge } from '../components/common/GeminiBadge';
 
 export default function AdminUsers() {
   const { t } = useTranslation();
@@ -241,7 +242,7 @@ export default function AdminUsers() {
           <div className="text-2xl font-extrabold text-purple-600 dark:text-purple-400 mt-1">
             {users.filter((u) => u.role === 'pro' || u.role === 'pro_plus').length}
           </div>
-          <div className="text-[11px] text-purple-600 dark:text-purple-400 mt-0.5">Pro & Pro Plus tiers</div>
+          <div className="text-[11px] text-purple-600 dark:text-purple-400 mt-0.5">Pro & Ultra tiers</div>
         </div>
       </div>
 
@@ -274,7 +275,7 @@ export default function AdminUsers() {
                     : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800'
                 )}
               >
-                {r === 'all' ? 'All Roles' : r === 'pro_plus' ? 'Pro Plus' : r}
+                {r === 'all' ? 'All Roles' : r === 'pro_plus' ? 'Ultra' : r}
               </button>
             ))}
           </div>
@@ -331,31 +332,33 @@ export default function AdminUsers() {
                             type="button"
                             onClick={() => setSelectedPhotoUser(u)}
                             title={t('Click to view full photo')}
-                            className="relative group rounded-full shrink-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-corp-blue"
+                            className="relative group rounded-full shrink-0 cursor-pointer focus:outline-none"
                           >
-                            {u.photoURL ? (
-                              <img
-                                src={u.photoURL}
-                                alt={u.email}
-                                className="w-8 h-8 rounded-full object-cover border border-slate-200 dark:border-zinc-700 group-hover:scale-105 transition-transform"
-                                onError={(e) => {
-                                  (e.currentTarget as HTMLElement).style.display = 'none';
-                                }}
-                              />
-                            ) : (
-                              <div
-                                className={cn(
-                                  'w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs group-hover:scale-105 transition-transform',
-                                  u.role === 'admin'
-                                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
-                                    : u.role === 'pro_plus'
-                                    ? 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300'
-                                    : 'bg-slate-100 text-slate-800 dark:bg-zinc-800 dark:text-zinc-200'
-                                )}
-                              >
-                                {u.email[0].toUpperCase()}
-                              </div>
-                            )}
+                            <GeminiAvatarRing role={u.role}>
+                              {u.photoURL ? (
+                                <img
+                                  src={u.photoURL}
+                                  alt={u.email}
+                                  className="w-8 h-8 rounded-full object-cover group-hover:scale-105 transition-transform"
+                                  onError={(e) => {
+                                    (e.currentTarget as HTMLElement).style.display = 'none';
+                                  }}
+                                />
+                              ) : (
+                                <div
+                                  className={cn(
+                                    'w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs group-hover:scale-105 transition-transform',
+                                    u.role === 'admin'
+                                      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                                      : u.role === 'pro_plus'
+                                      ? 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300'
+                                      : 'bg-slate-100 text-slate-800 dark:bg-zinc-800 dark:text-zinc-200'
+                                  )}
+                                >
+                                  {u.email[0].toUpperCase()}
+                                </div>
+                              )}
+                            </GeminiAvatarRing>
                           </button>
                           <div className="min-w-0">
                             <div className="font-semibold text-slate-800 dark:text-white flex items-center gap-1.5 truncate">
@@ -365,6 +368,7 @@ export default function AdminUsers() {
                                   You
                                 </span>
                               )}
+                              <GeminiBadge role={u.role} size="sm" showIcon={false} />
                             </div>
                             <div className="font-mono text-[10px] text-slate-400 truncate">{u.uid}</div>
                           </div>
@@ -387,7 +391,7 @@ export default function AdminUsers() {
                           >
                             <option value="user">Free (100 cap)</option>
                             <option value="pro">Pro (1,000 cap)</option>
-                            <option value="pro_plus">Pro Plus (Unlimited)</option>
+                            <option value="pro_plus">Ultra (Unlimited)</option>
                             <option value="admin">System Admin</option>
                           </select>
                         </div>
