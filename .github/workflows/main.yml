@@ -43,12 +43,13 @@ jobs:
         with:
           workload_identity_provider: 'projects/450336299659/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
           service_account: 'github-deployer@myanmardev.iam.gserviceaccount.com'
-          create_credentials_file: true
+          token_format: 'access_token'
 
       - name: Deploy to Firebase Hosting
         run: npx firebase-tools deploy --only hosting --project myanmardev
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ steps.auth.outputs.credentials_file_path }}
+          CLOUDSDK_AUTH_ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+          FIREBASE_CLI_PREVIEWS: 'true'
 
   daily_email_cron:
     runs-on: ubuntu-latest
