@@ -73,6 +73,7 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
               key={to}
               to={to}
               end={to === '/'}
+              aria-label={label}
               className={({ isActive }) =>
                 cn(
                   'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-sm font-medium',
@@ -116,6 +117,7 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
           {/* Dark mode */}
           <button
             onClick={toggleDark}
+            aria-label={dark ? t('Light Mode') : t('Dark Mode')}
             className="flex items-center gap-3 w-full px-3 py-2 rounded-xl text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all text-sm"
           >
             {dark ? <Sun size={20} className="shrink-0" /> : <Moon size={20} className="shrink-0" />}
@@ -125,6 +127,7 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
           {/* Language */}
           <button
             onClick={cycleLocale}
+            aria-label={t('Language')}
             className="flex items-center gap-3 w-full px-3 py-2 rounded-xl text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all text-sm"
           >
             <span className="text-lg shrink-0">{currentFlag()}</span>
@@ -135,6 +138,7 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
           {appUser?.role === 'user' && (
             <button
               onClick={() => navigate('/pricing')}
+              aria-label={t('Upgrade to PRO')}
               className="w-full px-3 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-sm font-semibold hover:opacity-90 transition-all flex items-center gap-3"
             >
               <Zap size={20} className="shrink-0" />
@@ -145,6 +149,7 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
           {/* Sign out */}
           <button
             onClick={signOut}
+            aria-label={t('Sign Out')}
             className="flex items-center gap-3 w-full px-3 py-2 rounded-xl text-red-500 hover:bg-red-500/10 transition-all text-sm"
           >
             <LogOut size={20} className="shrink-0" />
