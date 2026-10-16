@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import {
@@ -21,7 +21,7 @@ import {
   FileSpreadsheet,
 } from 'lucide-react';
 import { cn } from '../lib/utils';
-import type { Role } from '../types';
+import type { Role, SystemBroadcast } from '../types';
 
 interface SystemMetric {
   totalUsers: number;
@@ -140,6 +140,33 @@ export default function AdminDashboard() {
     e.preventDefault();
     setBroadcastMessage(broadcastDraft);
     localStorage.setItem('admin_system_broadcast', broadcastDraft);
+
+    if (broadcastDraft.trim()) {
+      const newBroadcast: SystemBroadcast = {
+        id: Date.now().toString(),
+        message: broadcastDraft.trim(),
+        createdAt: new Date().toISOString(),
+        active: true,
+        createdBy: appUser?.email || 'admin',
+      };
+
+      try {
+        const stored: SystemBroadcast[] = JSON.parse(localStorage.getItem('system_broadcasts_list') || '[]');
+        const updated = [newBroadcast, ...stored.filter((b) => b.message !== newBroadcast.message)].slice(0, 20);
+        localStorage.setItem('system_broadcasts_list', JSON.stringify(updated));
+        window.dispatchEvent(new Event('storage'));
+      } catch {}
+
+      try {
+        addDoc(collection(db, 'system_broadcasts'), {
+          message: newBroadcast.message,
+          createdAt: newBroadcast.createdAt,
+          active: true,
+          createdBy: newBroadcast.createdBy,
+        }).catch(() => {});
+      } catch {}
+    }
+
     setBroadcastSaved(true);
     setTimeout(() => setBroadcastSaved(false), 2500);
 
@@ -239,7 +266,7 @@ export default function AdminDashboard() {
             </span>
           </div>
           <p className="text-[11px] text-slate-400 dark:text-zinc-500 mt-2">
-            Across Free, Pro, and Pro Plus plans
+            Across Free, Pro, and Ultra plans
           </p>
         </div>
 
@@ -262,7 +289,7 @@ export default function AdminDashboard() {
             </span>
           </div>
           <p className="text-[11px] text-slate-400 dark:text-zinc-500 mt-2">
-            {metrics.proUsers} Pro · {metrics.proPlusUsers} Pro Plus
+            {metrics.proUsers} Pro · {metrics.proPlusUsers} Ultra
           </p>
         </div>
 
@@ -300,7 +327,7 @@ export default function AdminDashboard() {
             <span className="text-xs text-slate-400">Near Limit (&gt;80%)</span>
           </div>
           <p className="text-[11px] text-slate-400 dark:text-zinc-500 mt-2">
-            Prompted for upgrade to Pro Plus
+            Prompted for upgrade to Ultra
           </p>
         </div>
       </div>
@@ -374,7 +401,7 @@ export default function AdminDashboard() {
               <div
                 style={{ width: `${(metrics.proPlusUsers / metrics.totalUsers) * 100}%` }}
                 className="bg-purple-600 transition-all"
-                title={`Pro Plus Users: ${metrics.proPlusUsers}`}
+                title={`Ultra Users: ${metrics.proPlusUsers}`}
               />
               <div
                 style={{ width: `${(metrics.adminUsers / metrics.totalUsers) * 100}%` }}
@@ -394,7 +421,7 @@ export default function AdminDashboard() {
               </span>
               <span className="flex items-center gap-1 text-slate-600 dark:text-zinc-400">
                 <span className="w-2.5 h-2.5 rounded-full bg-purple-600" />
-                Pro Plus ({metrics.proPlusUsers})
+                Ultra ({metrics.proPlusUsers})
               </span>
               <span className="flex items-center gap-1 text-slate-600 dark:text-zinc-400">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
