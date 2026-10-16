@@ -108,7 +108,7 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
                   appUser?.role === 'admin' ? 'text-emerald-600 dark:text-emerald-400' :
                   'text-slate-500 dark:text-zinc-500',
                 )}>
-                  {planName}
+                  {t(planName)}
                   {appUser?.role === 'pro_plus' && <Zap size={10} className="inline ml-1" />}
                   {appUser?.role === 'pro' && <Shield size={10} className="inline ml-1" />}
                 </div>
@@ -123,7 +123,7 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
           <button
             onClick={toggleDark}
             aria-label={dark ? t('Light Mode') : t('Dark Mode')}
-            className="flex items-center gap-3 w-full px-3 py-2 rounded-xl text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all text-sm"
+            className="flex items-center gap-3 w-full px-3 py-2 rounded-xl text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all text-sm cursor-pointer"
           >
             {dark ? <Sun size={20} className="shrink-0" /> : <Moon size={20} className="shrink-0" />}
             {open && <span>{dark ? t('Light Mode') : t('Dark Mode')}</span>}
@@ -133,10 +133,10 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
           <button
             onClick={cycleLocale}
             aria-label={t('Language')}
-            className="flex items-center gap-3 w-full px-3 py-2 rounded-xl text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all text-sm"
+            className="flex items-center gap-3 w-full px-3 py-2 rounded-xl text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all text-sm cursor-pointer"
           >
             <span className="text-lg shrink-0">{currentFlag()}</span>
-            {open && <span>{t('Language')}: <span className="font-mono">{i18n.language}</span></span>}
+            {open && <span>{t('Language')}: <span className="font-semibold text-slate-800 dark:text-zinc-200">{LOCALES.find((l) => l.code === i18n.language)?.name || i18n.language}</span></span>}
           </button>
 
           {/* Upgrade — free users only */}
