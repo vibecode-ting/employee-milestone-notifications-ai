@@ -1,10 +1,11 @@
 import React, { useState, Component, type ReactNode } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import AuthRoute from './components/auth/AuthRoute';
 import Navbar from './components/layout/Navbar';
 import Login from './views/Login';
 import Dashboard from './views/Dashboard';
+import AdminDashboard from './views/AdminDashboard';
 import Employees from './views/Employees';
 import Settings from './views/Settings';
 import Pricing from './views/Pricing';
@@ -57,6 +58,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 }
 
 function AppLayout() {
+  const { appUser } = useAuth();
   const [employeeCount, setEmployeeCount] = useState(0);
 
   return (
@@ -64,7 +66,19 @@ function AppLayout() {
       <Navbar employeeCount={employeeCount} />
       <main className="flex-1 p-6 transition-all duration-300 min-w-0 max-w-full overflow-x-hidden">
         <Routes>
-          <Route path="/" element={<AuthRoute><Dashboard onCountChange={setEmployeeCount} /></AuthRoute>} />
+          <Route
+            path="/"
+            element={
+              <AuthRoute>
+                {appUser?.role === 'admin' ? (
+                  <AdminDashboard />
+                ) : (
+                  <Dashboard onCountChange={setEmployeeCount} />
+                )}
+              </AuthRoute>
+            }
+          />
+          <Route path="/admin" element={<AuthRoute><AdminDashboard /></AuthRoute>} />
           <Route path="/employees" element={<AuthRoute><Employees onCountChange={setEmployeeCount} /></AuthRoute>} />
           <Route path="/settings" element={<AuthRoute><Settings /></AuthRoute>} />
           <Route path="/pricing" element={<AuthRoute><Pricing /></AuthRoute>} />

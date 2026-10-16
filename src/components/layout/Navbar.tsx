@@ -33,14 +33,17 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
     localStorage.setItem('theme', next ? 'dark' : 'light');
   }
 
-  const navItems = [
-    { to: '/', icon: LayoutDashboard, label: t('Dashboard') },
-    { to: '/employees', icon: Users, label: t('Employees') },
-    { to: '/settings', icon: Settings, label: t('Settings') },
-    ...(appUser?.role === 'admin'
-      ? [{ to: '/admin/users', icon: Shield, label: t('User Management') }]
-      : []),
-  ];
+  const navItems = appUser?.role === 'admin'
+    ? [
+        { to: '/', icon: Shield, label: t('Admin Dashboard') || 'Admin Dashboard' },
+        { to: '/admin/users', icon: Users, label: t('User Management') },
+        { to: '/settings', icon: Settings, label: t('Settings') },
+      ]
+    : [
+        { to: '/', icon: LayoutDashboard, label: t('Dashboard') },
+        { to: '/employees', icon: Users, label: t('Employees') },
+        { to: '/settings', icon: Settings, label: t('Settings') },
+      ];
 
   const planName = (appUser && appUser.role && PLAN_NAMES[appUser.role]) ? PLAN_NAMES[appUser.role] : 'Free Plan';
   const limit = (appUser && appUser.role && PLAN_LIMITS[appUser.role] !== undefined) ? PLAN_LIMITS[appUser.role] : 100;
@@ -109,7 +112,9 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
                   {appUser?.role === 'pro_plus' && <Zap size={10} className="inline ml-1" />}
                   {appUser?.role === 'pro' && <Shield size={10} className="inline ml-1" />}
                 </div>
-                <div className="text-xs text-slate-400 dark:text-zinc-500">{employeeCount} / {limitLabel}</div>
+                <div className="text-xs text-slate-400 dark:text-zinc-500">
+                  {appUser?.role === 'admin' ? 'Platform Superuser' : `${employeeCount} / ${limitLabel}`}
+                </div>
               </div>
             </div>
           </div>

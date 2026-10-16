@@ -5,6 +5,7 @@ const resources = {
   en: {
     translation: {
       Dashboard: 'Dashboard',
+      'Admin Dashboard': 'Admin Dashboard',
       Employees: 'Employees',
       Settings: 'Settings',
       Pricing: 'Pricing',
@@ -36,6 +37,7 @@ const resources = {
   mm: {
     translation: {
       Dashboard: 'ဒက်ရှ်ဘုတ်',
+      'Admin Dashboard': 'စီမံခန့်ခွဲသူ ဒက်ရှ်ဘုတ်',
       Employees: 'ဝန်ထမ်းများ',
       Settings: 'ဆက်တင်များ',
       Pricing: 'စျေးနှုန်း',
@@ -67,6 +69,7 @@ const resources = {
   zh: {
     translation: {
       Dashboard: '儀表板',
+      'Admin Dashboard': '管理員儀表板',
       Employees: '員工',
       Settings: '設定',
       Pricing: '定價',
@@ -98,6 +101,7 @@ const resources = {
   vn: {
     translation: {
       Dashboard: 'Bảng điều khiển',
+      'Admin Dashboard': 'Bảng điều khiển quản trị',
       Employees: 'Nhân viên',
       Settings: 'Cài đặt',
       Pricing: 'Bảng giá',
