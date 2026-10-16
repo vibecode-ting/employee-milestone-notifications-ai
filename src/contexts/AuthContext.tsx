@@ -1,5 +1,14 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { onAuthStateChanged, signOut as firebaseSignOut, signInWithPopup, GoogleAuthProvider, type User } from 'firebase/auth';
+import {
+  onAuthStateChanged,
+  signOut as firebaseSignOut,
+  signInWithPopup,
+  GoogleAuthProvider,
+  sendSignInLinkToEmail,
+  isSignInWithEmailLink,
+  signInWithEmailLink,
+  type User,
+} from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db, isEmulatorMode } from '../lib/firebase';
 import type { AppUser, Role } from '../types';
@@ -10,6 +19,8 @@ interface AuthContextValue {
   loading: boolean;
   loginDemo: (role?: Role) => void;
   loginWithGoogle: () => Promise<void>;
+  sendPasswordlessLink: (email: string) => Promise<void>;
+  signInWithEmailLinkCallback: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -19,6 +30,8 @@ const AuthContext = createContext<AuthContextValue>({
   loading: true,
   loginDemo: () => {},
   loginWithGoogle: async () => {},
+  sendPasswordlessLink: async () => {},
+  signInWithEmailLinkCallback: async () => {},
   signOut: async () => {},
 });
 
@@ -125,6 +138,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await signInWithPopup(auth, provider);
   };
 
+  const sendPasswordlessLink = async (email: string) => {
+    const actionCodeSettings = {
+      url: window.location.origin + '/login',
+      handleCodeInApp: true,
+    };
+    await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+    localStorage.setItem('emailForSignIn', email);
+  };
+
+  const signInWithEmailLinkCallback = async (email: string) => {
+    if (isSignInWithEmailLink(auth, window.location.href)) {
+      await signInWithEmailLink(auth, email, window.location.href);
+      localStorage.removeItem('emailForSignIn');
+    }
+  };
+
   const signOut = async () => {
     localStorage.removeItem(DEMO_KEY);
     try {
@@ -135,7 +164,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, appUser, loading, loginDemo, loginWithGoogle, signOut }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        appUser,
+        loading,
+        loginDemo,
+        loginWithGoogle,
+        sendPasswordlessLink,
+        signInWithEmailLinkCallback,
+        signOut,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

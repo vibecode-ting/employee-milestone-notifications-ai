@@ -1,28 +1,68 @@
-import { useState } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useState, useEffect } from 'react';
+import { signInWithEmailAndPassword, isSignInWithEmailLink, signInWithEmailLink } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Mail, Lock, CheckCircle2 } from 'lucide-react';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { loginDemo, loginWithGoogle } = useAuth();
+  const { loginDemo, loginWithGoogle, sendPasswordlessLink } = useAuth();
+  const [authMode, setAuthMode] = useState<'password' | 'magic-link'>('password');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [verifyingLink, setVerifyingLink] = useState(false);
+
+  // Automatically detect and handle Firebase Passwordless Email Link callback
+  useEffect(() => {
+    if (isSignInWithEmailLink(auth, window.location.href)) {
+      setVerifyingLink(true);
+      let emailForSignIn = window.localStorage.getItem('emailForSignIn');
+
+      if (!emailForSignIn) {
+        // Opened on another browser/device without local storage
+        emailForSignIn = window.prompt('Please provide your email to complete sign in') || '';
+      }
+
+      if (emailForSignIn) {
+        signInWithEmailLink(auth, emailForSignIn, window.location.href)
+          .then(() => {
+            window.localStorage.removeItem('emailForSignIn');
+            navigate('/');
+          })
+          .catch((err: unknown) => {
+            setError(err instanceof Error ? err.message : 'Failed to sign in with email link');
+          })
+          .finally(() => {
+            setVerifyingLink(false);
+          });
+      } else {
+        setVerifyingLink(false);
+        setError('Email confirmation required to complete sign in.');
+      }
+    }
+  }, [navigate]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
+    setSuccessMsg('');
     setLoading(true);
+
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      navigate('/');
+      if (authMode === 'magic-link') {
+        await sendPasswordlessLink(email);
+        setSuccessMsg(`Sign-in link sent to ${email}. Check your email to sign in.`);
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+        navigate('/');
+      }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      setError(err instanceof Error ? err.message : 'Authentication failed');
     } finally {
       setLoading(false);
     }
@@ -46,12 +86,52 @@ export default function Login() {
     navigate('/');
   }
 
+  if (verifyingLink) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="glass-panel w-full max-w-sm p-8 text-center space-y-4">
+          <div className="w-10 h-10 border-4 border-corp-blue dark:border-gold-500 border-t-transparent rounded-full animate-spin mx-auto" />
+          <h2 className="text-base font-semibold text-slate-800 dark:text-zinc-100">Verifying Email Link…</h2>
+          <p className="text-xs text-slate-500 dark:text-zinc-400">Signing you in securely without a password.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4 animate-in fade-in duration-500">
       <div className="glass-panel w-full max-w-sm p-8">
-        <div className="flex items-center gap-3 mb-8">
+        <div className="flex items-center gap-3 mb-6">
           <img src="/logo.svg" alt="Milestone" className="w-10 h-10 text-corp-blue" />
           <span className="text-xl font-bold text-corp-blue dark:text-gold-500">Milestone</span>
+        </div>
+
+        {/* Auth Mode Toggle */}
+        <div className="flex rounded-lg bg-slate-100 dark:bg-zinc-800 p-1 mb-6 text-xs font-medium">
+          <button
+            type="button"
+            onClick={() => { setAuthMode('password'); setError(''); setSuccessMsg(''); }}
+            className={`flex-1 py-1.5 rounded-md flex items-center justify-center gap-1.5 transition-all ${
+              authMode === 'password'
+                ? 'bg-white dark:bg-zinc-900 text-slate-900 dark:text-white shadow-sm font-semibold'
+                : 'text-slate-500 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-white'
+            }`}
+          >
+            <Lock size={13} />
+            Password
+          </button>
+          <button
+            type="button"
+            onClick={() => { setAuthMode('magic-link'); setError(''); setSuccessMsg(''); }}
+            className={`flex-1 py-1.5 rounded-md flex items-center justify-center gap-1.5 transition-all ${
+              authMode === 'magic-link'
+                ? 'bg-white dark:bg-zinc-900 text-slate-900 dark:text-white shadow-sm font-semibold'
+                : 'text-slate-500 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-white'
+            }`}
+          >
+            <Mail size={13} />
+            Email Link
+          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -60,33 +140,49 @@ export default function Login() {
             <input
               type="email"
               required
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="glass-input"
               placeholder="you@company.com"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-zinc-300 mb-1">Password</label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="glass-input"
-              placeholder="••••••••"
-            />
-          </div>
+
+          {authMode === 'password' && (
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-zinc-300 mb-1">Password</label>
+              <input
+                type="password"
+                required
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="glass-input"
+                placeholder="••••••••"
+              />
+            </div>
+          )}
 
           {error && <p className="text-red-500 text-xs">{error}</p>}
+
+          {successMsg && (
+            <div className="flex items-start gap-2 p-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs border border-emerald-200 dark:border-emerald-800">
+              <CheckCircle2 size={16} className="shrink-0 mt-0.5 text-emerald-600 dark:text-emerald-400" />
+              <span>{successMsg}</span>
+            </div>
+          )}
 
           <button type="submit" disabled={loading} className="btn-primary w-full py-2.5 disabled:opacity-60 text-sm">
             {loading ? (
               <span className="flex items-center justify-center gap-2">
                 <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Signing in…
+                {authMode === 'magic-link' ? 'Sending link…' : 'Signing in…'}
               </span>
-            ) : 'Sign In'}
+            ) : authMode === 'magic-link' ? (
+              'Send Sign-In Link'
+            ) : (
+              'Sign In'
+            )}
           </button>
         </form>
 
