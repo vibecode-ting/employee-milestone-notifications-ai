@@ -48,12 +48,27 @@ function ChannelSection({
   );
 }
 
+const PRESET_AVATARS = [
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&auto=format&fit=crop&q=80',
+];
+
 export default function Settings() {
   const { t } = useTranslation();
-  const { appUser } = useAuth();
+  const { appUser, updatePhotoURL } = useAuth();
   const [settings, setSettings] = useState<NotificationSettings>(DEFAULT_SETTINGS);
-  const [tab, setTab] = useState<'notifications' | 'templates'>('notifications');
+  const [tab, setTab] = useState<'profile' | 'notifications' | 'templates'>('profile');
   const [saved, setSaved] = useState(false);
+  const [photoInput, setPhotoInput] = useState(appUser?.photoURL || '');
+  const [photoSaved, setPhotoSaved] = useState(false);
+
+  useEffect(() => {
+    if (appUser?.photoURL) {
+      setPhotoInput(appUser.photoURL);
+    }
+  }, [appUser?.photoURL]);
 
   useEffect(() => {
     if (!appUser) return;
@@ -69,6 +84,12 @@ export default function Settings() {
     await setDoc(doc(db, 'settings', appUser.uid), { ...settings, userId: appUser.uid });
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
+  }
+
+  async function handleSavePhoto() {
+    await updatePhotoURL(photoInput.trim());
+    setPhotoSaved(true);
+    setTimeout(() => setPhotoSaved(false), 3000);
   }
 
   function setSmtp(k: string, v: unknown) {
@@ -92,20 +113,115 @@ export default function Settings() {
 
       {/* Tabs */}
       <div className="flex gap-1 glass-panel p-1 w-fit">
-        {(['notifications', 'templates'] as const).map((tabKey) => (
+        {(['profile', 'notifications', 'templates'] as const).map((tabKey) => (
           <button
             key={tabKey}
             onClick={() => setTab(tabKey)}
-            className={cn('px-4 py-2 rounded-lg text-sm font-medium transition-all capitalize',
+            className={cn('px-4 py-2 rounded-lg text-sm font-medium transition-all capitalize cursor-pointer',
               tab === tabKey
-                ? 'bg-corp-blue text-white dark:bg-gold-500 dark:text-zinc-900'
+                ? 'bg-corp-blue text-white dark:bg-gold-500 dark:text-zinc-900 font-bold'
                 : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800',
             )}
           >
-            {tabKey === 'notifications' ? t('Notification Settings') : t('Message Templates')}
+            {tabKey === 'profile'
+              ? t('User Profile')
+              : tabKey === 'notifications'
+              ? t('Notification Settings')
+              : t('Message Templates')}
           </button>
         ))}
       </div>
+
+      {tab === 'profile' && (
+        <div className="glass-panel p-6 space-y-6">
+          <div className="flex flex-col sm:flex-row items-center gap-5">
+            <div className="relative">
+              {photoInput ? (
+                <img
+                  src={photoInput}
+                  alt={appUser?.email || 'User'}
+                  className="w-24 h-24 rounded-2xl object-cover shadow-md border-2 border-slate-200 dark:border-zinc-700"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLElement).style.display = 'none';
+                  }}
+                />
+              ) : (
+                <div className="w-24 h-24 rounded-2xl bg-corp-blue dark:bg-gold-500 flex items-center justify-center text-white dark:text-zinc-900 font-bold text-3xl shadow-md">
+                  {appUser?.email?.[0]?.toUpperCase() ?? '?'}
+                </div>
+              )}
+            </div>
+
+            <div className="text-center sm:text-left space-y-1 min-w-0">
+              <h2 className="text-lg font-bold text-slate-800 dark:text-white truncate">
+                {appUser?.email}
+              </h2>
+              <div className="flex items-center justify-center sm:justify-start gap-2">
+                <span className="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-corp-blue/10 text-corp-blue dark:bg-gold-500/20 dark:text-gold-400 uppercase">
+                  {appUser?.role}
+                </span>
+                <span className="text-xs text-slate-400 font-mono truncate">
+                  UID: {appUser?.uid}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-zinc-800">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">
+                {t('Profile Picture URL')}
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  className="glass-input text-sm flex-1"
+                  placeholder="https://example.com/avatar.jpg"
+                  value={photoInput}
+                  onChange={(e) => setPhotoInput(e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={handleSavePhoto}
+                  className="btn-primary text-sm px-4 py-2 flex items-center gap-1.5 shrink-0 cursor-pointer"
+                >
+                  {photoSaved ? <CheckCircle2 size={16} /> : null}
+                  {photoSaved ? t('Saved!') : t('Save Photo')}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 dark:text-zinc-400 mb-2">
+                {t('Quick Sample Avatars')}
+              </label>
+              <div className="flex gap-3">
+                {PRESET_AVATARS.map((url, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => {
+                      setPhotoInput(url);
+                      updatePhotoURL(url);
+                      setPhotoSaved(true);
+                      setTimeout(() => setPhotoSaved(false), 3000);
+                    }}
+                    title={`Avatar ${i + 1}`}
+                    className={cn(
+                      'relative rounded-xl overflow-hidden border-2 transition-all cursor-pointer hover:scale-105',
+                      photoInput === url
+                        ? 'border-corp-blue dark:border-gold-500 ring-2 ring-corp-blue/30'
+                        : 'border-transparent opacity-80 hover:opacity-100'
+                    )}
+                  >
+                    <img src={url} alt={`Preset ${i + 1}`} className="w-12 h-12 object-cover" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {tab === 'notifications' && (
         <div className="space-y-3">
