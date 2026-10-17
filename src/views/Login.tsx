@@ -10,7 +10,25 @@ import { auth } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 import i18n, { LOCALES } from '../lib/i18n';
-import { Sparkles, Mail, Lock, CheckCircle2, Sun, Moon, Info, ArrowRight, Globe } from 'lucide-react';
+import { Sparkles, Mail, Lock, CheckCircle2, Sun, Moon, Info, ArrowRight, Globe, Layers } from 'lucide-react';
+import { AiCardStudioModal } from '../components/milestones/AiCardStudioModal';
+import { TierComparisonModal } from '../components/pricing/TierComparisonModal';
+import type { Employee } from '../types';
+
+// Sample preview employee for prospective visitors
+const SAMPLE_PREVIEW_EMPLOYEE: Employee = {
+  id: 'preview-sarah',
+  userId: 'demo',
+  employeeId: 'EMP-001',
+  name: 'Sarah Chen',
+  department: 'Cloud SRE',
+  email: 'sarah.chen@company.com',
+  phone: '+65 9123 4567',
+  dob: '1992-06-14',
+  joinedDate: '2020-04-15',
+  status: 'active',
+  createdAt: null as any,
+};
 
 // ---------- Main component ----------
 
@@ -26,6 +44,10 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [verifyingLink, setVerifyingLink] = useState(false);
+
+  // Modals for prospective visitors
+  const [showCardStudio, setShowCardStudio] = useState(false);
+  const [showTierComparison, setShowTierComparison] = useState(false);
 
   // Auto sign-up countdown state (5 seconds)
   const [newAccountCountdown, setNewAccountCountdown] = useState<number | null>(null);
@@ -179,6 +201,39 @@ export default function Login() {
           className="w-full h-full absolute inset-0 border-0"
           loading="eager"
         />
+
+        {/* Floating Value Proposition Card over 3D Hero */}
+        <div className="absolute top-5 left-5 z-20 pointer-events-auto hidden sm:flex flex-col gap-2 max-w-sm">
+          <div className="glass-panel p-3.5 bg-slate-950/75 border border-indigo-500/30 backdrop-blur-md shadow-xl text-slate-100">
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+              <span className="text-[11px] font-bold text-cyan-300 uppercase tracking-wider">
+                Google Cloud AI Recognition Engine
+              </span>
+            </div>
+            <p className="text-xs text-slate-300 leading-snug">
+              Autonomous milestone intelligence connecting 34 JAPAC countries with personalized Gemini 1.5 celebration cards.
+            </p>
+            <div className="mt-3 flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowCardStudio(true)}
+                className="px-2.5 py-1.5 rounded-lg bg-indigo-600/90 hover:bg-indigo-500 text-white text-[11px] font-semibold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+              >
+                <Sparkles size={13} />
+                <span>Try AI Card Studio</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowTierComparison(true)}
+                className="px-2.5 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 text-slate-200 text-[11px] font-semibold flex items-center gap-1.5 border border-slate-700 transition-all cursor-pointer"
+              >
+                <Layers size={13} />
+                <span>Compare Tiers</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Right: Login panel (35%) */}
@@ -412,9 +467,45 @@ export default function Login() {
               <Sparkles size={14} className="text-purple-500" />
               {t('Demo Mode')}
             </button>
+
+            {/* Quick interactive triggers for prospective users */}
+            <div className="mt-3 pt-3 border-t border-slate-200 dark:border-zinc-800 flex items-center justify-between text-[11px] text-slate-500 dark:text-zinc-400">
+              <button
+                type="button"
+                onClick={() => setShowCardStudio(true)}
+                className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1 cursor-pointer font-medium"
+              >
+                <Sparkles size={12} className="text-indigo-500" />
+                <span>✨ Preview AI Card</span>
+              </button>
+              <span>•</span>
+              <button
+                type="button"
+                onClick={() => setShowTierComparison(true)}
+                className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1 cursor-pointer font-medium"
+              >
+                <Layers size={12} className="text-purple-500" />
+                <span>Free vs Pro Tiers</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* AI Card Studio Interactive Modal */}
+      <AiCardStudioModal
+        isOpen={showCardStudio}
+        onClose={() => setShowCardStudio(false)}
+        employee={SAMPLE_PREVIEW_EMPLOYEE}
+        milestoneType="ANNIVERSARY"
+        years={5}
+      />
+
+      {/* PLG Tier Comparison Modal */}
+      <TierComparisonModal
+        isOpen={showTierComparison}
+        onClose={() => setShowTierComparison(false)}
+      />
     </div>
   );
 }

@@ -11,6 +11,7 @@ const Employees = lazy(() => import('./views/Employees'));
 const Settings = lazy(() => import('./views/Settings'));
 const Pricing = lazy(() => import('./views/Pricing'));
 const AdminUsers = lazy(() => import('./views/AdminUsers'));
+const Analytics = lazy(() => import('./views/Analytics'));
 
 function RouteLoadingFallback() {
   return (
@@ -90,6 +91,7 @@ function AppLayout() {
             />
             <Route path="/admin" element={<AuthRoute><AdminDashboard /></AuthRoute>} />
             <Route path="/employees" element={<AuthRoute><Employees onCountChange={setEmployeeCount} /></AuthRoute>} />
+            <Route path="/analytics" element={<AuthRoute><Analytics /></AuthRoute>} />
             <Route path="/settings" element={<AuthRoute><Settings /></AuthRoute>} />
             <Route path="/pricing" element={<AuthRoute><Pricing /></AuthRoute>} />
             <Route path="/admin/users" element={<AuthRoute><AdminUsers /></AuthRoute>} />

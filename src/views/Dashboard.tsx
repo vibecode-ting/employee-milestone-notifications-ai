@@ -7,12 +7,17 @@ import { calculateMilestones } from '../utils/milestones';
 import { getDemoEmployees } from '../utils/demoData';
 import type { Employee, MilestoneResult } from '../types';
 import { useTranslation } from 'react-i18next';
-import { Users, Bell, Calendar, Cake, Briefcase } from 'lucide-react';
+import {
+  Users, Cake, Briefcase, Sparkles, Bot, Upload,
+  BarChart2, CheckCircle2, TrendingUp, ChevronRight,
+} from 'lucide-react';
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip,
   ResponsiveContainer, CartesianGrid,
 } from 'recharts';
 import { cn } from '../lib/utils';
+import { AiCardStudioModal } from '../components/milestones/AiCardStudioModal';
+import { CopilotSidebar } from '../components/copilot/CopilotSidebar';
 
 // Last 7 days mock activity — localized to user language
 function buildActivityData(milestones: MilestoneResult[], lang: string) {
@@ -38,31 +43,23 @@ function buildActivityData(milestones: MilestoneResult[], lang: string) {
   return days;
 }
 
-function MilestoneItem({ m }: { m: MilestoneResult }) {
-  const { t } = useTranslation();
-  return (
-    <div className="flex items-center gap-3 py-2 border-b border-slate-100 dark:border-zinc-800 last:border-0">
-      {m.type === 'BIRTHDAY'
-        ? <Cake size={16} className="text-pink-500 shrink-0" />
-        : <Briefcase size={16} className="text-corp-blue dark:text-cobalt-400 shrink-0" />}
-      <div className="flex-1 min-w-0">
-        <div className="text-sm font-medium text-slate-800 dark:text-white truncate">{m.employee.name}</div>
-        <div className="text-xs text-slate-500 dark:text-zinc-400">
-          {m.type === 'BIRTHDAY' ? t('Birthday') : t('{{years}}yr Anniversary', { years: m.years })}
-          {' · '}
-          {m.isToday ? <span className="text-red-500 font-semibold">{t('Today!')}</span> : t('in {{days}}d', { days: m.daysUntil })}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function Dashboard({ onCountChange }: { onCountChange: (n: number) => void }) {
   const { t, i18n } = useTranslation();
   const { appUser } = useAuth();
   const navigate = useNavigate();
-  // Initialize immediately with demo employees so cards never flash 0
-  const [employees, setEmployees] = useState<Employee[]>(() => getDemoEmployees(appUser?.uid || 'demo_user_123'));
+
+  const [employees, setEmployees] = useState<Employee[]>(() =>
+    getDemoEmployees(appUser?.uid || 'demo_user_123')
+  );
+
+  // AI Card Studio modal state
+  const [selectedStudioEmployee, setSelectedStudioEmployee] = useState<Employee | null>(null);
+  const [studioMilestoneType, setStudioMilestoneType] = useState<'BIRTHDAY' | 'ANNIVERSARY'>('BIRTHDAY');
+  const [studioYears, setStudioYears] = useState(1);
+  const [showCardStudio, setShowCardStudio] = useState(false);
+
+  // AI Copilot sidebar state
+  const [showCopilot, setShowCopilot] = useState(false);
 
   useEffect(() => {
     onCountChange(employees.length);
@@ -112,72 +109,271 @@ export default function Dashboard({ onCountChange }: { onCountChange: (n: number
   }, [appUser]);
 
   const milestones30 = calculateMilestones(employees, 30);
-  const today = milestones30.filter((m) => m.isToday);
   const activityData = buildActivityData(milestones30, i18n.language);
 
-  // Dept bar data
+  // Department counts
   const deptMap: Record<string, number> = {};
-  employees.forEach((e) => { deptMap[e.department] = (deptMap[e.department] ?? 0) + 1; });
+  employees.forEach((e) => {
+    deptMap[e.department] = (deptMap[e.department] ?? 0) + 1;
+  });
   const deptData = Object.entries(deptMap).map(([name, count]) => ({ name, count }));
 
-  const tooltipStyle = { backgroundColor: '#1e293b', border: 'none', borderRadius: 8, color: '#f1f5f9', fontSize: 12 };
+  // KPI Calculations
+  const birthdayCount = milestones30.filter((m) => m.type === 'BIRTHDAY').length;
+  const anniversaryCount = milestones30.filter((m) => m.type === 'ANNIVERSARY').length;
 
-  const statCards = [
-    {
-      key: 'total' as const,
-      label: t('Total Employees'),
-      value: employees.length,
-      accent: 'border-l-corp-blue dark:border-l-cobalt-500',
-      valueColor: 'text-corp-blue dark:text-cobalt-400',
-      icon: Users,
-      iconColor: 'text-corp-blue/40 dark:text-cobalt-500/30',
-      path: '/employees',
-    },
-    {
-      key: 'upcoming' as const,
-      label: t('Upcoming Milestones'),
-      value: milestones30.length,
-      accent: 'border-l-indigo-500 dark:border-l-indigo-400',
-      valueColor: 'text-indigo-600 dark:text-indigo-400',
-      icon: Calendar,
-      iconColor: 'text-indigo-400/40 dark:text-indigo-400/30',
-      path: '/employees',
-    },
-    {
-      key: 'alerts' as const,
-      label: t('Active Alerts'),
-      value: employees.filter((e) => e.status === 'active').length,
-      accent: 'border-l-emerald-500 dark:border-l-emerald-400',
-      valueColor: 'text-emerald-600 dark:text-emerald-400',
-      icon: Bell,
-      iconColor: 'text-emerald-400/40 dark:text-emerald-400/30',
-      path: '/settings',
-    },
-  ];
+  const tooltipStyle = {
+    backgroundColor: '#0f172a',
+    border: '1px solid #334155',
+    borderRadius: 8,
+    color: '#f1f5f9',
+    fontSize: 12,
+  };
+
+  const handleOpenStudio = (emp: Employee, type: 'BIRTHDAY' | 'ANNIVERSARY', years = 1) => {
+    setSelectedStudioEmployee(emp);
+    setStudioMilestoneType(type);
+    setStudioYears(years);
+    setShowCardStudio(true);
+  };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      <h1 className="text-2xl font-bold text-slate-800 dark:text-white">{t('Dashboard Overview')}</h1>
+    <div className="space-y-6 animate-in fade-in duration-500 pb-12">
+      {/* Top Welcome & One-Click AI Triggers */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+            <span>{t('Dashboard Overview')}</span>
+            <span className="text-xs font-normal text-slate-400 dark:text-zinc-500 hidden sm:inline">
+              • JAPAC Recognition Command Center
+            </span>
+          </h1>
+          <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">
+            Welcome back! You have <strong className="text-indigo-600 dark:text-indigo-400">{milestones30.length} milestones</strong> coming up this month across your team.
+          </p>
+        </div>
 
-      {/* Stat cards — navigate smoothly to pages without popping up blur overlays */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {statCards.map(({ key, label, value, accent, valueColor, icon: Icon, iconColor, path }) => (
+        {/* One-Click AI Action Triggers */}
+        <div className="flex items-center gap-2 flex-wrap">
           <button
-            key={key}
-            onClick={() => navigate(path)}
-            className={cn('glass-panel p-5 flex items-center gap-4 hover:-translate-y-0.5 transition-all text-left group cursor-pointer border-l-4', accent)}
+            onClick={() => {
+              if (milestones30.length > 0) {
+                const target = milestones30[0];
+                handleOpenStudio(target.employee, target.type, target.years || 1);
+              } else if (employees.length > 0) {
+                handleOpenStudio(employees[0], 'ANNIVERSARY', 3);
+              }
+            }}
+            className="px-3 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-indigo-600/25 transition-all cursor-pointer"
           >
-            <div className="flex-1 min-w-0">
-              <div className={cn('text-3xl font-bold tabular', valueColor)}>{value}</div>
-              <div className="text-sm text-slate-500 dark:text-zinc-400 mt-0.5">{label}</div>
-            </div>
-            <Icon size={36} className={cn('shrink-0', iconColor)} />
+            <Sparkles size={14} />
+            <span>Customize Card with AI</span>
           </button>
-        ))}
+
+          <button
+            onClick={() => setShowCopilot(true)}
+            className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition-all cursor-pointer shadow-xs"
+          >
+            <Bot size={14} className="text-cyan-400" />
+            <span>Ask Employee Copilot</span>
+          </button>
+
+          <button
+            onClick={() => setShowCopilot(true)}
+            className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition-all cursor-pointer shadow-xs"
+          >
+            <Upload size={14} className="text-emerald-400" />
+            <span>Import via OCR</span>
+          </button>
+
+          <button
+            onClick={() => navigate('/analytics')}
+            className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition-all cursor-pointer shadow-xs"
+          >
+            <BarChart2 size={14} className="text-amber-400" />
+            <span>BigQuery Analytics</span>
+          </button>
+        </div>
       </div>
 
-      {/* Charts */}
+      {/* Quick KPI Summary Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* KPI 1: Upcoming Birthdays */}
+        <div className="glass-panel p-5 border-l-4 border-l-pink-500 flex items-center justify-between">
+          <div>
+            <div className="text-xs font-medium text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
+              Birthdays (30 Days)
+            </div>
+            <div className="text-2xl font-bold text-pink-600 dark:text-pink-400 mt-1 tabular">
+              {birthdayCount}
+            </div>
+            <div className="text-[11px] text-slate-400 mt-1">
+              Celebrations upcoming
+            </div>
+          </div>
+          <div className="p-3 rounded-xl bg-pink-500/10 text-pink-500">
+            <Cake size={24} />
+          </div>
+        </div>
+
+        {/* KPI 2: Work Anniversaries */}
+        <div className="glass-panel p-5 border-l-4 border-l-indigo-500 flex items-center justify-between">
+          <div>
+            <div className="text-xs font-medium text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
+              Anniversaries (30 Days)
+            </div>
+            <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-1 tabular">
+              {anniversaryCount}
+            </div>
+            <div className="text-[11px] text-slate-400 mt-1">
+              Tenure milestones
+            </div>
+          </div>
+          <div className="p-3 rounded-xl bg-indigo-500/10 text-indigo-500">
+            <Briefcase size={24} />
+          </div>
+        </div>
+
+        {/* KPI 3: Recognition Velocity */}
+        <div className="glass-panel p-5 border-l-4 border-l-emerald-500 flex items-center justify-between">
+          <div>
+            <div className="text-xs font-medium text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
+              Recognition Velocity
+            </div>
+            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 tabular">
+              98.4%
+            </div>
+            <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1 mt-1">
+              <TrendingUp size={12} />
+              <span>Sent on-time with AI cards</span>
+            </div>
+          </div>
+          <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-500">
+            <CheckCircle2 size={24} />
+          </div>
+        </div>
+
+        {/* KPI 4: Total Roster Connected */}
+        <div className="glass-panel p-5 border-l-4 border-l-corp-blue dark:border-l-cobalt-500 flex items-center justify-between">
+          <div>
+            <div className="text-xs font-medium text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
+              Active JAPAC Roster
+            </div>
+            <div className="text-2xl font-bold text-corp-blue dark:text-cobalt-400 mt-1 tabular">
+              {employees.length}
+            </div>
+            <div className="text-[11px] text-slate-400 mt-1">
+              Employees synced
+            </div>
+          </div>
+          <div className="p-3 rounded-xl bg-corp-blue/10 dark:bg-cobalt-500/10 text-corp-blue dark:text-cobalt-400">
+            <Users size={24} />
+          </div>
+        </div>
+      </div>
+
+      {/* SECTION 1: This Month's Incoming Milestones Carousel/Feed (Immediate Actionable Value) */}
+      <div className="glass-panel p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-indigo-500/15 border border-indigo-400/30 text-indigo-500 dark:text-indigo-400">
+              <Sparkles size={18} />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-slate-800 dark:text-white">
+                This Month's Incoming Milestones
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-zinc-400">
+                Actionable celebration feed • One-click to generate Gemini personalized cards
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => navigate('/employees')}
+            className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold hover:underline flex items-center gap-1"
+          >
+            <span>View full roster</span>
+            <ChevronRight size={14} />
+          </button>
+        </div>
+
+        {milestones30.length === 0 ? (
+          <div className="p-8 text-center bg-slate-50 dark:bg-zinc-900/40 rounded-xl border border-dashed border-slate-300 dark:border-zinc-800">
+            <p className="text-sm text-slate-500 dark:text-zinc-400">No upcoming milestones this month 🎉</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {milestones30.slice(0, 6).map((m, idx) => {
+              const isBday = m.type === 'BIRTHDAY';
+              return (
+                <div
+                  key={idx}
+                  className="p-4 rounded-xl bg-slate-50 dark:bg-zinc-900/80 border border-slate-200 dark:border-zinc-800 hover:border-indigo-500/50 transition-all flex flex-col justify-between shadow-xs group"
+                >
+                  <div>
+                    {/* Top row: Avatar + Countdown Badge */}
+                    <div className="flex items-center justify-between gap-3 mb-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-zinc-800 flex items-center justify-center font-bold text-slate-700 dark:text-zinc-200 text-sm">
+                          {m.employee.name[0]}
+                        </div>
+                        <div>
+                          <div className="text-sm font-bold text-slate-800 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                            {m.employee.name}
+                          </div>
+                          <div className="text-xs text-slate-500 dark:text-zinc-400">
+                            {m.employee.department}
+                          </div>
+                        </div>
+                      </div>
+
+                      <span
+                        className={cn(
+                          'px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider',
+                          m.isToday
+                            ? 'bg-red-500 text-white animate-pulse'
+                            : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800'
+                        )}
+                      >
+                        {m.isToday ? 'Today!' : `in ${m.daysUntil}d`}
+                      </span>
+                    </div>
+
+                    {/* Milestone Type */}
+                    <div className="flex items-center gap-1.5 text-xs font-medium text-slate-600 dark:text-zinc-300 mb-4">
+                      {isBday ? (
+                        <>
+                          <Cake size={14} className="text-pink-500" />
+                          <span>Birthday Celebration ({m.employee.dob})</span>
+                        </>
+                      ) : (
+                        <>
+                          <Briefcase size={14} className="text-indigo-500" />
+                          <span>{m.years}-Year Anniversary ({m.employee.joinedDate})</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Action Button */}
+                  <button
+                    onClick={() => handleOpenStudio(m.employee, m.type, m.years || 1)}
+                    className="w-full py-2 px-3 rounded-lg bg-indigo-600/10 hover:bg-indigo-600 text-indigo-600 hover:text-white dark:bg-indigo-500/15 dark:hover:bg-indigo-600 dark:text-indigo-300 dark:hover:text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-indigo-500/30 shadow-xs"
+                  >
+                    <Sparkles size={13} />
+                    <span>✨ Customize with Gen AI</span>
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* SECTION 2: Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* 7-Day Activity */}
         <div className="glass-panel p-5">
           <h2 className="text-sm font-semibold text-slate-700 dark:text-zinc-300 mb-4">{t('7-Day Activity')}</h2>
           <ResponsiveContainer width="100%" height={200}>
@@ -202,6 +398,7 @@ export default function Dashboard({ onCountChange }: { onCountChange: (n: number
           </ResponsiveContainer>
         </div>
 
+        {/* Headcount by Department */}
         <div className="glass-panel p-5">
           <h2 className="text-sm font-semibold text-slate-700 dark:text-zinc-300 mb-4">{t('Headcount by Department')}</h2>
           <ResponsiveContainer width="100%" height={200}>
@@ -216,28 +413,21 @@ export default function Dashboard({ onCountChange }: { onCountChange: (n: number
         </div>
       </div>
 
-      {/* Milestone lists */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="glass-panel p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
-            <h2 className="text-sm font-semibold text-slate-700 dark:text-zinc-300">{t('Happening Today')}</h2>
-            <span className="ml-auto text-xs bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 px-2 py-0.5 rounded-full font-semibold">{today.length}</span>
-          </div>
-          {today.length === 0
-            ? <p className="text-sm text-slate-400 dark:text-zinc-500">{t('Nothing today 🎉')}</p>
-            : today.map((m, i) => <MilestoneItem key={i} m={m} />)}
-        </div>
+      {/* Modals and Sidebars */}
+      <AiCardStudioModal
+        isOpen={showCardStudio}
+        onClose={() => setShowCardStudio(false)}
+        employee={selectedStudioEmployee}
+        milestoneType={studioMilestoneType}
+        years={studioYears}
+      />
 
-        <div className="glass-panel p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-slate-700 dark:text-zinc-300">{t('Upcoming (Next 30 Days)')}</h2>
-            <button onClick={() => navigate('/employees')} className="text-xs text-corp-blue dark:text-cobalt-400 hover:underline">{t('View all →')}</button>
-          </div>
-          {milestones30.slice(0, 8).map((m, i) => <MilestoneItem key={i} m={m} />)}
-          {milestones30.length === 0 && <p className="text-sm text-slate-400 dark:text-zinc-500">{t('No milestones in next 30 days')}</p>}
-        </div>
-      </div>
+      <CopilotSidebar
+        isOpen={showCopilot}
+        onClose={() => setShowCopilot(false)}
+        employees={employees}
+        onOpenCardStudio={(emp) => handleOpenStudio(emp, 'ANNIVERSARY', 1)}
+      />
     </div>
   );
 }
