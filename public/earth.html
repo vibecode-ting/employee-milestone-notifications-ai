@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>JAPAC 3D Earth</title>
+  <title>JAPAC 3D Earth Network</title>
   <style>
     * {
       margin: 0;
@@ -27,9 +27,15 @@
       width: 100%;
       height: 100%;
       z-index: 1;
+      cursor: grab;
+      touch-action: none;
     }
 
-    /* 3D Projected Country Labels Layer (Flags + Country Names Only) */
+    #webgl-container:active {
+      cursor: grabbing;
+    }
+
+    /* 3D Projected Country Labels Layer */
     #labels-layer {
       position: absolute;
       inset: 0;
@@ -48,16 +54,27 @@
       gap: 6px;
       padding: 4px 9px;
       border-radius: 6px;
-      background: rgba(4, 10, 22, 0.72);
-      border: 1px solid rgba(120, 180, 255, 0.22);
-      backdrop-filter: blur(4px);
-      color: rgba(225, 238, 255, 0.85);
+      background: rgba(8, 18, 36, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      backdrop-filter: blur(6px);
+      color: #e0f2fe;
       font-size: 11px;
       font-weight: 500;
       letter-spacing: 0.02em;
       white-space: nowrap;
-      transition: opacity 0.25s ease, border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+      pointer-events: auto;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
       will-change: transform, opacity;
+    }
+
+    .country-label:hover {
+      background: rgba(14, 38, 77, 0.95);
+      border-color: #38bdf8;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.6);
+      transform: translate(-50%, -125%) scale(1.08);
+      z-index: 25;
     }
 
     .country-label img.flag-icon {
@@ -69,16 +86,17 @@
       flex-shrink: 0;
     }
 
-    /* Active slide country emphasis */
+    /* Active country emphasis */
     .country-label.is-active {
-      background: rgba(8, 24, 52, 0.92);
-      border-color: rgba(56, 189, 248, 0.95);
+      background: rgba(12, 36, 74, 0.95);
+      border-color: #38bdf8;
       color: #ffffff;
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 700;
       padding: 6px 12px;
-      box-shadow: 0 0 20px rgba(56, 189, 248, 0.45);
-      z-index: 20;
+      box-shadow: 0 0 24px rgba(56, 189, 248, 0.7);
+      z-index: 30;
+      transform: translate(-50%, -130%) scale(1.1);
     }
 
     .country-label.is-active img.flag-icon {
@@ -88,59 +106,230 @@
 
     /* Singapore Hub anchor styling */
     .country-label.is-hub {
-      border-color: rgba(52, 211, 153, 0.75);
+      border-color: rgba(52, 211, 153, 0.85);
       color: #ecfdf5;
+      box-shadow: 0 0 14px rgba(52, 211, 153, 0.4);
     }
 
-    /* Featured Myanmar styling when active */
+    /* Featured Myanmar styling */
+    .country-label.is-myanmar {
+      border-color: rgba(251, 191, 36, 0.85);
+      color: #fef3c7;
+    }
+
     .country-label.is-myanmar.is-active {
-      border-color: rgba(251, 191, 36, 0.95);
-      box-shadow: 0 0 24px rgba(251, 191, 36, 0.5);
+      border-color: #fbbf24;
+      box-shadow: 0 0 28px rgba(251, 191, 36, 0.7);
     }
 
-    /* Subtle interactive hint pill */
-    .scroll-hint {
+    /* HUD Top Badge */
+    .hud-header {
       position: absolute;
-      bottom: 20px;
-      left: 24px;
+      top: 18px;
+      left: 20px;
       z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      pointer-events: none;
+    }
+
+    .hud-title-badge {
       display: inline-flex;
       align-items: center;
       gap: 8px;
       padding: 6px 14px;
       border-radius: 9999px;
-      background: rgba(15, 23, 42, 0.65);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(8px);
-      color: rgba(226, 232, 240, 0.75);
-      font-size: 11px;
-      font-weight: 500;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      backdrop-filter: blur(10px);
+      color: #f1f5f9;
+      font-size: 12px;
+      font-weight: 600;
       letter-spacing: 0.02em;
-      pointer-events: none;
-      transition: opacity 0.5s ease;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     }
 
-    .scroll-dot {
-      width: 6px;
-      height: 6px;
+    .live-dot {
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
-      background: #38bdf8;
-      box-shadow: 0 0 8px #38bdf8;
+      background: #10b981;
+      box-shadow: 0 0 10px #10b981;
       animation: pulse-glow 2s infinite;
+    }
+
+    .hud-sub {
+      color: rgba(148, 163, 184, 0.85);
+      font-size: 11px;
+      font-weight: 400;
+      padding-left: 6px;
+    }
+
+    /* Bottom HUD Toolbar */
+    .hud-bottom {
+      position: absolute;
+      bottom: 18px;
+      left: 20px;
+      right: 20px;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      pointer-events: none;
+      flex-wrap: wrap;
+    }
+
+    .hud-hint {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(8px);
+      color: rgba(226, 232, 240, 0.85);
+      font-size: 11px;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .hud-chips {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      pointer-events: auto;
+      overflow-x: auto;
+      max-width: 100%;
+      padding-bottom: 2px;
+    }
+
+    .chip-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 11px;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      backdrop-filter: blur(8px);
+      color: #cbd5e1;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .chip-btn:hover {
+      background: rgba(30, 58, 138, 0.9);
+      border-color: #38bdf8;
+      color: #ffffff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.35);
+    }
+
+    .chip-btn.active {
+      background: #0284c7;
+      border-color: #38bdf8;
+      color: #ffffff;
+      font-weight: 600;
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.6);
+    }
+
+    .hud-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      pointer-events: auto;
+    }
+
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      color: #cbd5e1;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .action-btn:hover {
+      background: rgba(30, 41, 59, 0.95);
+      border-color: rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+    }
+
+    .action-btn.is-active {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: #10b981;
+      color: #a7f3d0;
     }
 
     @keyframes pulse-glow {
       0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.85); }
+      50% { opacity: 0.45; transform: scale(0.85); }
+    }
+
+    @media (max-width: 768px) {
+      .hud-sub { display: none; }
+      .hud-hint { display: none; }
+      .hud-bottom { bottom: 10px; left: 10px; right: 10px; }
+      .hud-header { top: 10px; left: 10px; }
     }
   </style>
 </head>
 <body>
   <div id="webgl-container"></div>
   <div id="labels-layer"></div>
-  <div class="scroll-hint">
-    <span class="scroll-dot"></span>
-    <span>Scroll to explore JAPAC milestone network</span>
+
+  <!-- HUD Top Header -->
+  <div class="hud-header">
+    <div class="hud-title-badge">
+      <span class="live-dot"></span>
+      <span>JAPAC Milestone Intelligence Network</span>
+    </div>
+    <span class="hud-sub">34 entities connected across Asia Pacific • Real-time 3D telemetry</span>
+  </div>
+
+  <!-- HUD Bottom Bar -->
+  <div class="hud-bottom">
+    <div class="hud-hint">
+      <span>👆 Drag to spin</span>
+      <span>•</span>
+      <span>🔍 Scroll to zoom</span>
+      <span>•</span>
+      <span>📍 Click node to fly</span>
+    </div>
+
+    <!-- Quick Jump Hub Chips -->
+    <div class="hud-chips">
+      <button class="chip-btn" data-code="sg">🇸🇬 Singapore</button>
+      <button class="chip-btn" data-code="mm">🇲🇲 Myanmar</button>
+      <button class="chip-btn" data-code="jp">🇯🇵 Japan</button>
+      <button class="chip-btn" data-code="kr">🇰🇷 S. Korea</button>
+      <button class="chip-btn" data-code="au">🇦🇺 Australia</button>
+      <button class="chip-btn" data-code="vn">🇻🇳 Vietnam</button>
+    </div>
+
+    <!-- Actions -->
+    <div class="hud-actions">
+      <button class="action-btn is-active" id="btn-spin" title="Toggle Auto-Spin">
+        <span>🔄</span> <span id="spin-text">Spin</span>
+      </button>
+      <button class="action-btn" id="btn-reset" title="Reset Camera View">
+        <span>🎯</span> <span>Reset</span>
+      </button>
+    </div>
   </div>
 
   <script type="importmap">
@@ -202,22 +391,23 @@
     const NAME_MAP = new Map(JAPAC_COUNTRIES.map(c => [c.name.toLowerCase(), c]));
 
     // =========================================================================
-    // 2. SCENE, CAMERA & RENDERER
+    // 2. SCENE, CAMERA & RENDERER SETUP
     // =========================================================================
     const container = document.getElementById('webgl-container');
     const labelsLayer = document.getElementById('labels-layer');
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 3000);
+    const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 4000);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 0.85;
+    renderer.toneMappingExposure = 1.35; // Bright, vibrant lighting
     container.appendChild(renderer.domElement);
 
     const worldGroup = new THREE.Group();
+    worldGroup.rotation.order = 'YXZ'; // Yaw then Pitch prevents gimbal lock
     scene.add(worldGroup);
 
     const EARTH_RADIUS = 10;
@@ -232,12 +422,12 @@
     }
 
     // =========================================================================
-    // 3. DEEP SPACE GALAXY, MILKY WAY NEBULA & STARFIELD
+    // 3. DEEP SPACE GALAXY & NEBULA STARFIELD
     // =========================================================================
     function createGalaxyAndStars() {
       const galaxyGroup = new THREE.Group();
 
-      const starCount = 20000;
+      const starCount = 18000;
       const starGeo = new THREE.BufferGeometry();
       const starPos = new Float32Array(starCount * 3);
       const starCol = new Float32Array(starCount * 3);
@@ -252,7 +442,7 @@
       ];
 
       for (let i = 0; i < starCount; i++) {
-        const r = 180 + Math.random() * 900;
+        const r = 200 + Math.random() * 950;
         const theta = Math.random() * Math.PI * 2;
         const phi = Math.acos(2 * Math.random() - 1);
 
@@ -261,7 +451,7 @@
         starPos[i * 3 + 2] = r * Math.cos(phi);
 
         const c = palette[Math.floor(Math.random() * palette.length)];
-        const brightness = 0.35 + Math.random() * 0.65;
+        const brightness = 0.45 + Math.random() * 0.55;
         starCol[i * 3] = c.r * brightness;
         starCol[i * 3 + 1] = c.g * brightness;
         starCol[i * 3 + 2] = c.b * brightness;
@@ -271,30 +461,31 @@
       starGeo.setAttribute('color', new THREE.BufferAttribute(starCol, 3));
 
       const starMat = new THREE.PointsMaterial({
-        size: 1.15,
+        size: 1.2,
         vertexColors: true,
         transparent: true,
-        opacity: 0.9,
+        opacity: 0.95,
         depthWrite: false
       });
       galaxyGroup.add(new THREE.Points(starGeo, starMat));
 
-      const mwCount = 10000;
+      // Cosmic milky way nebula band
+      const mwCount = 9000;
       const mwGeo = new THREE.BufferGeometry();
       const mwPos = new Float32Array(mwCount * 3);
       const mwCol = new Float32Array(mwCount * 3);
 
       for (let i = 0; i < mwCount; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const radius = 220 + Math.random() * 450;
-        const spreadY = (Math.random() - 0.5) * (Math.random() - 0.5) * 160;
+        const radius = 240 + Math.random() * 500;
+        const spreadY = (Math.random() - 0.5) * (Math.random() - 0.5) * 180;
 
         mwPos[i * 3] = Math.cos(angle) * radius;
         mwPos[i * 3 + 1] = spreadY;
         mwPos[i * 3 + 2] = Math.sin(angle) * radius;
 
         const mixRatio = Math.random();
-        const c = new THREE.Color().setHSL(0.58 + mixRatio * 0.16, 0.65, 0.55 + Math.random() * 0.3);
+        const c = new THREE.Color().setHSL(0.58 + mixRatio * 0.16, 0.75, 0.55 + Math.random() * 0.3);
         mwCol[i * 3] = c.r;
         mwCol[i * 3 + 1] = c.g;
         mwCol[i * 3 + 2] = c.b;
@@ -306,16 +497,16 @@
       const mwBand = new THREE.Points(
         mwGeo,
         new THREE.PointsMaterial({
-          size: 1.6,
+          size: 1.8,
           vertexColors: true,
           transparent: true,
-          opacity: 0.55,
+          opacity: 0.65,
           blending: THREE.AdditiveBlending,
           depthWrite: false
         })
       );
-      mwBand.rotation.z = 0.48;
-      mwBand.rotation.x = 0.25;
+      mwBand.rotation.z = 0.5;
+      mwBand.rotation.x = 0.28;
       galaxyGroup.add(mwBand);
 
       scene.add(galaxyGroup);
@@ -325,55 +516,180 @@
     const galaxyField = createGalaxyAndStars();
 
     // =========================================================================
-    // 4. REALISTIC EARTH GLOBE & ATMOSPHERE
+    // 4. MULTI-POINT VIBRANT LIGHTING SYSTEM (Light up the Earth!)
     // =========================================================================
-    const ambientLight = new THREE.AmbientLight(0x334b68, 0.75);
+    // Bright ambient celestial fill so the dark side is never pitch black
+    const ambientLight = new THREE.AmbientLight(0xdbeafe, 1.6);
     scene.add(ambientLight);
 
-    const sunLight = new THREE.DirectionalLight(0xfff6e5, 1.35);
-    sunLight.position.set(35, 18, 40);
+    // Primary Sun Key Light
+    const sunLight = new THREE.DirectionalLight(0xffffff, 2.4);
+    sunLight.position.set(32, 22, 38);
     scene.add(sunLight);
 
-    const rimLight = new THREE.DirectionalLight(0x1e40af, 0.45);
-    rimLight.position.set(-35, -15, -25);
+    // Cyan Fill Light from opposite side
+    const fillLight = new THREE.DirectionalLight(0x38bdf8, 1.3);
+    fillLight.position.set(-30, -12, 24);
+    scene.add(fillLight);
+
+    // Deep Indigo Rim / Backlight
+    const rimLight = new THREE.DirectionalLight(0x818cf8, 0.95);
+    rimLight.position.set(0, 32, -28);
     scene.add(rimLight);
 
-    const textureLoader = new THREE.TextureLoader();
+    // Soft Bottom Earth Bounce Light
+    const bounceLight = new THREE.DirectionalLight(0x60a5fa, 0.55);
+    bounceLight.position.set(0, -32, 12);
+    scene.add(bounceLight);
+
+    // =========================================================================
+    // 5. EARTH GLOBE WITH PROCEDURAL FALLBACK & HIGH-RES TEXTURES
+    // =========================================================================
+    function createProceduralEarthCanvas() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 2048;
+      canvas.height = 1024;
+      const ctx = canvas.getContext('2d');
+
+      // Oceanic gradient
+      const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      grad.addColorStop(0, '#041226');
+      grad.addColorStop(0.2, '#082548');
+      grad.addColorStop(0.5, '#0c3868');
+      grad.addColorStop(0.8, '#082548');
+      grad.addColorStop(1, '#041226');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Cyber latitude & longitude grid lines
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.22)';
+      for (let lat = -80; lat <= 80; lat += 20) {
+        const y = ((90 - lat) / 180) * canvas.height;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+      for (let lon = -180; lon <= 180; lon += 30) {
+        const x = ((lon + 180) / 360) * canvas.width;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+
+      // Equator highlight
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
+      ctx.beginPath();
+      ctx.moveTo(0, canvas.height / 2);
+      ctx.lineTo(canvas.width, canvas.height / 2);
+      ctx.stroke();
+
+      // Atmospheric star/node particles across the globe
+      ctx.fillStyle = 'rgba(125, 211, 252, 0.4)';
+      for (let i = 0; i < 500; i++) {
+        const gx = Math.random() * canvas.width;
+        const gy = Math.random() * canvas.height;
+        const gr = Math.random() * 2 + 0.5;
+        ctx.beginPath();
+        ctx.arc(gx, gy, gr, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      return canvas;
+    }
+
+    const fallbackTexture = new THREE.CanvasTexture(createProceduralEarthCanvas());
+    fallbackTexture.colorSpace = THREE.SRGBColorSpace;
+
     const earthGeo = new THREE.SphereGeometry(EARTH_RADIUS, 96, 96);
     const earthMat = new THREE.MeshPhongMaterial({
-      color: new THREE.Color(0xaaaaaa),
-      specular: new THREE.Color(0x111c2d),
-      shininess: 12
+      map: fallbackTexture,
+      color: 0xffffff,
+      specular: 0x3b82f6,
+      shininess: 24,
+      bumpScale: 0.14
     });
-
-    textureLoader.load(
-      'https://unpkg.com/three-globe@2.31.0/example/img/earth-blue-marble.jpg',
-      (tex) => {
-        tex.colorSpace = THREE.SRGBColorSpace;
-        earthMat.map = tex;
-        earthMat.needsUpdate = true;
-      }
-    );
-    textureLoader.load(
-      'https://unpkg.com/three-globe@2.31.0/example/img/earth-topology.png',
-      (bump) => {
-        earthMat.bumpMap = bump;
-        earthMat.bumpScale = 0.12;
-        earthMat.needsUpdate = true;
-      }
-    );
-    textureLoader.load(
-      'https://unpkg.com/three-globe@2.31.0/example/img/earth-water.png',
-      (spec) => {
-        earthMat.specularMap = spec;
-        earthMat.needsUpdate = true;
-      }
-    );
 
     const earthMesh = new THREE.Mesh(earthGeo, earthMat);
     worldGroup.add(earthMesh);
 
-    const atmosGeo = new THREE.SphereGeometry(EARTH_RADIUS * 1.022, 96, 96);
+    // Multi-source Texture Loader with automatic fallback
+    const earthTextureSources = [
+      'https://unpkg.com/three-globe@2.31.0/example/img/earth-blue-marble.jpg',
+      'https://cdn.jsdelivr.net/npm/three-globe@2.31.0/example/img/earth-blue-marble.jpg',
+      'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg'
+    ];
+
+    function loadFirstAvailableTexture(sources, onSuccess) {
+      let index = 0;
+      const loader = new THREE.TextureLoader();
+      function tryNext() {
+        if (index >= sources.length) return;
+        loader.load(
+          sources[index],
+          (tex) => {
+            tex.colorSpace = THREE.SRGBColorSpace;
+            onSuccess(tex);
+          },
+          undefined,
+          () => {
+            index++;
+            tryNext();
+          }
+        );
+      }
+      tryNext();
+    }
+
+    loadFirstAvailableTexture(earthTextureSources, (tex) => {
+      earthMat.map = tex;
+      earthMat.needsUpdate = true;
+    });
+
+    // Bump Map
+    loadFirstAvailableTexture([
+      'https://unpkg.com/three-globe@2.31.0/example/img/earth-topology.png',
+      'https://cdn.jsdelivr.net/npm/three-globe@2.31.0/example/img/earth-topology.png'
+    ], (bump) => {
+      earthMat.bumpMap = bump;
+      earthMat.bumpScale = 0.14;
+      earthMat.needsUpdate = true;
+    });
+
+    // Specular Ocean Map
+    loadFirstAvailableTexture([
+      'https://unpkg.com/three-globe@2.31.0/example/img/earth-water.png',
+      'https://cdn.jsdelivr.net/npm/three-globe@2.31.0/example/img/earth-water.png'
+    ], (spec) => {
+      earthMat.specularMap = spec;
+      earthMat.needsUpdate = true;
+    });
+
+    // Floating Clouds Layer
+    const cloudGeo = new THREE.SphereGeometry(EARTH_RADIUS * 1.012, 64, 64);
+    const cloudMat = new THREE.MeshPhongMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.35,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+    const cloudMesh = new THREE.Mesh(cloudGeo, cloudMat);
+    worldGroup.add(cloudMesh);
+
+    loadFirstAvailableTexture([
+      'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_clouds_1024.png',
+      'https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/textures/planets/earth_clouds_1024.png'
+    ], (tex) => {
+      cloudMat.map = tex;
+      cloudMat.needsUpdate = true;
+    });
+
+    // Atmospheric Outer Glow Corona
+    const atmosGeo = new THREE.SphereGeometry(EARTH_RADIUS * 1.026, 96, 96);
     const atmosMat = new THREE.ShaderMaterial({
       vertexShader: `
         varying vec3 vNormal;
@@ -385,8 +701,8 @@
       fragmentShader: `
         varying vec3 vNormal;
         void main() {
-          float intensity = pow(0.62 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 3.2);
-          gl_FragColor = vec4(0.18, 0.52, 0.96, 1.0) * intensity * 0.65;
+          float intensity = pow(0.68 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 3.0);
+          gl_FragColor = vec4(0.24, 0.68, 1.0, 1.0) * intensity * 0.95;
         }
       `,
       blending: THREE.AdditiveBlending,
@@ -397,32 +713,50 @@
     scene.add(new THREE.Mesh(atmosGeo, atmosMat));
 
     // =========================================================================
-    // 5. JAPAC COUNTRY MARKERS, ARCS & LABELS
+    // 6. JAPAC COUNTRY MARKERS, ARCS & LABELS
     // =========================================================================
     const singaporeHub = JAPAC_COUNTRIES[0];
-    const sgPos = latLonToVector3(singaporeHub.lat, singaporeHub.lon, EARTH_RADIUS + 0.03);
+    const sgPos = latLonToVector3(singaporeHub.lat, singaporeHub.lon, EARTH_RADIUS + 0.04);
 
     const countryVisuals = new Map();
     const animatedPulses = [];
+    const interactiveMeshes = [];
 
     JAPAC_COUNTRIES.forEach((country, idx) => {
-      const pos = latLonToVector3(country.lat, country.lon, EARTH_RADIUS + 0.03);
+      const pos = latLonToVector3(country.lat, country.lon, EARTH_RADIUS + 0.04);
 
-      const markerGeo = new THREE.SphereGeometry(country.isHub ? 0.11 : 0.065, 16, 16);
+      // Marker sphere
+      const markerGeo = new THREE.SphereGeometry(country.isHub ? 0.14 : (country.isMyanmar ? 0.12 : 0.08), 16, 16);
       const markerMat = new THREE.MeshBasicMaterial({
         color: country.isHub ? 0x34d399 : (country.isMyanmar ? 0xfbbf24 : 0x38bdf8),
         transparent: true,
-        opacity: 0.85
+        opacity: 0.95
       });
       const marker = new THREE.Mesh(markerGeo, markerMat);
       marker.position.copy(pos);
+      marker.userData = { countryCode: country.code };
       worldGroup.add(marker);
+      interactiveMeshes.push(marker);
+
+      // Glowing pulsing rings under country pin
+      const ringGeo = new THREE.RingGeometry(0.12, 0.2, 24);
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: country.isHub ? 0x34d399 : (country.isMyanmar ? 0xfbbf24 : 0x38bdf8),
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.65,
+        blending: THREE.AdditiveBlending
+      });
+      const ring = new THREE.Mesh(ringGeo, ringMat);
+      ring.position.copy(pos);
+      ring.lookAt(new THREE.Vector3(0, 0, 0));
+      worldGroup.add(ring);
 
       let arcMat = null;
       if (!country.isHub) {
         const dist = pos.distanceTo(sgPos);
         const mid = pos.clone().add(sgPos).multiplyScalar(0.5);
-        mid.normalize().multiplyScalar(EARTH_RADIUS + Math.min(3.6, dist * 0.36));
+        mid.normalize().multiplyScalar(EARTH_RADIUS + Math.min(4.0, dist * 0.38));
 
         const curve = new THREE.QuadraticBezierCurve3(pos, mid, sgPos);
         const points = curve.getPoints(56);
@@ -431,18 +765,19 @@
         arcMat = new THREE.LineBasicMaterial({
           color: country.isMyanmar ? 0xfbbf24 : 0x38bdf8,
           transparent: true,
-          opacity: 0.26,
+          opacity: 0.32,
           blending: THREE.AdditiveBlending
         });
 
         const arcLine = new THREE.Line(arcGeo, arcMat);
         worldGroup.add(arcLine);
 
-        const pulseGeo = new THREE.SphereGeometry(0.055, 10, 10);
+        // Animated pulse along the arc
+        const pulseGeo = new THREE.SphereGeometry(0.065, 10, 10);
         const pulseMat = new THREE.MeshBasicMaterial({
           color: country.isMyanmar ? 0xfde047 : 0x7dd3fc,
           transparent: true,
-          opacity: 0.85
+          opacity: 0.95
         });
         const pulseMesh = new THREE.Mesh(pulseGeo, pulseMat);
         worldGroup.add(pulseMesh);
@@ -451,16 +786,18 @@
           curve,
           mesh: pulseMesh,
           mat: pulseMat,
-          speed: 0.22 + (idx % 5) * 0.04,
-          offset: (idx * 0.13) % 1,
+          speed: 0.25 + (idx % 5) * 0.05,
+          offset: (idx * 0.14) % 1,
           code: country.code
         });
       }
 
+      // 2D HTML Label
       const labelEl = document.createElement('div');
       labelEl.className = 'country-label' +
         (country.isHub ? ' is-hub' : '') +
         (country.isMyanmar ? ' is-myanmar' : '');
+      labelEl.dataset.code = country.code;
 
       const flagImg = document.createElement('img');
       flagImg.className = 'flag-icon';
@@ -474,17 +811,25 @@
       labelEl.appendChild(nameSpan);
       labelsLayer.appendChild(labelEl);
 
+      // Clicking label triggers smooth fly-to
+      labelEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        flyToCountry(country.code);
+      });
+
       countryVisuals.set(country.code, {
         data: country,
         pos3D: pos,
         markerMat,
+        markerMesh: marker,
+        ringMesh: ring,
         arcMat,
         borderMaterials: [],
         labelEl
       });
     });
 
-    // Load Country Borders GeoJSON (Local first, then remote CDN fallback)
+    // Country borders from GeoJSON
     function loadGeoJSON() {
       fetch('/data/world.geojson')
         .catch(() => fetch('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson'))
@@ -506,13 +851,13 @@
               const pts = [];
               for (let i = 0; i < ring.length; i++) {
                 const [lon, lat] = ring[i];
-                pts.push(latLonToVector3(lat, lon, EARTH_RADIUS + 0.02));
+                pts.push(latLonToVector3(lat, lon, EARTH_RADIUS + 0.03));
               }
               const geo = new THREE.BufferGeometry().setFromPoints(pts);
               const mat = new THREE.LineBasicMaterial({
                 color: baseColor,
                 transparent: true,
-                opacity: 0.42,
+                opacity: 0.45,
                 blending: THREE.AdditiveBlending
               });
               const line = new THREE.Line(geo, mat);
@@ -522,104 +867,245 @@
 
             const geom = feature.geometry;
             if (geom.type === 'Polygon') {
-              geom.coordinates.forEach(ring => drawRing(ring));
+              geom.coordinates.forEach(r => drawRing(r));
             } else if (geom.type === 'MultiPolygon') {
-              geom.coordinates.forEach(poly => poly.forEach(ring => drawRing(ring)));
+              geom.coordinates.forEach(poly => poly.forEach(r => drawRing(r)));
             }
           });
         })
-        .catch(() => {
-          // Silent fallback if network offline
-        });
+        .catch(() => {});
     }
 
     loadGeoJSON();
 
     // =========================================================================
-    // 6. MOUSE-WHEEL & TOUCH SLIDESHOW ENGINE
+    // 7. DRAG-AND-SPIN PHYSICS, WHEEL ZOOM & TOUCH GESTURES
     // =========================================================================
-    let currentSlideIndex = 0;
-    const totalSlides = JAPAC_COUNTRIES.length + 1;
+    let isDragging = false;
+    let lastPointerX = 0;
+    let lastPointerY = 0;
+    let velX = 0; // Pitch velocity
+    let velY = 0; // Yaw velocity
+    let autoRotate = true;
+    let isInteracting = false;
+    let idleTimer = null;
 
-    let targetCameraZ = 34;
-    let currentCameraZ = 34;
+    let isFlyingToTarget = false;
+    let flyTargetRotY = 0;
+    let flyTargetRotX = 0;
+    let flyTargetCameraZ = 30;
 
-    const targetQuaternion = new THREE.Quaternion();
-    const currentQuaternion = new THREE.Quaternion();
+    let targetCameraZ = 30;
+    let currentCameraZ = 30;
+    camera.position.set(0, 0, currentCameraZ);
 
-    function computeRotationForLatLon(lat, lon) {
-      const targetPoint = latLonToVector3(lat, lon, 1).normalize();
-      const cameraForward = new THREE.Vector3(0, 0, 1);
-      return new THREE.Quaternion().setFromUnitVectors(targetPoint, cameraForward);
+    // Initial position: Orient towards Southeast Asia & JAPAC hub (Lat 14, Lon 110)
+    const initialLon = (110 + 90) * (Math.PI / 180);
+    const initialLat = 14 * (Math.PI / 180);
+    worldGroup.rotation.y = -initialLon;
+    worldGroup.rotation.x = initialLat;
+
+    // Pointer Drag Listeners
+    container.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      isDragging = true;
+      isInteracting = true;
+      isFlyingToTarget = false;
+      clearTimeout(idleTimer);
+
+      lastPointerX = e.clientX;
+      lastPointerY = e.clientY;
+      velX = 0;
+      velY = 0;
+
+      try {
+        container.setPointerCapture(e.pointerId);
+      } catch (err) {}
+    });
+
+    container.addEventListener('pointermove', (e) => {
+      if (!isDragging) return;
+
+      const dx = e.clientX - lastPointerX;
+      const dy = e.clientY - lastPointerY;
+      lastPointerX = e.clientX;
+      lastPointerY = e.clientY;
+
+      velY = dx * 0.0045;
+      velX = dy * 0.0045;
+
+      worldGroup.rotation.y += velY;
+      worldGroup.rotation.x = Math.max(-1.3, Math.min(1.3, worldGroup.rotation.x + velX));
+    });
+
+    function handlePointerUp(e) {
+      if (!isDragging) return;
+      isDragging = false;
+      try {
+        container.releasePointerCapture(e.pointerId);
+      } catch (err) {}
+
+      idleTimer = setTimeout(() => {
+        isInteracting = false;
+      }, 2500);
     }
 
-    function applySlide(slideIndex) {
-      currentSlideIndex = ((slideIndex % totalSlides) + totalSlides) % totalSlides;
+    container.addEventListener('pointerup', handlePointerUp);
+    container.addEventListener('pointercancel', handlePointerUp);
 
-      if (currentSlideIndex === 0) {
-        targetCameraZ = 34;
-        targetQuaternion.copy(computeRotationForLatLon(12.0, 115.0));
-      } else {
-        const activeCountry = JAPAC_COUNTRIES[currentSlideIndex - 1];
-        targetCameraZ = 21.5;
-        targetQuaternion.copy(computeRotationForLatLon(activeCountry.lat, activeCountry.lon));
+    // Mouse Wheel Zoom
+    window.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      isInteracting = true;
+      clearTimeout(idleTimer);
+
+      targetCameraZ += e.deltaY * 0.024;
+      targetCameraZ = Math.max(16, Math.min(48, targetCameraZ));
+
+      idleTimer = setTimeout(() => {
+        isInteracting = false;
+      }, 2500);
+    }, { passive: false });
+
+    // Touch Pinch Zoom
+    let touchDistanceStart = 0;
+    window.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 2) {
+        touchDistanceStart = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
       }
+    }, { passive: true });
 
-      const activeCode = currentSlideIndex === 0
-        ? null
-        : JAPAC_COUNTRIES[currentSlideIndex - 1].code;
+    window.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 2 && touchDistanceStart > 0) {
+        const dist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        const delta = touchDistanceStart - dist;
+        targetCameraZ = Math.max(16, Math.min(48, targetCameraZ + delta * 0.06));
+        touchDistanceStart = dist;
+      }
+    }, { passive: true });
 
-      countryVisuals.forEach((vis, code) => {
-        const isCurrent = code === activeCode;
-        const isOverview = activeCode === null;
+    // =========================================================================
+    // 8. INTERACTIVE FLY-TO, HIGHLIGHTING & CHIP CONTROLS
+    // =========================================================================
+    let activeCountryCode = null;
 
-        vis.labelEl.classList.toggle('is-active', isCurrent);
+    function highlightCountry(code) {
+      activeCountryCode = code;
 
+      // Update chips UI
+      document.querySelectorAll('.chip-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.code === code);
+      });
+
+      // Update 3D visuals & 2D labels
+      countryVisuals.forEach((vis, cCode) => {
+        const isActive = cCode === code;
+        vis.labelEl.classList.toggle('is-active', isActive);
+
+        if (vis.markerMesh) {
+          vis.markerMesh.scale.setScalar(isActive ? 1.6 : 1.0);
+        }
         if (vis.arcMat) {
-          vis.arcMat.opacity = isOverview ? 0.28 : (isCurrent ? 0.95 : 0.12);
+          vis.arcMat.opacity = code === null ? 0.32 : (isActive ? 1.0 : 0.12);
         }
         vis.borderMaterials.forEach(mat => {
-          mat.opacity = isOverview ? 0.42 : (isCurrent ? 1.0 : 0.18);
+          mat.opacity = code === null ? 0.45 : (isActive ? 1.0 : 0.2);
         });
       });
     }
 
-    applySlide(0);
-    currentQuaternion.copy(targetQuaternion);
-    worldGroup.quaternion.copy(currentQuaternion);
-    camera.position.set(0, 0, currentCameraZ);
+    function flyToCountry(code) {
+      const c = JAPAC_COUNTRIES.find(x => x.code === code);
+      if (!c) return;
 
-    let wheelCooldown = 0;
-    window.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      const now = performance.now();
-      if (now - wheelCooldown < 260) return;
-      if (Math.abs(e.deltaY) < 6) return;
+      const radLon = (c.lon + 90) * (Math.PI / 180);
+      const radLat = c.lat * (Math.PI / 180);
 
-      wheelCooldown = now;
-      if (e.deltaY > 0) {
-        applySlide(currentSlideIndex + 1);
-      } else {
-        applySlide(currentSlideIndex - 1);
+      // Shortest rotation path
+      let diff = (-radLon - worldGroup.rotation.y) % (Math.PI * 2);
+      if (diff > Math.PI) diff -= Math.PI * 2;
+      if (diff < -Math.PI) diff += Math.PI * 2;
+
+      flyTargetRotY = worldGroup.rotation.y + diff;
+      flyTargetRotX = Math.max(-1.3, Math.min(1.3, radLat));
+      flyTargetCameraZ = 22.5;
+
+      isFlyingToTarget = true;
+      isInteracting = true;
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => { isInteracting = false; }, 4000);
+
+      highlightCountry(code);
+    }
+
+    function resetView() {
+      const radLon = (110 + 90) * (Math.PI / 180);
+      const radLat = 14 * (Math.PI / 180);
+
+      let diff = (-radLon - worldGroup.rotation.y) % (Math.PI * 2);
+      if (diff > Math.PI) diff -= Math.PI * 2;
+      if (diff < -Math.PI) diff += Math.PI * 2;
+
+      flyTargetRotY = worldGroup.rotation.y + diff;
+      flyTargetRotX = radLat;
+      flyTargetCameraZ = 30.0;
+
+      isFlyingToTarget = true;
+      highlightCountry(null);
+    }
+
+    // Bind HUD Buttons
+    document.querySelectorAll('.chip-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const code = btn.dataset.code;
+        if (activeCountryCode === code) {
+          resetView();
+        } else {
+          flyToCountry(code);
+        }
+      });
+    });
+
+    const spinBtn = document.getElementById('btn-spin');
+    const spinText = document.getElementById('spin-text');
+    spinBtn.addEventListener('click', () => {
+      autoRotate = !autoRotate;
+      spinBtn.classList.toggle('is-active', autoRotate);
+      spinText.textContent = autoRotate ? 'Spin' : 'Paused';
+    });
+
+    const resetBtn = document.getElementById('btn-reset');
+    resetBtn.addEventListener('click', resetView);
+
+    // Raycasting for clicking country markers on 3D canvas
+    const raycaster = new THREE.Raycaster();
+    const mouseCoord = new THREE.Vector2();
+
+    container.addEventListener('click', (e) => {
+      // If was dragging significantly, ignore click
+      if (Math.abs(velY) > 0.001 || Math.abs(velX) > 0.001) return;
+
+      mouseCoord.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouseCoord.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      raycaster.setFromCamera(mouseCoord, camera);
+
+      const intersects = raycaster.intersectObjects(interactiveMeshes);
+      if (intersects.length > 0) {
+        const clickedMesh = intersects[0].object;
+        if (clickedMesh.userData && clickedMesh.userData.countryCode) {
+          flyToCountry(clickedMesh.userData.countryCode);
+        }
       }
-    }, { passive: false });
-
-    let touchStartY = null;
-    window.addEventListener('touchstart', (e) => {
-      if (e.touches.length === 1) touchStartY = e.touches[0].clientY;
-    }, { passive: true });
-
-    window.addEventListener('touchend', (e) => {
-      if (touchStartY === null || e.changedTouches.length === 0) return;
-      const dy = touchStartY - e.changedTouches[0].clientY;
-      if (Math.abs(dy) > 30) {
-        applySlide(currentSlideIndex + (dy > 0 ? 1 : -1));
-      }
-      touchStartY = null;
-    }, { passive: true });
+    });
 
     // =========================================================================
-    // 7. ANIMATION & 3D PROJECTION LOOP
+    // 9. ANIMATION LOOP & 2D PROJECTION ENGINE
     // =========================================================================
     const tempWorldVec = new THREE.Vector3();
     const tempNormalVec = new THREE.Vector3();
@@ -628,36 +1114,56 @@
     function animate() {
       requestAnimationFrame(animate);
 
-      currentQuaternion.slerp(targetQuaternion, 0.065);
-      worldGroup.quaternion.copy(currentQuaternion);
+      // Handle Smooth Camera & Rotation Interpolation
+      if (isFlyingToTarget) {
+        worldGroup.rotation.y += (flyTargetRotY - worldGroup.rotation.y) * 0.08;
+        worldGroup.rotation.x += (flyTargetRotX - worldGroup.rotation.x) * 0.08;
+        currentCameraZ += (flyTargetCameraZ - currentCameraZ) * 0.08;
+        if (
+          Math.abs(flyTargetRotY - worldGroup.rotation.y) < 0.001 &&
+          Math.abs(flyTargetRotX - worldGroup.rotation.x) < 0.001
+        ) {
+          isFlyingToTarget = false;
+        }
+      } else if (!isDragging) {
+        // Inertia damping
+        if (Math.abs(velY) > 0.00005 || Math.abs(velX) > 0.00005) {
+          worldGroup.rotation.y += velY;
+          worldGroup.rotation.x = Math.max(-1.3, Math.min(1.3, worldGroup.rotation.x + velX));
+          velY *= 0.93;
+          velX *= 0.93;
+        } else if (autoRotate && !isInteracting) {
+          worldGroup.rotation.y += 0.0016; // Smooth continuous spin
+        }
+        currentCameraZ += (targetCameraZ - currentCameraZ) * 0.08;
+      }
 
-      currentCameraZ += (targetCameraZ - currentCameraZ) * 0.065;
       camera.position.z = currentCameraZ;
+      worldGroup.updateMatrixWorld();
 
-      galaxyField.rotation.y += 0.00018;
+      // Atmospheric Cloud Drift & Galaxy Rotation
+      cloudMesh.rotation.y += 0.00035;
+      galaxyField.rotation.y += 0.00015;
 
-      const activeCode = currentSlideIndex === 0
-        ? null
-        : JAPAC_COUNTRIES[currentSlideIndex - 1].code;
-
+      // Pulse Particles along JAPAC Arcs
       for (let i = 0; i < animatedPulses.length; i++) {
         const p = animatedPulses[i];
         p.offset = (p.offset + p.speed * 0.008) % 1;
         const pt = p.curve.getPoint(p.offset);
         p.mesh.position.copy(pt);
-        p.mat.opacity = (activeCode === null || activeCode === p.code) ? 0.95 : 0.18;
       }
 
+      // 3D Country Labels to 2D Screen Projection
       const halfW = (container.clientWidth || window.innerWidth) * 0.5;
       const halfH = (container.clientHeight || window.innerHeight) * 0.5;
       cameraDirVec.copy(camera.position).normalize();
 
       countryVisuals.forEach((vis, code) => {
-        tempWorldVec.copy(vis.pos3D).applyQuaternion(worldGroup.quaternion);
+        tempWorldVec.copy(vis.pos3D).applyMatrix4(worldGroup.matrixWorld);
         tempNormalVec.copy(tempWorldVec).normalize();
 
         const facingDot = tempNormalVec.dot(cameraDirVec);
-        const isActive = code === activeCode;
+        const isActive = code === activeCountryCode;
 
         if (facingDot > 0.22) {
           tempWorldVec.project(camera);
@@ -666,13 +1172,15 @@
 
           vis.labelEl.style.transform = `translate(-50%, -120%) translate3d(${screenX.toFixed(1)}px, ${screenY.toFixed(1)}px, 0)`;
 
-          if (activeCode === null) {
-            vis.labelEl.style.opacity = Math.min(0.88, (facingDot - 0.22) * 1.6).toFixed(2);
+          if (activeCountryCode === null) {
+            vis.labelEl.style.opacity = Math.min(0.92, (facingDot - 0.22) * 1.8).toFixed(2);
           } else {
-            vis.labelEl.style.opacity = isActive ? '1' : (vis.data.isHub ? '0.85' : '0.32');
+            vis.labelEl.style.opacity = isActive ? '1' : (vis.data.isHub ? '0.85' : '0.28');
           }
+          vis.labelEl.style.pointerEvents = 'auto';
         } else {
           vis.labelEl.style.opacity = '0';
+          vis.labelEl.style.pointerEvents = 'none';
         }
       });
 
