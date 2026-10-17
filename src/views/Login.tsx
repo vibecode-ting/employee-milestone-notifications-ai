@@ -168,20 +168,58 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row w-full bg-slate-50 dark:bg-zinc-950 relative selection:bg-corp-blue selection:text-white">
-      {/* Left: Free area for hero / background image */}
-      <div className="hidden md:flex flex-1 relative items-center justify-center p-8 lg:p-12 overflow-hidden bg-slate-100/40 dark:bg-zinc-900/20">
-        {/* Placeholder container ready for hero image */}
-        <div className="w-full h-full max-w-2xl max-h-[640px] rounded-3xl border border-dashed border-slate-300/80 dark:border-zinc-800 flex flex-col items-center justify-center p-8 text-center text-slate-400 dark:text-zinc-600 transition-colors">
-          <Sparkles size={28} className="mb-2 opacity-50" />
-          <p className="text-xs font-medium">Hero / Background Area</p>
+    <div className="min-h-screen flex flex-col md:flex-row w-full bg-slate-950 relative selection:bg-corp-blue selection:text-white overflow-x-hidden">
+      {/* Left: 3D Earth Hero & Background (65% on landscape/web) */}
+      <div className="w-full md:w-[65%] h-[360px] md:h-auto min-h-[360px] md:min-h-screen relative overflow-hidden bg-slate-950 shrink-0">
+        {/* ponytail: iframe isolates Three.js bundle and WebGL context; upgrade to dynamic canvas component if cross-frame messaging needed */}
+        <iframe
+          src="/earth.html"
+          title="JAPAC 3D Earth Network"
+          className="w-full h-full absolute inset-0 border-0"
+          loading="eager"
+        />
+        {/* Ambient Brand Pill over Earth */}
+        <div className="absolute top-5 left-5 z-10 pointer-events-none flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-slate-900/80 border border-slate-700/60 backdrop-blur-md text-slate-200 text-xs font-medium shadow-lg">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span>JAPAC Milestone Intelligence Network</span>
         </div>
       </div>
 
-      {/* Right: Login Container */}
-      <div className="flex-1 md:flex-initial md:w-[480px] lg:w-[520px] flex flex-col items-center justify-center p-4 sm:p-8 shrink-0">
+      {/* Right: Login Container (35% on landscape/web) */}
+      <div className="w-full md:w-[35%] flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 shrink-0 bg-slate-50 dark:bg-zinc-950 md:border-l md:border-slate-200 dark:md:border-zinc-800 shadow-2xl z-10 min-h-screen">
+        {/* Language and Theme Switch ABOVE login panel */}
+        <div className="glass-panel w-full max-w-sm px-3.5 py-2 mb-3 flex items-center justify-between gap-2.5 shadow-sm">
+          {/* Language Selector */}
+          <div className="flex-1 min-w-0 flex items-center gap-2">
+            <Globe size={15} className="text-slate-400 shrink-0" />
+            <select
+              value={i18n.language}
+              onChange={(e) => handleLanguageChange(e.target.value)}
+              aria-label={t('Language')}
+              className="w-full text-xs py-1.5 px-2 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 text-slate-700 dark:text-zinc-300 font-medium shadow-xs focus:outline-none focus:ring-1 focus:ring-corp-blue cursor-pointer truncate"
+            >
+              {LOCALES.map((l) => (
+                <option key={l.code} value={l.code}>
+                  {l.flag} {l.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Theme Toggle Button */}
+          <button
+            onClick={toggleDark}
+            type="button"
+            aria-label={dark ? t('Light Mode') : t('Dark Mode')}
+            className="py-1.5 px-3 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 text-slate-600 dark:text-zinc-300 shadow-xs hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors flex items-center gap-1.5 text-xs font-medium shrink-0 cursor-pointer"
+          >
+            {dark ? <Sun size={14} className="text-amber-400" /> : <Moon size={14} className="text-slate-500" />}
+            <span>{dark ? t('Light Mode') : t('Dark Mode')}</span>
+          </button>
+        </div>
+
         {/* Main Login Card */}
-        <div className="glass-panel w-full max-w-sm p-6 sm:p-8 min-h-[580px] flex flex-col justify-between shadow-lg">
+        <div className="glass-panel w-full max-w-sm p-6 sm:p-8 min-h-[560px] flex flex-col justify-between shadow-lg">
           <div>
             {/* Brand Logo & Name */}
             <div className="flex items-center gap-3 mb-6">
@@ -377,37 +415,6 @@ export default function Login() {
               {t('Demo Mode')}
             </button>
           </div>
-        </div>
-
-        {/* Small container below login box for Language and Theme switch */}
-        <div className="glass-panel w-full max-w-sm px-3.5 py-2.5 mt-3 flex items-center justify-between gap-2.5 shadow-md">
-          {/* Language Selector */}
-          <div className="flex-1 min-w-0 flex items-center gap-2">
-            <Globe size={15} className="text-slate-400 shrink-0" />
-            <select
-              value={i18n.language}
-              onChange={(e) => handleLanguageChange(e.target.value)}
-              aria-label={t('Language')}
-              className="w-full text-xs py-1.5 px-2 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 text-slate-700 dark:text-zinc-300 font-medium shadow-xs focus:outline-none focus:ring-1 focus:ring-corp-blue cursor-pointer truncate"
-            >
-              {LOCALES.map((l) => (
-                <option key={l.code} value={l.code}>
-                  {l.flag} {l.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Theme Toggle Button */}
-          <button
-            onClick={toggleDark}
-            type="button"
-            aria-label={dark ? t('Light Mode') : t('Dark Mode')}
-            className="py-1.5 px-3 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 text-slate-600 dark:text-zinc-300 shadow-xs hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors flex items-center gap-1.5 text-xs font-medium shrink-0 cursor-pointer"
-          >
-            {dark ? <Sun size={14} className="text-amber-400" /> : <Moon size={14} className="text-slate-500" />}
-            <span>{dark ? t('Light Mode') : t('Dark Mode')}</span>
-          </button>
         </div>
       </div>
     </div>
