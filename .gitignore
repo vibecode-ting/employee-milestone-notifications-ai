@@ -14,4 +14,4 @@ tmp/
 *.tsbuildinfo
 
 # Local helper scripts
-merge.bat
+# merge.bat
