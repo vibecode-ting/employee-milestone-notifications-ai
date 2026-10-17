@@ -1,86 +1,154 @@
-# Milestone — Employee Milestone Notifications App
+# Milestone — JAPAC Workforce Milestone & Recognition Intelligence
 
-A cloud-native employee milestone tracking and notification platform built with React 19, Vite, Tailwind CSS v4, and Firebase.
+[![CI Build](https://github.com/vibecode-ting/employee-milestone-notifications-ai/actions/workflows/pr_check.yml/badge.svg)](https://github.com/vibecode-ting/employee-milestone-notifications-ai/actions)
+[![React](https://img.shields.io/badge/React-19.0-61dafb?logo=react&logoColor=black)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Vite](https://img.shields.io/badge/Vite-6.4-646cff?logo=vite&logoColor=white)](https://vitejs.dev)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-06b6d4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Three.js](https://img.shields.io/badge/Three.js-r160-black?logo=threedotjs&logoColor=white)](https://threejs.org)
+[![Google Gemini](https://img.shields.io/badge/Gemini_AI-2.5_Flash-8e75ff?logo=googlegemini&logoColor=white)](https://deepmind.google/technologies/gemini/)
+[![Firebase](https://img.shields.io/badge/Firebase-v10-ffca28?logo=firebase&logoColor=black)](https://firebase.google.com)
+
+A cloud-native, multi-tenant employee milestone tracking and recognition intelligence platform built for modern distributed teams across the Asia Pacific region.
 
 ---
 
 ## 🏆 AI Builder Cup & Hackathon Overview
 
 ### Problem Statement
-Modern distributed and hybrid teams struggle with employee recognition. Critical milestones — such as birthdays and company anniversaries — are often missed or manually tracked across scattered spreadsheets, causing disengagement and administrative overhead for People & HR teams.
+Hybrid and distributed organizations across Asia Pacific face severe challenges with timely employee recognition:
+- **Scattered Data**: Critical milestones (birthdays, work jubilees) are tracked across fragmented spreadsheets and disparate HR databases.
+- **Cultural & Language Friction**: Standard notification tools lack native localized greetings and cultural sensitivity across diverse Asian locales.
+- **Administrative Overhead**: HR teams manually craft and dispatch messages across multiple fragmented channels, leading to delayed or forgotten celebrations.
 
 ### Solution Overview
-**Milestone** provides an automated, multi-tenant workforce milestone engine that monitors employee anniversaries and birthdays. It delivers automated celebration messages across preferred enterprise communication channels (Email SMTP, Microsoft Teams, and Telegram), complete with customizable rich card templates, instant Excel/CSV synchronization, database connectors, and native 4-language support.
+**Milestone** automates the entire employee milestone lifecycle with AI-driven personalization and omnichannel delivery:
+1. **Real-Time 3D Network**: Visualizes cross-border workforce connectivity across 34 JAPAC countries and territories centered at the Singapore hub.
+2. **Google Gemini AI Intelligence**: Automatically generates personalized, culture-aware celebration copy in native languages (`gemini-2.5-flash`).
+3. **Omnichannel Delivery**: Dispatches zero-touch scheduled celebration cards via Email SMTP, Microsoft Teams webhooks, and Telegram bots.
+4. **Client-Side OCR Checkout**: Enables multi-currency plan upgrades with automated payment slip receipt scanning for local mobile wallets (KBZ Pay, Wave Pay, AYA Pay, CB Pay).
+5. **High-Performance Architecture**: Modularized vendor chunking and lazy-loaded views maintain a lightweight entry bundle (366 kB) well below the 500 kB threshold.
+
+---
+
+## 🌟 Key Capabilities
+
+### 🌍 3D Interactive JAPAC Earth Network (`public/earth.html`)
+- **34 JAPAC Countries & Territories**: Interactive 3D WebGL globe rendered with Three.js r160.
+- **Great-Circle SLERP Trajectories**: Elevated 3D flight arcs connecting regional offices to the Singapore hub using spherical linear interpolation (SLERP) and sinusoidal elevation ($1.6 - 4.8$ units above the planet surface) so arcs never clip inside the sphere.
+- **Front-Facing Illumination**: Camera-anchored directional lighting (`cameraLight`) ensures Pacific island territories (Kiribati, Samoa, Tonga, Fiji, NZ) are always visible and textured, preventing dark void effects.
+- **Stable Country Anchors**: Pixel-perfect 3D projection without compositor lag or label shaking. Click-to-focus camera zooms and double-click overview reset.
+
+### 🤖 Google Gemini AI Milestone Engine
+- **Cloud Functions Scheduled Cron**: Daily cron at 09:00 (`Asia/Rangoon`) detects upcoming birthdays and completed work anniversaries ($\ge 1\text{ year}$).
+- **Culture-Aware Copywriting**: `gemini-2.5-flash` creates warm, personalized milestone greetings adapted to each employee's language and years of service.
+- **Live Multilingual Translation**: Interactive preview cards allow HR teams to inspect live AI-translated greetings in real time.
+
+### 🌐 7 Native JAPAC Locales (`src/lib/locales/`)
+100% translation parity across 7 regional business languages:
+- 🇺🇸 **English (`en`)**
+- 🇲🇲 **Myanmar (`mm`)** — မြန်မာ
+- 🇹🇼 **Traditional Chinese (`zh`)** — 繁體中文
+- 🇻🇳 **Vietnamese (`vn`)** — Tiếng Việt
+- 🇰🇷 **Korean (`ko`)** — 한국어
+- 🇯🇵 **Japanese (`ja`)** — 日本語
+- 🇭🇰 **Hong Kong Cantonese (`zh-HK`)** — 繁體中文（港）
+
+### 💳 Multi-Currency Pricing & Client-Side OCR Checkout (`src/lib/slipOcr.ts`)
+- **Global & Regional Currencies**: Supports USD, MMK, EUR, SGD, THB, and Crypto.
+- **Myanmar Local Wallets**: Direct checkout via KBZ Pay, Wave Pay, AYA Pay, and CB Pay with dynamic QR payment codes.
+- **Client-Side Slip OCR Scanner**: Analyzes luminance transitions, text-edge density, and receipt geometry to verify transaction ID and amount before enabling payment confirmation.
+- **5-Minute Order Timer**: Dynamic countdown timer for reserving plan quotas.
+
+### ⚡ Performance & Vendor Chunk Splitting (`vite.config.ts`)
+- **Rollup Vendor Splitting**: Isolates heavy libraries into separate cached chunks (`vendor-firebase`, `vendor-xlsx`, `vendor-recharts`, `vendor-react`, `vendor-lucide`).
+- **Route-Level Code Splitting**: `React.lazy` + dynamic `import()` for all major application views (`Dashboard`, `Employees`, `Settings`, `Pricing`, `AdminUsers`, `AdminDashboard`).
+- **Lean Main Chunk**: Main entry chunk minimized from 1,820 kB down to **366 kB** (112 kB gzip).
 
 ---
 
 ## ⚡ Tech Stack
 
-- **Framework**: React 19 + Vite 6
-- **Language**: TypeScript 5.8
-- **Styling**: Tailwind CSS v4 (CSS-first config via `@tailwindcss/vite`)
-- **Routing**: React Router DOM v7
-- **Database & Auth**: Firebase v10 (Firestore + Authentication) with local offline demo fallback
-- **Functions**: Firebase Cloud Functions (Node 20, Scheduled Cron Notifications)
-- **Charts**: Recharts
-- **Internationalization**: i18next + react-i18next (English 🇺🇸, Myanmar 🇲🇲, Traditional Chinese 🇹🇼, Vietnamese 🇻🇳)
-- **Spreadsheet Operations**: SheetJS (xlsx) for template downloads, Excel import preview, and exports
-- **PWA**: Web App Manifest & Service Worker for installability on mobile and desktop
-- **Deployment**: GitHub Pages / Firebase Hosting via GitHub Actions
+| Category | Technology | Purpose |
+|---|---|---|
+| **Frontend Framework** | React 19.0 + TypeScript 5.8 | Core reactive UI & strict type safety |
+| **Bundler & Tooling** | Vite 6.4 + Rollup manualChunks | High-speed HMR & optimized code splitting |
+| **Styling & Theming** | Tailwind CSS v4 (`@tailwindcss/vite`) | CSS-first utility styling, dark/light modes |
+| **3D Graphics & Math** | Three.js r160 | WebGL 3D Earth, Great-Circle trajectories & starfield |
+| **Generative AI** | Google Gemini (`gemini-2.5-flash`) | Contextual, culture-aware celebration messaging |
+| **Cloud & Backend** | Firebase Cloud Functions (Node 20) | Daily automated milestone cron & dispatch engine |
+| **Database & Auth** | Firebase Firestore + Authentication | Multi-tenant persistence & passwordless magic links |
+| **Charts & Analytics** | Recharts 2.15 | 7-day velocity charts & headcount distribution |
+| **Spreadsheet Engine** | SheetJS (`xlsx` 0.18.5) | Roster Excel/CSV import preview & export |
+| **Receipt OCR** | Custom Canvas Text & Edge OCR | Client-side payment slip validation |
+| **Internationalization**| i18next + react-i18next | 7 native JAPAC locales with per-locale modular bundles |
+| **PWA & Offline** | Web App Manifest + Service Worker | Desktop/mobile installability & offline demo state |
 
 ---
 
 ## 📁 Project Structure
 
 ```
-├── .github/workflows/             # CI/CD workflows (PR check, test, deploy)
-├── firestore.rules                # Role-based Firestore security rules
-├── functions/                     # Firebase Cloud Functions (cron notifications)
-│   ├── src/index.ts
+├── .github/workflows/             # GitHub Actions CI/CD (PR checks & build verification)
+├── firestore.rules                # Multi-tenant security rules with role enforcement
+├── functions/                     # Firebase Cloud Functions (cron milestone dispatch)
+│   ├── src/index.ts               # Daily scheduler + Gemini AI notification engine
 │   ├── package.json
 │   └── tsconfig.json
 ├── public/
+│   ├── earth.html                 # 3D JAPAC Earth Network (Three.js WebGL application)
+│   ├── data/
+│   │   └── world.geojson          # Geographic border vectors for JAPAC landmasses
 │   ├── logo.svg                   # Brand mark
-│   ├── manifest.webmanifest       # PWA Manifest
+│   ├── manifest.webmanifest       # PWA manifest
 │   └── sw.js                      # Service Worker
 ├── src/
-│   ├── App.tsx                    # Root application router & layout
-│   ├── main.tsx                   # Application entry point
+│   ├── App.tsx                    # Root router with route-level lazy loading
+│   ├── main.tsx                   # React DOM root entry
 │   ├── index.css                  # Tailwind v4 theme & glassmorphic tokens
-│   ├── types.ts                   # Unified TypeScript definitions
+│   ├── types.ts                   # Unified enterprise TypeScript schema
 │   ├── contexts/
-│   │   └── AuthContext.tsx        # Firebase auth & demo session state
+│   │   └── AuthContext.tsx        # Firebase auth, Google OAuth & demo session store
 │   ├── components/
-│   │   ├── auth/AuthRoute.tsx     # Route protection guard
-│   │   ├── common/GeminiBadge.tsx # Dynamic Ultra & Pro badges
+│   │   ├── auth/AuthRoute.tsx     # Role-based route guard
+│   │   ├── common/GeminiBadge.tsx # Dynamic Gemini AI tier badges
 │   │   ├── employees/
-│   │   │   └── DatabaseConnectionModal.tsx # Multi-DB connector wizard
+│   │   │   └── DatabaseConnectionModal.tsx # Multi-database connector wizard
 │   │   └── layout/
-│   │       ├── Navbar.tsx         # Responsive collapsible sidebar navigation
-│   │       ├── FeedbackModal.tsx  # In-app client feedback & diagnostics
-│   │       └── NotificationsFlyout.tsx # Broadcast announcements
+│   │       ├── Navbar.tsx         # Responsive collapsible navigation
+│   │       ├── FeedbackModal.tsx  # In-app diagnostics & feedback collector
+│   │       └── NotificationsFlyout.tsx # Broadcast notification center
 │   ├── views/
-│   │   ├── Login.tsx              # Split hero login, auto-registration & Demo Mode
-│   │   ├── Dashboard.tsx          # Stat cards, 7-day activity charts, upcoming milestones
-│   │   ├── AdminDashboard.tsx     # Superuser telemetry, broadcast controls & system health
+│   │   ├── Login.tsx              # 65/35 hero split, 5-slide showcase & auto-advance pause
+│   │   ├── Dashboard.tsx          # Recognition velocity charts, upcoming milestones
 │   │   ├── Employees.tsx          # Roster CRUD, instant Excel/DB import & delete modals
-│   │   ├── Settings.tsx           # Multi-channel notifications (SMTP, Teams, Telegram)
-│   │   ├── Pricing.tsx            # Multi-tier plans (Free, Pro, Ultra), checkout, and review
-│   │   └── AdminUsers.tsx         # Multi-tenant quotas, suspension & role management
+│   │   ├── Settings.tsx           # Multi-channel delivery config (SMTP, Teams, Telegram)
+│   │   ├── Pricing.tsx            # Multi-currency checkout, MMK wallets & OCR verification
+│   │   ├── AdminDashboard.tsx     # Superuser telemetry, broadcast controls & system health
+│   │   └── AdminUsers.tsx         # Tenant quotas, account suspension & role upgrades
 │   ├── lib/
-│   │   ├── firebase.ts            # Firebase SDK initialization with offline fallback
-│   │   ├── i18n.ts                # 131 translation keys (EN, MM, ZH, VN)
-│   │   └── utils.ts               # Utility helpers (cn)
+│   │   ├── firebase.ts            # Firebase SDK setup with offline fallback
+│   │   ├── i18n.ts                # i18next configuration & language registry
+│   │   ├── locales/               # Modular per-locale translation bundles
+│   │   │   ├── en.ts              # English (US)
+│   │   │   ├── mm.ts              # Myanmar
+│   │   │   ├── zh.ts              # Traditional Chinese
+│   │   │   ├── vn.ts              # Vietnamese
+│   │   │   ├── ko.ts              # Korean
+│   │   │   ├── ja.ts              # Japanese
+│   │   │   └── zh-HK.ts           # Hong Kong Cantonese
+│   │   ├── slipOcr.ts             # Client-side payment slip OCR validator
+│   │   └── utils.ts               # Tailwind class merger utility (cn)
 │   └── utils/
-│       ├── milestones.ts          # Milestone calculation engine
+│       ├── milestones.ts          # Milestone date calculation engine
 │       ├── excelHandler.ts        # Excel parser and template generator
-│       └── demoData.ts            # Local demo persistence & storage dispatch
+│       └── demoData.ts            # Offline local storage mock state
 ├── .npmrc                         # Deterministic npm install configuration
-├── index.html
-├── package.json
+├── index.html                     # HTML5 shell
+├── package.json                   # Dependency definitions
 ├── start.bat                      # One-click Windows development launcher
-├── tsconfig.json
-└── vite.config.ts
+├── tsconfig.json                  # TypeScript compiler configuration
+└── vite.config.ts                 # Vite bundler config with vendor manualChunks
 ```
 
 ---
@@ -88,21 +156,13 @@ Modern distributed and hybrid teams struggle with employee recognition. Critical
 ## 🚀 Quick Start
 
 ### Windows One-Click Launcher
-
-Double click `start.bat` or run:
-
+Double-click `start.bat` or run in terminal:
 ```cmd
 start.bat
 ```
-
-This will automatically:
-1. Verify and terminate any orphaned process on the dev port.
-2. Check and install missing dependencies.
-3. Clean stale Vite cache.
-4. Start the Vite development server and open your default browser.
+This automatically verifies ports, cleans stale cache, installs dependencies, and launches the development server on `http://localhost:5180`.
 
 ### Manual Setup
-
 ```bash
 # 1. Install dependencies
 npm install
@@ -112,9 +172,10 @@ cp .env.example .env
 
 # 3. Start development server
 npm run dev
-```
 
-App runs on `http://localhost:5180` (or `http://localhost:5173`).
+# 4. Production verification build
+npm run build
+```
 
 ---
 
@@ -124,24 +185,14 @@ App runs on `http://localhost:5180` (or `http://localhost:5173`).
 |---|---|---|---|
 | `user` | Free Plan | 100 | Default tier, standard text templates, basic milestone tracking |
 | `pro` | Pro Plan | 1,000 | Custom card templates, logos, reactions, external DB connectors |
-| `pro_plus` | Ultra Plan | Unlimited (∞) | Lifetime access, unlimited headcount, Gemini dynamic theming |
-| `admin` | Mod Admin | Unlimited (∞) | Platform superuser, dedicated telemetry dashboard, user quotas & broadcast manager |
+| `pro_plus` | Ultra Plan | Unlimited ($\infty$) | Lifetime access, unlimited headcount, Gemini dynamic theming |
+| `admin` | Super Admin | Unlimited ($\infty$) | Dedicated telemetry dashboard, user quotas, broadcast manager |
 
 ---
 
-## 🌐 Internationalization (i18n)
-
-Full 1:1 translation parity across 4 languages with 131 keys:
-- 🇺🇸 **English (`en`)**
-- 🇲🇲 **Myanmar (`mm`)**
-- 🇹🇼 **Traditional Chinese (`zh`)**
-- 🇻🇳 **Vietnamese (`vn`)**
-
----
-
-## 🧪 Testing Demo Mode (No Setup Required)
+## 🧪 Instant Demo Mode (No Setup Required)
 
 To evaluate the application instantly without configuring Firebase or cloud credentials:
 1. Navigate to the login screen (`/login`).
-2. Click **"Demo Mode"** at the bottom of the card.
-3. You will be authenticated immediately as an **Admin** with fully populated mock employees, milestone statistics, and operational telemetry.
+2. Click **"Demo Mode"** on the login card.
+3. You will be authenticated immediately as an **Admin** with populated mock employees, milestone statistics, and operational telemetry.
