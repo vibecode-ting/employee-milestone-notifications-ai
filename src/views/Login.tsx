@@ -369,10 +369,10 @@ export default function Login() {
           <div>
             <div className="relative my-4">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200 dark:border-zinc-800" />
+                <div className="w-full border-t border-slate-300 dark:border-zinc-700" />
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white/90 dark:bg-zinc-900/90 px-2 text-slate-400">
+              <div className="relative flex justify-center text-xs">
+                <span className="bg-white dark:bg-zinc-900 px-2 text-slate-400">
                   {t('or continue with')}
                 </span>
               </div>
