@@ -1,6 +1,7 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, connectAuthEmulator } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyDemoFallbackKeyForMilestoneApp2026',
@@ -35,12 +36,29 @@ try {
 export const auth = authInstance;
 export const db = dbInstance;
 
+let functionsInstance: ReturnType<typeof getFunctions>;
+try {
+  functionsInstance = getFunctions(app);
+} catch (err) {
+  console.warn('Firebase Functions initialization fallback:', err);
+  functionsInstance = getFunctions(getApp());
+}
+export const fns = functionsInstance;
+
 export const isEmulatorMode = import.meta.env.VITE_USE_EMULATOR === 'true';
 
 if (isEmulatorMode && auth && db) {
   try {
     connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
     connectFirestoreEmulator(db, 'localhost', 8080);
+  } catch {
+    // Emulator already connected
+  }
+}
+
+if (isEmulatorMode && fns) {
+  try {
+    connectFunctionsEmulator(fns, 'localhost', 5001);
   } catch {
     // Emulator already connected
   }
