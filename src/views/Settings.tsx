@@ -49,27 +49,12 @@ function ChannelSection({
   );
 }
 
-const PRESET_AVATARS = [
-  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&auto=format&fit=crop&q=80',
-];
-
 export default function Settings() {
   const { t } = useTranslation();
-  const { appUser, updatePhotoURL } = useAuth();
+  const { appUser } = useAuth();
   const [settings, setSettings] = useState<NotificationSettings>(DEFAULT_SETTINGS);
   const [tab, setTab] = useState<'profile' | 'notifications' | 'templates'>('profile');
   const [saved, setSaved] = useState(false);
-  const [photoInput, setPhotoInput] = useState(appUser?.photoURL || '');
-  const [photoSaved, setPhotoSaved] = useState(false);
-
-  useEffect(() => {
-    if (appUser?.photoURL) {
-      setPhotoInput(appUser.photoURL);
-    }
-  }, [appUser?.photoURL]);
 
   useEffect(() => {
     if (!appUser) return;
@@ -85,12 +70,6 @@ export default function Settings() {
     await setDoc(doc(db, 'settings', appUser.uid), { ...settings, userId: appUser.uid });
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
-  }
-
-  async function handleSavePhoto() {
-    await updatePhotoURL(photoInput.trim());
-    setPhotoSaved(true);
-    setTimeout(() => setPhotoSaved(false), 3000);
   }
 
   function setSmtp(k: string, v: unknown) {
@@ -137,9 +116,9 @@ export default function Settings() {
         <div className="glass-panel p-6 space-y-6">
           <div className="flex flex-col sm:flex-row items-center gap-5">
             <div className="relative">
-              {photoInput ? (
+              {appUser?.photoURL ? (
                 <img
-                  src={photoInput}
+                  src={appUser.photoURL}
                   alt={appUser?.email || 'User'}
                   className="w-24 h-24 rounded-2xl object-cover shadow-md border-2 border-slate-200 dark:border-zinc-700"
                   onError={(e) => {
@@ -163,60 +142,9 @@ export default function Settings() {
                   UID: {appUser?.uid}
                 </span>
               </div>
-            </div>
-          </div>
-
-          <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-zinc-800">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">
-                {t('Profile Picture URL')}
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="url"
-                  className="glass-input text-sm flex-1"
-                  placeholder="https://example.com/avatar.jpg"
-                  value={photoInput}
-                  onChange={(e) => setPhotoInput(e.target.value)}
-                />
-                <button
-                  type="button"
-                  onClick={handleSavePhoto}
-                  className="btn-primary text-sm px-4 py-2 flex items-center gap-1.5 shrink-0 cursor-pointer"
-                >
-                  {photoSaved ? <CheckCircle2 size={16} /> : null}
-                  {photoSaved ? t('Saved!') : t('Save Photo')}
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 dark:text-zinc-400 mb-2">
-                {t('Quick Sample Avatars')}
-              </label>
-              <div className="flex gap-3">
-                {PRESET_AVATARS.map((url, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => {
-                      setPhotoInput(url);
-                      updatePhotoURL(url);
-                      setPhotoSaved(true);
-                      setTimeout(() => setPhotoSaved(false), 3000);
-                    }}
-                    title={`Avatar ${i + 1}`}
-                    className={cn(
-                      'relative rounded-xl overflow-hidden border-2 transition-all cursor-pointer hover:scale-105',
-                      photoInput === url
-                        ? 'border-corp-blue dark:border-gold-500 ring-2 ring-corp-blue/30'
-                        : 'border-transparent opacity-80 hover:opacity-100'
-                    )}
-                  >
-                    <img src={url} alt={`Preset ${i + 1}`} className="w-12 h-12 object-cover" />
-                  </button>
-                ))}
-              </div>
+              <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium pt-1">
+                ✓ {t('Google account profile image active')}
+              </p>
             </div>
           </div>
         </div>

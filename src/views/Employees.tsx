@@ -586,9 +586,9 @@ export default function Employees({ onCountChange }: { onCountChange: (n: number
 
       {/* Search */}
       <div className="relative">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
         <input
-          className="glass-input pl-9 text-sm"
+          className="glass-input glass-input-with-icon !pl-11 text-sm"
           placeholder={t('Search by name, ID, email, department…')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
