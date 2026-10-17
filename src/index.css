@@ -10,6 +10,9 @@
   --color-gold-500: #eab308;
   --color-gold-600: #ca8a04;
   --color-gold-700: #a16207;
+  --color-cobalt-400: #60a5fa;
+  --color-cobalt-500: #3b82f6;
+  --color-cobalt-600: #2563eb;
   --color-corp-cyan: #e0f2fe;
   --color-corp-blue: #1e3a8a;
   --color-corp-grey: #64748b;
@@ -24,7 +27,7 @@ html {
 }
 
 body {
-  font-family: 'Roboto', 'Noto Sans Myanmar', 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+  font-family: 'Roboto', 'Noto Sans Myanmar', 'Microsoft JhengHei', 'PingFang TC', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Hiragino Sans', 'Yu Gothic', sans-serif;
   @apply bg-slate-50 text-slate-900 dark:bg-zinc-950 dark:text-zinc-100 min-h-screen;
 }
 
@@ -46,7 +49,7 @@ body {
 .btn-primary {
   @apply bg-corp-blue text-white font-semibold px-4 py-2 rounded-lg transition-all
          hover:bg-blue-800 active:scale-95 shadow-sm
-         dark:bg-gradient-to-r dark:from-gold-600 dark:to-gold-500 dark:text-zinc-900;
+         dark:bg-cobalt-600 dark:hover:bg-cobalt-500 dark:text-white;
 }
 
 .btn-secondary {
@@ -56,16 +59,21 @@ body {
 }
 
 .text-highlight {
-  @apply font-bold text-corp-blue dark:text-gold-500;
+  @apply font-bold text-corp-blue dark:text-cobalt-400;
 }
 
 .icon-highlight {
-  @apply rounded-xl p-2 bg-corp-blue/10 text-corp-blue dark:bg-gold-500/15 dark:text-gold-400;
+  @apply rounded-xl p-2 bg-corp-blue/10 text-corp-blue dark:bg-cobalt-500/15 dark:text-cobalt-400;
 }
 
 .table-header {
-  @apply text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300
-         bg-slate-100 dark:bg-zinc-800/80;
+  @apply text-xs font-semibold text-slate-600 dark:text-zinc-400
+         bg-slate-50 dark:bg-zinc-800/60;
+}
+
+.tabular {
+  font-feature-settings: 'tnum';
+  font-variant-numeric: tabular-nums;
 }
 
 .table-row-hover {

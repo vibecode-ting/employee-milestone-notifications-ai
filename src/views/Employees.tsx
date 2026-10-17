@@ -138,7 +138,7 @@ function DeleteModal({
         {/* Employee preview card inside confirmation */}
         <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700/60 mb-5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-corp-blue dark:bg-gold-500 text-white dark:text-zinc-900 flex items-center justify-center font-bold text-sm shrink-0">
+            <div className="w-10 h-10 rounded-full bg-corp-blue dark:bg-cobalt-600 text-white flex items-center justify-center font-bold text-sm shrink-0">
               {initials(employee.name)}
             </div>
             <div className="flex-1 min-w-0">
@@ -617,27 +617,27 @@ export default function Employees({ onCountChange }: { onCountChange: (n: number
             <tbody>
               {filtered.map((emp) => (
                 <tr key={emp.id} className="table-row-hover border-t border-slate-100 dark:border-zinc-800">
-                  <td className="px-4 py-3 font-mono text-xs text-slate-700 dark:text-zinc-300 font-bold">{emp.employeeId}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-2 font-mono text-xs text-slate-700 dark:text-zinc-300 font-bold tabular">{emp.employeeId}</td>
+                  <td className="px-4 py-2">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-corp-blue dark:bg-gold-500 text-white dark:text-zinc-900 flex items-center justify-center text-xs font-bold shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-corp-blue dark:bg-cobalt-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
                         {initials(emp.name)}
                       </div>
                       <span className="font-bold text-slate-900 dark:text-white">{emp.name}</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-2">
                     <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-semibold">{emp.department}</span>
                   </td>
-                  <td className="px-4 py-3 text-slate-600 dark:text-zinc-300 text-xs">
+                  <td className="px-4 py-2 text-slate-600 dark:text-zinc-300 text-xs">
                     <div className="font-medium">{emp.email}</div>
                     <div className="text-slate-500 dark:text-zinc-400 font-mono">{emp.phone}</div>
                   </td>
-                  <td className="px-4 py-3 text-slate-600 dark:text-zinc-300 text-xs font-mono">
+                  <td className="px-4 py-2 text-slate-600 dark:text-zinc-300 text-xs font-mono tabular">
                     <div><span className="text-slate-400 font-sans mr-1">{t('Date of Birth')}:</span>{emp.dob}</div>
                     <div><span className="text-slate-400 font-sans mr-1">{t('Joined Date')}:</span>{emp.joinedDate}</div>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-2">
                     <span className={cn('px-2.5 py-0.5 rounded-full text-xs font-bold',
                       emp.status === 'active'
                         ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
@@ -646,11 +646,11 @@ export default function Employees({ onCountChange }: { onCountChange: (n: number
                       {emp.status === 'active' ? t('Active') : t('Inactive')}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-2">
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => { setEditTarget(emp); setModalOpen(true); }}
-                        className="p-1 rounded-md text-slate-400 hover:text-corp-blue dark:hover:text-gold-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
+                        className="p-1 rounded-md text-slate-400 hover:text-corp-blue dark:hover:text-cobalt-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
                         title={t('Edit Employee')}
                       >
                         <Pencil size={16} />
@@ -705,13 +705,13 @@ export default function Employees({ onCountChange }: { onCountChange: (n: number
             {/* Modal Header */}
             <div className="flex items-center justify-between mb-4 border-b pb-3 border-slate-200 dark:border-zinc-800">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-corp-blue/10 dark:bg-gold-500/15 text-corp-blue dark:text-gold-500 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-corp-blue/10 dark:bg-cobalt-500/15 text-corp-blue dark:text-cobalt-400 flex items-center justify-center shrink-0">
                   <FileSpreadsheet size={22} />
                 </div>
                 <div>
                   <h2 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
                     {t('Import Preview')}
-                    <span className="text-xs px-2.5 py-0.5 rounded-full bg-corp-blue/10 text-corp-blue dark:bg-gold-500/20 dark:text-gold-400 font-bold">
+                    <span className="text-xs px-2.5 py-0.5 rounded-full bg-corp-blue/10 text-corp-blue dark:bg-cobalt-500/20 dark:text-cobalt-400 font-bold">
                       {importPreview.length} {importPreview.length === 1 ? t('Employee') : t('Employees')}
                     </span>
                   </h2>
@@ -732,7 +732,7 @@ export default function Employees({ onCountChange }: { onCountChange: (n: number
             {/* Table Area */}
             <div className="flex-1 overflow-auto border border-slate-200 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-900">
               <table className="w-full text-xs text-left">
-                <thead className="bg-slate-100 dark:bg-zinc-800 sticky top-0 text-slate-800 dark:text-zinc-200 font-bold uppercase tracking-wider border-b border-slate-200 dark:border-zinc-700">
+                <thead className="bg-slate-50 dark:bg-zinc-800/60 sticky top-0 text-slate-600 dark:text-zinc-400 font-semibold border-b border-slate-200 dark:border-zinc-700">
                   <tr>
                     <th className="px-3.5 py-3">{t('Employee ID')}</th>
                     <th className="px-3.5 py-3">{t('Employee')}</th>
@@ -809,7 +809,7 @@ export default function Employees({ onCountChange }: { onCountChange: (n: number
                 </button>
                 <button
                   onClick={handleConfirmImport}
-                  className="bg-corp-blue hover:bg-blue-800 dark:bg-gradient-to-r dark:from-gold-600 dark:to-gold-500 dark:text-zinc-950 text-white font-bold text-sm px-5 py-2 rounded-lg shadow-sm transition-colors flex items-center gap-2 cursor-pointer"
+                  className="bg-corp-blue hover:bg-blue-800 dark:bg-cobalt-600 dark:hover:bg-cobalt-500 text-white font-bold text-sm px-5 py-2 rounded-lg shadow-sm transition-colors flex items-center gap-2 cursor-pointer"
                 >
                   {t('Confirm Import')} ({importPreview.length})
                 </button>
