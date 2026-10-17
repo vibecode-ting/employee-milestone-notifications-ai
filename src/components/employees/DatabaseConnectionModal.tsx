@@ -516,13 +516,13 @@ export function DatabaseConnectionModal({
           <div className="p-5 space-y-4 max-h-[80vh] flex flex-col">
             <div className="flex items-center justify-between gap-3">
               <div className="relative flex-1">
-                <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Filter size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                 <input
                   type="text"
                   value={filterQuery}
                   onChange={(e) => setFilterQuery(e.target.value)}
                   placeholder={t('Filter across columns (name, ID, email, department)...')}
-                  className="glass-input pl-8.5 text-xs w-full py-1.5"
+                  className="glass-input glass-input-with-icon !pl-11 text-xs w-full py-1.5"
                 />
               </div>
 
