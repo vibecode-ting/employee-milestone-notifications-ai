@@ -15,7 +15,7 @@ const AdminUsers = lazy(() => import('./views/AdminUsers'));
 function RouteLoadingFallback() {
   return (
     <div className="flex items-center justify-center min-h-[50vh]">
-      <div className="w-8 h-8 border-3 border-corp-blue dark:border-gold-500 border-t-transparent rounded-full animate-spin" />
+      <div className="w-8 h-8 border-3 border-corp-blue dark:border-cobalt-500 border-t-transparent rounded-full animate-spin" />
     </div>
   );
 }
