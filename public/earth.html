@@ -17,8 +17,13 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: #020617;
+      background: radial-gradient(circle at 45% 45%, #071738 0%, #030a1c 60%, #01040d 100%);
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      transition: background 0.5s ease;
+    }
+
+    body.light-theme {
+      background: radial-gradient(circle at 45% 45%, #e0f2fe 0%, #bae6fd 50%, #93c5fd 100%);
     }
 
     #webgl-container {
@@ -35,15 +40,103 @@
       cursor: grabbing;
     }
 
-    /* 3D Projected Country Labels Layer */
-    #labels-layer {
+    /* 3D Projected UI Layers */
+    #orbit-cards-layer, #labels-layer {
       position: absolute;
       inset: 0;
       pointer-events: none;
-      z-index: 2;
+      z-index: 3;
       overflow: hidden;
     }
 
+    /* Floating Orbiting Milestone Cards */
+    .orbit-card {
+      position: absolute;
+      left: 0;
+      top: 0;
+      transform: translate(-50%, -50%);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border-radius: 12px;
+      background: rgba(10, 25, 52, 0.88);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 20px rgba(56, 189, 248, 0.25);
+      color: #ffffff;
+      pointer-events: auto;
+      cursor: pointer;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+      will-change: transform, opacity;
+      max-width: 250px;
+    }
+
+    .orbit-card:hover {
+      transform: translate(-50%, -55%) scale(1.08);
+      border-color: #38bdf8;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(56, 189, 248, 0.5);
+      z-index: 40;
+    }
+
+    .orbit-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #38bdf8;
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+      flex-shrink: 0;
+    }
+
+    .orbit-badge {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .badge-cyan { background: rgba(56, 189, 248, 0.25); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
+    .badge-gold { background: rgba(251, 191, 36, 0.25); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.4); }
+    .badge-emerald { background: rgba(52, 211, 153, 0.25); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.4); }
+    .badge-purple { background: rgba(168, 85, 247, 0.25); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
+
+    .orbit-info {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      min-width: 0;
+    }
+
+    .orbit-name {
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .orbit-event {
+      font-size: 10.5px;
+      color: rgba(226, 232, 240, 0.85);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .orbit-ai-tag {
+      font-size: 9px;
+      color: #93c5fd;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      font-weight: 600;
+    }
+
+    /* 3D Projected Country Labels Layer */
     .country-label {
       position: absolute;
       left: 0;
@@ -54,7 +147,7 @@
       gap: 6px;
       padding: 4px 9px;
       border-radius: 6px;
-      background: rgba(8, 18, 36, 0.85);
+      background: rgba(10, 24, 48, 0.85);
       border: 1px solid rgba(56, 189, 248, 0.35);
       backdrop-filter: blur(6px);
       color: #e0f2fe;
@@ -70,7 +163,7 @@
     }
 
     .country-label:hover {
-      background: rgba(14, 38, 77, 0.95);
+      background: rgba(16, 44, 88, 0.95);
       border-color: #38bdf8;
       box-shadow: 0 0 16px rgba(56, 189, 248, 0.6);
       transform: translate(-50%, -125%) scale(1.08);
@@ -88,7 +181,7 @@
 
     /* Active country emphasis */
     .country-label.is-active {
-      background: rgba(12, 36, 74, 0.95);
+      background: rgba(14, 42, 85, 0.96);
       border-color: #38bdf8;
       color: #ffffff;
       font-size: 13px;
@@ -140,8 +233,8 @@
       gap: 8px;
       padding: 6px 14px;
       border-radius: 9999px;
-      background: rgba(15, 23, 42, 0.8);
-      border: 1px solid rgba(56, 189, 248, 0.3);
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.35);
       backdrop-filter: blur(10px);
       color: #f1f5f9;
       font-size: 12px;
@@ -160,10 +253,11 @@
     }
 
     .hud-sub {
-      color: rgba(148, 163, 184, 0.85);
+      color: rgba(186, 230, 253, 0.9);
       font-size: 11px;
-      font-weight: 400;
+      font-weight: 500;
       padding-left: 6px;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
     }
 
     /* Bottom HUD Toolbar */
@@ -187,10 +281,10 @@
       gap: 8px;
       padding: 6px 14px;
       border-radius: 9999px;
-      background: rgba(15, 23, 42, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(8px);
-      color: rgba(226, 232, 240, 0.85);
+      color: rgba(226, 232, 240, 0.9);
       font-size: 11px;
       font-weight: 500;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
@@ -212,10 +306,10 @@
       gap: 5px;
       padding: 5px 11px;
       border-radius: 8px;
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(56, 189, 248, 0.25);
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid rgba(56, 189, 248, 0.28);
       backdrop-filter: blur(8px);
-      color: #cbd5e1;
+      color: #e2e8f0;
       font-size: 11px;
       font-weight: 500;
       cursor: pointer;
@@ -224,11 +318,11 @@
     }
 
     .chip-btn:hover {
-      background: rgba(30, 58, 138, 0.9);
+      background: rgba(30, 58, 138, 0.92);
       border-color: #38bdf8;
       color: #ffffff;
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.35);
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.4);
     }
 
     .chip-btn.active {
@@ -236,7 +330,7 @@
       border-color: #38bdf8;
       color: #ffffff;
       font-weight: 600;
-      box-shadow: 0 0 14px rgba(56, 189, 248, 0.6);
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.65);
     }
 
     .hud-actions {
@@ -253,10 +347,10 @@
       gap: 5px;
       padding: 6px 12px;
       border-radius: 8px;
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.18);
       backdrop-filter: blur(8px);
-      color: #cbd5e1;
+      color: #e2e8f0;
       font-size: 11px;
       font-weight: 500;
       cursor: pointer;
@@ -270,7 +364,7 @@
     }
 
     .action-btn.is-active {
-      background: rgba(16, 185, 129, 0.2);
+      background: rgba(16, 185, 129, 0.25);
       border-color: #10b981;
       color: #a7f3d0;
     }
@@ -285,12 +379,14 @@
       .hud-hint { display: none; }
       .hud-bottom { bottom: 10px; left: 10px; right: 10px; }
       .hud-header { top: 10px; left: 10px; }
+      .orbit-card { display: none; } /* Hide orbiting cards on small screens to reduce clutter */
     }
   </style>
 </head>
 <body>
   <div id="webgl-container"></div>
   <div id="labels-layer"></div>
+  <div id="orbit-cards-layer"></div>
 
   <!-- HUD Top Header -->
   <div class="hud-header">
@@ -298,7 +394,7 @@
       <span class="live-dot"></span>
       <span>JAPAC Milestone Intelligence Network</span>
     </div>
-    <span class="hud-sub">34 entities connected across Asia Pacific • Real-time 3D telemetry</span>
+    <span class="hud-sub">34 entities connected across Asia Pacific • Google Cloud AI Powered</span>
   </div>
 
   <!-- HUD Bottom Bar -->
@@ -308,7 +404,7 @@
       <span>•</span>
       <span>🔍 Scroll to zoom</span>
       <span>•</span>
-      <span>📍 Click node to fly</span>
+      <span>📍 Click node or card to fly</span>
     </div>
 
     <!-- Quick Jump Hub Chips -->
@@ -395,6 +491,7 @@
     // =========================================================================
     const container = document.getElementById('webgl-container');
     const labelsLayer = document.getElementById('labels-layer');
+    const orbitCardsLayer = document.getElementById('orbit-cards-layer');
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 4000);
@@ -518,26 +615,21 @@
     // =========================================================================
     // 4. MULTI-POINT VIBRANT LIGHTING SYSTEM (Light up the Earth!)
     // =========================================================================
-    // Bright ambient celestial fill so the dark side is never pitch black
     const ambientLight = new THREE.AmbientLight(0xdbeafe, 1.6);
     scene.add(ambientLight);
 
-    // Primary Sun Key Light
     const sunLight = new THREE.DirectionalLight(0xffffff, 2.4);
     sunLight.position.set(32, 22, 38);
     scene.add(sunLight);
 
-    // Cyan Fill Light from opposite side
     const fillLight = new THREE.DirectionalLight(0x38bdf8, 1.3);
     fillLight.position.set(-30, -12, 24);
     scene.add(fillLight);
 
-    // Deep Indigo Rim / Backlight
     const rimLight = new THREE.DirectionalLight(0x818cf8, 0.95);
     rimLight.position.set(0, 32, -28);
     scene.add(rimLight);
 
-    // Soft Bottom Earth Bounce Light
     const bounceLight = new THREE.DirectionalLight(0x60a5fa, 0.55);
     bounceLight.position.set(0, -32, 12);
     scene.add(bounceLight);
@@ -551,7 +643,6 @@
       canvas.height = 1024;
       const ctx = canvas.getContext('2d');
 
-      // Oceanic gradient
       const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
       grad.addColorStop(0, '#041226');
       grad.addColorStop(0.2, '#082548');
@@ -561,7 +652,6 @@
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Cyber latitude & longitude grid lines
       ctx.lineWidth = 1;
       ctx.strokeStyle = 'rgba(56, 189, 248, 0.22)';
       for (let lat = -80; lat <= 80; lat += 20) {
@@ -579,7 +669,6 @@
         ctx.stroke();
       }
 
-      // Equator highlight
       ctx.lineWidth = 2.5;
       ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
       ctx.beginPath();
@@ -587,7 +676,6 @@
       ctx.lineTo(canvas.width, canvas.height / 2);
       ctx.stroke();
 
-      // Atmospheric star/node particles across the globe
       ctx.fillStyle = 'rgba(125, 211, 252, 0.4)';
       for (let i = 0; i < 500; i++) {
         const gx = Math.random() * canvas.width;
@@ -772,7 +860,6 @@
         const arcLine = new THREE.Line(arcGeo, arcMat);
         worldGroup.add(arcLine);
 
-        // Animated pulse along the arc
         const pulseGeo = new THREE.SphereGeometry(0.065, 10, 10);
         const pulseMat = new THREE.MeshBasicMaterial({
           color: country.isMyanmar ? 0xfde047 : 0x7dd3fc,
@@ -811,7 +898,6 @@
       labelEl.appendChild(nameSpan);
       labelsLayer.appendChild(labelEl);
 
-      // Clicking label triggers smooth fly-to
       labelEl.addEventListener('click', (e) => {
         e.stopPropagation();
         flyToCountry(country.code);
@@ -826,6 +912,95 @@
         arcMat,
         borderMaterials: [],
         labelEl
+      });
+    });
+
+    // =========================================================================
+    // 7. ORBITING 3D MILESTONE CELEBRATION CARDS
+    // =========================================================================
+    const ORBIT_CARDS_DATA = [
+      {
+        id: 'oc1',
+        countryCode: 'sg',
+        name: 'Sarah Chen',
+        role: 'Staff SRE • Singapore',
+        event: '5-Year Anniversary',
+        badge: '5yr Milestone',
+        badgeClass: 'badge-cyan',
+        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&auto=format&fit=crop&q=80',
+        radiusOffset: 14.2,
+        baseAngle: 0,
+        tilt: 0.2
+      },
+      {
+        id: 'oc2',
+        countryCode: 'mm',
+        name: 'Aung Myint',
+        role: 'Cloud Architect • Myanmar',
+        event: 'Birthday Today! 🎉',
+        badge: 'Birthday',
+        badgeClass: 'badge-gold',
+        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80',
+        radiusOffset: 14.8,
+        baseAngle: Math.PI * 0.52,
+        tilt: -0.15
+      },
+      {
+        id: 'oc3',
+        countryCode: 'jp',
+        name: 'Yuki Tanaka',
+        role: 'Product Lead • Tokyo',
+        event: '3-Year Anniversary',
+        badge: '3yr Milestone',
+        badgeClass: 'badge-emerald',
+        avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&auto=format&fit=crop&q=80',
+        radiusOffset: 14.0,
+        baseAngle: Math.PI * 1.05,
+        tilt: 0.3
+      },
+      {
+        id: 'oc4',
+        countryCode: 'vn',
+        name: 'Minh Nguyen',
+        role: 'DevOps Lead • Vietnam',
+        event: 'Annual Milestone',
+        badge: 'Celebration',
+        badgeClass: 'badge-purple',
+        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80',
+        radiusOffset: 14.5,
+        baseAngle: Math.PI * 1.58,
+        tilt: -0.25
+      }
+    ];
+
+    const activeOrbitElements = [];
+
+    ORBIT_CARDS_DATA.forEach(card => {
+      const el = document.createElement('div');
+      el.className = 'orbit-card';
+      el.innerHTML = `
+        <img class="orbit-avatar" src="${card.avatar}" alt="${card.name}" />
+        <div class="orbit-info">
+          <div style="display:flex;align-items:center;gap:5px;">
+            <span class="orbit-badge ${card.badgeClass}">${card.badge}</span>
+            <span class="orbit-ai-tag">✨ AI Card</span>
+          </div>
+          <span class="orbit-name">${card.name}</span>
+          <span class="orbit-event">${card.event}</span>
+        </div>
+      `;
+
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        flyToCountry(card.countryCode);
+      });
+
+      orbitCardsLayer.appendChild(el);
+
+      activeOrbitElements.push({
+        data: card,
+        domEl: el,
+        angle: card.baseAngle
       });
     });
 
@@ -879,13 +1054,13 @@
     loadGeoJSON();
 
     // =========================================================================
-    // 7. DRAG-AND-SPIN PHYSICS, WHEEL ZOOM & TOUCH GESTURES
+    // 8. DRAG-AND-SPIN PHYSICS, WHEEL ZOOM & TOUCH GESTURES
     // =========================================================================
     let isDragging = false;
     let lastPointerX = 0;
     let lastPointerY = 0;
-    let velX = 0; // Pitch velocity
-    let velY = 0; // Yaw velocity
+    let velX = 0;
+    let velY = 0;
     let autoRotate = true;
     let isInteracting = false;
     let idleTimer = null;
@@ -899,13 +1074,11 @@
     let currentCameraZ = 30;
     camera.position.set(0, 0, currentCameraZ);
 
-    // Initial position: Orient towards Southeast Asia & JAPAC hub (Lat 14, Lon 110)
     const initialLon = (110 + 90) * (Math.PI / 180);
     const initialLat = 14 * (Math.PI / 180);
     worldGroup.rotation.y = -initialLon;
     worldGroup.rotation.x = initialLat;
 
-    // Pointer Drag Listeners
     container.addEventListener('pointerdown', (e) => {
       if (e.button !== 0) return;
       isDragging = true;
@@ -953,7 +1126,6 @@
     container.addEventListener('pointerup', handlePointerUp);
     container.addEventListener('pointercancel', handlePointerUp);
 
-    // Mouse Wheel Zoom
     window.addEventListener('wheel', (e) => {
       e.preventDefault();
       isInteracting = true;
@@ -991,19 +1163,17 @@
     }, { passive: true });
 
     // =========================================================================
-    // 8. INTERACTIVE FLY-TO, HIGHLIGHTING & CHIP CONTROLS
+    // 9. INTERACTIVE FLY-TO, HIGHLIGHTING & CHIP CONTROLS
     // =========================================================================
     let activeCountryCode = null;
 
     function highlightCountry(code) {
       activeCountryCode = code;
 
-      // Update chips UI
       document.querySelectorAll('.chip-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.code === code);
       });
 
-      // Update 3D visuals & 2D labels
       countryVisuals.forEach((vis, cCode) => {
         const isActive = cCode === code;
         vis.labelEl.classList.toggle('is-active', isActive);
@@ -1027,7 +1197,6 @@
       const radLon = (c.lon + 90) * (Math.PI / 180);
       const radLat = c.lat * (Math.PI / 180);
 
-      // Shortest rotation path
       let diff = (-radLon - worldGroup.rotation.y) % (Math.PI * 2);
       if (diff > Math.PI) diff -= Math.PI * 2;
       if (diff < -Math.PI) diff += Math.PI * 2;
@@ -1060,7 +1229,6 @@
       highlightCountry(null);
     }
 
-    // Bind HUD Buttons
     document.querySelectorAll('.chip-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const code = btn.dataset.code;
@@ -1083,12 +1251,10 @@
     const resetBtn = document.getElementById('btn-reset');
     resetBtn.addEventListener('click', resetView);
 
-    // Raycasting for clicking country markers on 3D canvas
     const raycaster = new THREE.Raycaster();
     const mouseCoord = new THREE.Vector2();
 
     container.addEventListener('click', (e) => {
-      // If was dragging significantly, ignore click
       if (Math.abs(velY) > 0.001 || Math.abs(velX) > 0.001) return;
 
       mouseCoord.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -1105,16 +1271,16 @@
     });
 
     // =========================================================================
-    // 9. ANIMATION LOOP & 2D PROJECTION ENGINE
+    // 10. ANIMATION LOOP & 2D PROJECTION ENGINE
     // =========================================================================
     const tempWorldVec = new THREE.Vector3();
     const tempNormalVec = new THREE.Vector3();
     const cameraDirVec = new THREE.Vector3();
+    const orbitPosVec = new THREE.Vector3();
 
     function animate() {
       requestAnimationFrame(animate);
 
-      // Handle Smooth Camera & Rotation Interpolation
       if (isFlyingToTarget) {
         worldGroup.rotation.y += (flyTargetRotY - worldGroup.rotation.y) * 0.08;
         worldGroup.rotation.x += (flyTargetRotX - worldGroup.rotation.x) * 0.08;
@@ -1126,14 +1292,13 @@
           isFlyingToTarget = false;
         }
       } else if (!isDragging) {
-        // Inertia damping
         if (Math.abs(velY) > 0.00005 || Math.abs(velX) > 0.00005) {
           worldGroup.rotation.y += velY;
           worldGroup.rotation.x = Math.max(-1.3, Math.min(1.3, worldGroup.rotation.x + velX));
           velY *= 0.93;
           velX *= 0.93;
         } else if (autoRotate && !isInteracting) {
-          worldGroup.rotation.y += 0.0016; // Smooth continuous spin
+          worldGroup.rotation.y += 0.0016;
         }
         currentCameraZ += (targetCameraZ - currentCameraZ) * 0.08;
       }
@@ -1141,7 +1306,6 @@
       camera.position.z = currentCameraZ;
       worldGroup.updateMatrixWorld();
 
-      // Atmospheric Cloud Drift & Galaxy Rotation
       cloudMesh.rotation.y += 0.00035;
       galaxyField.rotation.y += 0.00015;
 
@@ -1153,11 +1317,41 @@
         p.mesh.position.copy(pt);
       }
 
-      // 3D Country Labels to 2D Screen Projection
       const halfW = (container.clientWidth || window.innerWidth) * 0.5;
       const halfH = (container.clientHeight || window.innerHeight) * 0.5;
       cameraDirVec.copy(camera.position).normalize();
 
+      // Project Orbiting Milestone Cards
+      for (let i = 0; i < activeOrbitElements.length; i++) {
+        const item = activeOrbitElements[i];
+        item.angle += 0.0022; // Orbit revolution speed
+
+        const r = item.data.radiusOffset;
+        orbitPosVec.set(
+          Math.cos(item.angle) * r,
+          Math.sin(item.angle * 2) * (r * item.data.tilt),
+          Math.sin(item.angle) * r
+        );
+
+        orbitPosVec.applyMatrix4(worldGroup.matrixWorld);
+        tempNormalVec.copy(orbitPosVec).normalize();
+        const facingDot = tempNormalVec.dot(cameraDirVec);
+
+        if (facingDot > 0.15) {
+          orbitPosVec.project(camera);
+          const screenX = (orbitPosVec.x * halfW) + halfW;
+          const screenY = -(orbitPosVec.y * halfH) + halfH;
+
+          item.domEl.style.transform = `translate(-50%, -50%) translate3d(${screenX.toFixed(1)}px, ${screenY.toFixed(1)}px, 0)`;
+          item.domEl.style.opacity = Math.min(1.0, (facingDot - 0.15) * 2.8).toFixed(2);
+          item.domEl.style.pointerEvents = 'auto';
+        } else {
+          item.domEl.style.opacity = '0';
+          item.domEl.style.pointerEvents = 'none';
+        }
+      }
+
+      // 3D Country Labels to 2D Screen Projection
       countryVisuals.forEach((vis, code) => {
         tempWorldVec.copy(vis.pos3D).applyMatrix4(worldGroup.matrixWorld);
         tempNormalVec.copy(tempWorldVec).normalize();

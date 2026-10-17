@@ -4,7 +4,7 @@ import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import {
   LayoutDashboard, Users, Settings, Shield, Zap, Moon, Sun, LogOut, Pin, PinOff,
-  Bell, MessageSquare,
+  Bell, MessageSquare, BarChart2,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
@@ -134,11 +134,13 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
     ? [
         { to: '/', icon: Shield, label: t('Admin Dashboard') || 'Admin Dashboard' },
         { to: '/admin/users', icon: Users, label: t('User Management') },
+        { to: '/analytics', icon: BarChart2, label: 'BigQuery Analytics' },
         { to: '/settings', icon: Settings, label: t('Settings') },
       ]
     : [
         { to: '/', icon: LayoutDashboard, label: t('Dashboard') },
         { to: '/employees', icon: Users, label: t('Employees') },
+        { to: '/analytics', icon: BarChart2, label: 'Analytics' },
         { to: '/settings', icon: Settings, label: t('Settings') },
       ];
 

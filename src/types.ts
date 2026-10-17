@@ -86,3 +86,76 @@ export interface SystemBroadcast {
   createdBy?: string;
 }
 
+// AI Card Generator Studio Types
+export type CardTone = 'warm' | 'executive' | 'fun' | 'cultural';
+export type CardTheme = 'sapphire' | 'emerald' | 'gold' | 'cyber';
+
+export interface GeneratedCard {
+  id: string;
+  employeeName: string;
+  milestoneType: 'BIRTHDAY' | 'ANNIVERSARY';
+  years?: number;
+  tone: CardTone;
+  theme: CardTheme;
+  headline: string;
+  message: string;
+  quote?: string;
+  designAssetUrl?: string;
+}
+
+// Dynamic Custom Columns with Tier Gating
+export interface CustomColumnDef {
+  key: string;
+  label: string;
+  type: 'text' | 'number' | 'select' | 'date';
+  placeholder?: string;
+  options?: string[];
+  requiredTier: 'user' | 'pro' | 'pro_plus';
+  description: string;
+}
+
+// BigQuery HR Analytics Module Types
+export interface ForecastDataPoint {
+  month: string;
+  birthdays: number;
+  anniversaries: number;
+  estimatedGiftBudgetUsd: number;
+  projectedEvents: number;
+}
+
+export interface TenureCohort {
+  cohort: string;
+  count: number;
+  retentionRisk: 'low' | 'medium' | 'high';
+  avgEngagement: number;
+}
+
+export interface LanguageEngagement {
+  language: string;
+  flag: string;
+  count: number;
+  percentage: number;
+}
+
+// Safe AI Copilot Types (Double-Confirmation Safety UX)
+export interface CopilotDiff {
+  id: string;
+  type: 'modify' | 'delete';
+  employeeId?: string;
+  employeeName: string;
+  changes?: Record<string, { before: unknown; after: unknown }>;
+  description: string;
+  confirmedStep1?: boolean;
+  confirmedStep2?: boolean;
+}
+
+export interface CopilotMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
+  diff?: CopilotDiff;
+  source?: 'text' | 'voice' | 'ocr';
+}
+
+
