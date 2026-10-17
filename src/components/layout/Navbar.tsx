@@ -163,7 +163,7 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
         <div className="flex items-center justify-between px-4 py-5 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             <img src="/logo.svg" alt="Milestone" className={cn('transition-all duration-300', open ? 'w-10' : 'w-8')} />
-            {open && <span className="font-bold text-lg text-corp-blue dark:text-gold-500 whitespace-nowrap">Milestone</span>}
+            {open && <span className="font-bold text-lg text-corp-blue dark:text-cobalt-400 whitespace-nowrap">Milestone</span>}
           </div>
           {open && (
             <button
@@ -173,7 +173,7 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
               className={cn(
                 'p-1.5 rounded-lg transition-colors cursor-pointer',
                 pinned
-                  ? 'bg-corp-blue/10 text-corp-blue dark:bg-gold-500/20 dark:text-gold-400'
+                  ? 'bg-corp-blue/10 text-corp-blue dark:bg-cobalt-500/20 dark:text-cobalt-400'
                   : 'text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800'
               )}
             >
@@ -194,7 +194,7 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
                 cn(
                   'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-sm font-medium',
                   isActive
-                    ? 'bg-corp-blue/10 text-corp-blue dark:bg-gold-500/15 dark:text-gold-400 font-bold'
+                    ? 'bg-corp-blue/10 text-corp-blue dark:bg-cobalt-500/15 dark:text-cobalt-400 font-bold'
                     : 'text-slate-600 hover:bg-slate-500/10 dark:text-zinc-400 dark:hover:bg-zinc-800/50',
                 )
               }
@@ -213,7 +213,7 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
               className={cn(
                 'flex items-center gap-3 w-full px-3 py-2.5 rounded-xl transition-all text-sm font-medium cursor-pointer',
                 showNotifications
-                  ? 'bg-corp-blue/10 text-corp-blue dark:bg-gold-500/15 dark:text-gold-400 font-bold'
+                  ? 'bg-corp-blue/10 text-corp-blue dark:bg-cobalt-500/15 dark:text-cobalt-400 font-bold'
                   : 'text-slate-600 hover:bg-slate-500/10 dark:text-zinc-400 dark:hover:bg-zinc-800/50'
               )}
             >
@@ -276,7 +276,7 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
                       }}
                     />
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-corp-blue dark:bg-gold-500 flex items-center justify-center text-white dark:text-zinc-900 font-bold text-sm shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-corp-blue dark:bg-cobalt-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
                       {appUser?.email?.[0]?.toUpperCase() ?? '?'}
                     </div>
                   )}
@@ -305,7 +305,7 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
                     }}
                   />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-corp-blue dark:bg-gold-500 flex items-center justify-center text-white dark:text-zinc-900 font-bold text-sm shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-corp-blue dark:bg-cobalt-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
                     {appUser?.email?.[0]?.toUpperCase() ?? '?'}
                   </div>
                 )}
