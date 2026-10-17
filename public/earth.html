@@ -27,6 +27,11 @@
       width: 100%;
       height: 100%;
       z-index: 1;
+      cursor: grab;
+    }
+
+    #webgl-container:active {
+      cursor: grabbing;
     }
 
     /* 3D Projected Country Labels Layer (Flags + Country Names Only) */
@@ -56,8 +61,17 @@
       font-weight: 500;
       letter-spacing: 0.02em;
       white-space: nowrap;
-      transition: opacity 0.25s ease, border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+      transition: opacity 0.25s ease, border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
       will-change: transform, opacity;
+      cursor: pointer;
+    }
+
+    .country-label:hover {
+      background: rgba(14, 165, 233, 0.35);
+      border-color: rgba(56, 189, 248, 1);
+      color: #ffffff;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.5);
+      z-index: 25;
     }
 
     .country-label img.flag-icon {
@@ -138,9 +152,9 @@
 <body>
   <div id="webgl-container"></div>
   <div id="labels-layer"></div>
-  <div class="scroll-hint">
+  <div class="scroll-hint" id="scroll-hint">
     <span class="scroll-dot"></span>
-    <span>Scroll to explore JAPAC milestone network</span>
+    <span>Drag to rotate • Scroll to cycle • Click country to focus</span>
   </div>
 
   <script type="importmap">
@@ -327,16 +341,22 @@
     // =========================================================================
     // 4. REALISTIC EARTH GLOBE & ATMOSPHERE
     // =========================================================================
-    const ambientLight = new THREE.AmbientLight(0x334b68, 0.75);
+    const ambientLight = new THREE.AmbientLight(0x475569, 0.85);
     scene.add(ambientLight);
 
-    const sunLight = new THREE.DirectionalLight(0xfff6e5, 1.35);
+    const sunLight = new THREE.DirectionalLight(0xfff6e5, 1.25);
     sunLight.position.set(35, 18, 40);
     scene.add(sunLight);
 
-    const rimLight = new THREE.DirectionalLight(0x1e40af, 0.45);
+    const rimLight = new THREE.DirectionalLight(0x38bdf8, 0.55);
     rimLight.position.set(-35, -15, -25);
     scene.add(rimLight);
+
+    // Front-facing illumination so any country in focus (including Pacific islands like Kiribati) is clearly visible
+    const cameraLight = new THREE.DirectionalLight(0x93c5fd, 0.7);
+    cameraLight.position.set(0, 0, 1);
+    camera.add(cameraLight);
+    scene.add(camera);
 
     const textureLoader = new THREE.TextureLoader();
     const earthGeo = new THREE.SphereGeometry(EARTH_RADIUS, 96, 96);
@@ -420,29 +440,60 @@
 
       let arcMat = null;
       if (!country.isHub) {
-        const dist = pos.distanceTo(sgPos);
-        const mid = pos.clone().add(sgPos).multiplyScalar(0.5);
-        mid.normalize().multiplyScalar(EARTH_RADIUS + Math.min(3.6, dist * 0.36));
+        // Build elevated Great-Circle 3D flight trajectory from country to Singapore hub
+        const u1 = pos.clone().normalize();
+        const u2 = sgPos.clone().normalize();
+        const angularDist = u1.angleTo(u2); // Great circle angular distance in radians (0 to PI)
 
-        const curve = new THREE.QuadraticBezierCurve3(pos, mid, sgPos);
-        const points = curve.getPoints(56);
-        const arcGeo = new THREE.BufferGeometry().setFromPoints(points);
+        // Great circle SLERP interpolation ensuring arc strictly floats above Earth's surface at all t
+        const pointsCount = 64;
+        const arcPoints = [];
+        // Elevation profile: higher peak for longer distances across the Pacific (Kiribati, Fiji, Samoa, NZ)
+        const peakAltitude = Math.min(4.8, Math.max(1.5, angularDist * 1.8));
+
+        const dot = Math.max(-1, Math.min(1, u1.dot(u2)));
+        const theta = Math.acos(dot);
+
+        for (let i = 0; i <= pointsCount; i++) {
+          const t = i / pointsCount;
+          // Elevation uses sine wave so altitude is 0.04 at endpoints and peaks gracefully in the middle
+          const alt = 0.04 + Math.sin(t * Math.PI) * peakAltitude;
+
+          let slerpedPt;
+          if (theta < 0.0001) {
+            slerpedPt = u1.clone();
+          } else {
+            const sinTheta = Math.sin(theta);
+            const a = Math.sin((1 - t) * theta) / sinTheta;
+            const b = Math.sin(t * theta) / sinTheta;
+            slerpedPt = new THREE.Vector3(
+              a * u1.x + b * u2.x,
+              a * u1.y + b * u2.y,
+              a * u1.z + b * u2.z
+            ).normalize();
+          }
+          arcPoints.push(slerpedPt.multiplyScalar(EARTH_RADIUS + alt));
+        }
+
+        const curve = new THREE.CatmullRomCurve3(arcPoints);
+        const arcGeo = new THREE.BufferGeometry().setFromPoints(curve.getPoints(80));
 
         arcMat = new THREE.LineBasicMaterial({
           color: country.isMyanmar ? 0xfbbf24 : 0x38bdf8,
           transparent: true,
-          opacity: 0.26,
-          blending: THREE.AdditiveBlending
+          opacity: 0.32,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false
         });
 
         const arcLine = new THREE.Line(arcGeo, arcMat);
         worldGroup.add(arcLine);
 
-        const pulseGeo = new THREE.SphereGeometry(0.055, 10, 10);
+        const pulseGeo = new THREE.SphereGeometry(0.08, 12, 12);
         const pulseMat = new THREE.MeshBasicMaterial({
           color: country.isMyanmar ? 0xfde047 : 0x7dd3fc,
           transparent: true,
-          opacity: 0.85
+          opacity: 0.95
         });
         const pulseMesh = new THREE.Mesh(pulseGeo, pulseMat);
         worldGroup.add(pulseMesh);
@@ -461,6 +512,17 @@
       labelEl.className = 'country-label' +
         (country.isHub ? ' is-hub' : '') +
         (country.isMyanmar ? ' is-myanmar' : '');
+      labelEl.style.pointerEvents = 'auto';
+      labelEl.style.cursor = 'pointer';
+      labelEl.title = `Focus on ${country.name}`;
+      labelEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        notifyInteraction(true);
+        applySlide(idx + 1);
+      });
+      labelEl.addEventListener('mouseenter', () => {
+        notifyInteraction(true);
+      });
 
       const flagImg = document.createElement('img');
       flagImg.className = 'flag-icon';
@@ -536,7 +598,7 @@
     loadGeoJSON();
 
     // =========================================================================
-    // 6. MOUSE-WHEEL & TOUCH SLIDESHOW ENGINE
+    // 6. SLIDESHOW & INTERACTIVE ROTATION ENGINE
     // =========================================================================
     let currentSlideIndex = 0;
     const totalSlides = JAPAC_COUNTRIES.length + 1;
@@ -546,6 +608,48 @@
 
     const targetQuaternion = new THREE.Quaternion();
     const currentQuaternion = new THREE.Quaternion();
+
+    // Communication with parent window: notify when user is interacting to stop slide switching
+    let interactionNotifyTimeout = null;
+    let lastInteractionReportTime = 0;
+
+    function notifyInteraction(active = true) {
+      const now = performance.now();
+
+      const hint = document.getElementById('scroll-hint');
+      if (hint) {
+        hint.style.opacity = active ? '0.35' : '0.85';
+      }
+
+      if (active && now - lastInteractionReportTime < 60) return;
+      lastInteractionReportTime = now;
+
+      try {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({
+            type: 'EARTH_INTERACTION',
+            isInteracting: active,
+            timestamp: Date.now()
+          }, '*');
+        }
+      } catch (err) {}
+
+      clearTimeout(interactionNotifyTimeout);
+      if (active) {
+        interactionNotifyTimeout = setTimeout(() => {
+          try {
+            if (window.parent && window.parent !== window) {
+              window.parent.postMessage({
+                type: 'EARTH_INTERACTION',
+                isInteracting: false,
+                timestamp: Date.now()
+              }, '*');
+            }
+          } catch (err) {}
+          if (hint) hint.style.opacity = '0.75';
+        }, 12000);
+      }
+    }
 
     function computeRotationForLatLon(lat, lon) {
       const targetPoint = latLonToVector3(lat, lon, 1).normalize();
@@ -589,12 +693,57 @@
     worldGroup.quaternion.copy(currentQuaternion);
     camera.position.set(0, 0, currentCameraZ);
 
+    // Mouse drag to rotate Earth smoothly
+    let mouseStartX = null;
+    let mouseStartY = null;
+    let isMouseDown = false;
+
+    window.addEventListener('mousedown', (e) => {
+      isMouseDown = true;
+      mouseStartX = e.clientX;
+      mouseStartY = e.clientY;
+      container.style.cursor = 'grabbing';
+      notifyInteraction(true);
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isMouseDown || mouseStartX === null) return;
+      notifyInteraction(true);
+      const dx = e.clientX - mouseStartX;
+      const dy = e.clientY - mouseStartY;
+
+      // Rotate globe interactively on drag: only the Earth moves smoothly
+      const rotY = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), dx * 0.005);
+      const rotX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), dy * 0.005);
+      targetQuaternion.multiplyQuaternions(rotY, targetQuaternion);
+      targetQuaternion.multiply(rotX);
+
+      mouseStartX = e.clientX;
+      mouseStartY = e.clientY;
+    });
+
+    window.addEventListener('mouseup', () => {
+      isMouseDown = false;
+      mouseStartX = null;
+      mouseStartY = null;
+      container.style.cursor = 'grab';
+    });
+
+    window.addEventListener('mouseleave', () => {
+      isMouseDown = false;
+      mouseStartX = null;
+      mouseStartY = null;
+      container.style.cursor = 'grab';
+    });
+
+    // Mouse wheel slide switching
     let wheelCooldown = 0;
     window.addEventListener('wheel', (e) => {
       e.preventDefault();
+      notifyInteraction(true);
       const now = performance.now();
-      if (now - wheelCooldown < 260) return;
-      if (Math.abs(e.deltaY) < 6) return;
+      if (now - wheelCooldown < 200) return;
+      if (Math.abs(e.deltaY) < 4) return;
 
       wheelCooldown = now;
       if (e.deltaY > 0) {
@@ -604,17 +753,39 @@
       }
     }, { passive: false });
 
+    // Double-click resets view to JAPAC overview
+    window.addEventListener('dblclick', () => {
+      notifyInteraction(true);
+      applySlide(0);
+    });
+
+    // Touch swipe & drag for mobile
+    let touchStartX = null;
     let touchStartY = null;
     window.addEventListener('touchstart', (e) => {
-      if (e.touches.length === 1) touchStartY = e.touches[0].clientY;
+      notifyInteraction(true);
+      if (e.touches.length === 1) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      }
     }, { passive: true });
 
-    window.addEventListener('touchend', (e) => {
-      if (touchStartY === null || e.changedTouches.length === 0) return;
-      const dy = touchStartY - e.changedTouches[0].clientY;
-      if (Math.abs(dy) > 30) {
-        applySlide(currentSlideIndex + (dy > 0 ? 1 : -1));
+    window.addEventListener('touchmove', (e) => {
+      notifyInteraction(true);
+      if (e.touches.length === 1 && touchStartX !== null) {
+        const dx = e.touches[0].clientX - touchStartX;
+        const dy = e.touches[0].clientY - touchStartY;
+        const rotY = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), dx * 0.0045);
+        const rotX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), dy * 0.0045);
+        targetQuaternion.multiplyQuaternions(rotY, targetQuaternion);
+        targetQuaternion.multiply(rotX);
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
       }
+    }, { passive: true });
+
+    window.addEventListener('touchend', () => {
+      touchStartX = null;
       touchStartY = null;
     }, { passive: true });
 
