@@ -15,7 +15,6 @@ import {
   CheckCircle2,
   RefreshCw,
   ArrowRight,
-  TrendingUp,
   Cpu,
   Radio,
   FileSpreadsheet,
@@ -61,79 +60,102 @@ export default function AdminDashboard() {
   const [broadcastSaved, setBroadcastSaved] = useState(false);
 
   // System metrics state
-  const [metrics, setMetrics] = useState<SystemMetric>({
-    totalUsers: 4,
-    freeUsers: 1,
-    proUsers: 1,
-    proPlusUsers: 1,
-    adminUsers: 1,
-    totalEmployees: 148,
-    quotaAlerts: 1,
+  const [metrics, setMetrics] = useState<SystemMetric>(() => {
+    return {
+      totalUsers: 1,
+      freeUsers: 0,
+      proUsers: 0,
+      proPlusUsers: 0,
+      adminUsers: 1,
+      totalEmployees: 0,
+      quotaAlerts: 0,
+    };
   });
 
-  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([
-    { id: '1', action: 'User Auto-Registered', target: 'hr_lead@company.com', time: '12 mins ago', level: 'info' },
-    { id: '2', action: 'Quota Threshold Reached (82%)', target: 'finance_dept@org.com', time: '45 mins ago', level: 'warn' },
-    { id: '3', action: 'Plan Upgraded to PRO', target: 'alex_ops@startup.io', time: '2 hours ago', level: 'success' },
-    { id: '4', action: 'Daily Milestone Cron Dispatched', target: '18 Notifications Sent', time: '6 hours ago', level: 'info' },
-    { id: '5', action: 'Admin Superuser Session Started', target: appUser?.email || 'admin', time: 'Just now', level: 'info' },
-  ]);
+  const getStoredAuditLogs = (): AuditLog[] => {
+    try {
+      const stored = localStorage.getItem('admin_audit_logs');
+      if (stored) return JSON.parse(stored);
+    } catch {}
+    return [
+      { id: 'init', action: 'Admin Superuser Session Started', target: appUser?.email || 'admin', time: 'Just now', level: 'info' },
+    ];
+  };
+
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>(getStoredAuditLogs);
 
   const services: ServiceStatus[] = [
-    { name: 'Firebase Authentication', category: 'Identity & Tokens', status: 'operational', latency: '34ms', icon: Shield },
-    { name: 'Cloud Firestore Database', category: 'Live Realtime Store', status: 'operational', latency: '48ms', icon: Database },
-    { name: 'SMTP Notification Dispatcher', category: 'Email Gateway', status: 'operational', latency: '120ms', icon: Mail },
-    { name: 'System Webhook Dispatcher', category: 'Teams / Telegram API', status: 'operational', latency: '82ms', icon: Radio },
+    { name: 'Firebase Authentication', category: 'Identity & Tokens', status: 'operational', latency: 'Active', icon: Shield },
+    { name: 'Cloud Firestore Database', category: 'Live Realtime Store', status: 'operational', latency: 'Online', icon: Database },
+    { name: 'SMTP Notification Dispatcher', category: 'Email Gateway', status: 'operational', latency: 'Ready', icon: Mail },
+    { name: 'System Webhook Dispatcher', category: 'Teams / Telegram API', status: 'operational', latency: 'Ready', icon: Radio },
   ];
 
   useEffect(() => {
     if (appUser?.role !== 'admin') return;
 
     try {
-      // Query users collection
-      const unsubscribe = onSnapshot(
+      const unsubscribeUsers = onSnapshot(
         collection(db, 'users'),
         (snap) => {
-          const docs = snap.docs.map((d) => d.data());
           let free = 0;
           let pro = 0;
           let proPlus = 0;
           let admins = 0;
 
-          docs.forEach((u: any) => {
-            const role = (u.role || 'user') as Role;
+          snap.docs.forEach((d) => {
+            const u = d.data();
+            const savedRole = localStorage.getItem(`admin_role_override_${d.id}`) as Role | null;
+            const role = (savedRole || u.role || 'user') as Role;
             if (role === 'admin') admins++;
             else if (role === 'pro_plus') proPlus++;
             else if (role === 'pro') pro++;
             else free++;
           });
 
-          const total = snap.docs.length || 4;
+          const total = snap.docs.length || 1;
           setMetrics((prev) => ({
             ...prev,
             totalUsers: total,
-            freeUsers: free || 1,
-            proUsers: pro || 1,
-            proPlusUsers: proPlus || 1,
+            freeUsers: free,
+            proUsers: pro,
+            proPlusUsers: proPlus,
             adminUsers: admins || 1,
           }));
         },
+        () => {}
+      );
+
+      const unsubscribeEmployees = onSnapshot(
+        collection(db, 'employees'),
+        (snap) => {
+          setMetrics((prev) => ({
+            ...prev,
+            totalEmployees: snap.docs.length,
+          }));
+        },
         () => {
-          // Fallback demo metrics if offline
+          try {
+            const demo = JSON.parse(localStorage.getItem(`demo_employees_${appUser?.uid || 'demo-uid'}`) || '[]');
+            setMetrics((prev) => ({ ...prev, totalEmployees: demo.length }));
+          } catch {}
         }
       );
-      return () => unsubscribe();
-    } catch {
-      // Offline fallback
-    }
+
+      return () => {
+        unsubscribeUsers();
+        unsubscribeEmployees();
+      };
+    } catch {}
   }, [appUser]);
 
   const handleRefresh = () => {
     setLoading(true);
+    setAuditLogs(getStoredAuditLogs());
     setTimeout(() => {
       setLastRefreshed(new Date().toLocaleTimeString());
       setLoading(false);
-    }, 600);
+    }, 400);
   };
 
   const handleSaveBroadcast = (e: React.FormEvent) => {
@@ -260,13 +282,9 @@ export default function AdminDashboard() {
           </div>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="text-3xl font-extrabold text-slate-900 dark:text-white">{metrics.totalUsers}</span>
-            <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5">
-              <TrendingUp size={12} />
-              +25% mo/mo
-            </span>
           </div>
           <p className="text-[11px] text-slate-400 dark:text-zinc-500 mt-2">
-            Across Free, Pro, and Ultra plans
+            Free: {metrics.freeUsers} · Pro: {metrics.proUsers} · Ultra: {metrics.proPlusUsers}
           </p>
         </div>
 
@@ -285,7 +303,7 @@ export default function AdminDashboard() {
               {metrics.proUsers + metrics.proPlusUsers}
             </span>
             <span className="text-xs font-medium text-purple-600 dark:text-purple-400">
-              ({Math.round(((metrics.proUsers + metrics.proPlusUsers) / Math.max(metrics.totalUsers, 1)) * 100)}% Conversion)
+              ({metrics.totalUsers > 0 ? Math.round(((metrics.proUsers + metrics.proPlusUsers) / metrics.totalUsers) * 100) : 0}%)
             </span>
           </div>
           <p className="text-[11px] text-slate-400 dark:text-zinc-500 mt-2">
@@ -297,7 +315,7 @@ export default function AdminDashboard() {
         <div className="glass-panel p-5 relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
-              Employees Monitored
+              Tracked Employees
             </span>
             <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400">
               <Activity size={18} />
@@ -305,29 +323,27 @@ export default function AdminDashboard() {
           </div>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="text-3xl font-extrabold text-slate-900 dark:text-white">{metrics.totalEmployees}</span>
-            <span className="text-xs text-slate-400">Total in Database</span>
           </div>
           <p className="text-[11px] text-slate-400 dark:text-zinc-500 mt-2">
-            Tracking birthdays & work anniversaries
+            Active milestone records
           </p>
         </div>
 
-        {/* Quota Integrity */}
+        {/* System Admins */}
         <div className="glass-panel p-5 relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
-              Quota Warnings
+              System Administrators
             </span>
-            <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">
-              <AlertTriangle size={18} />
+            <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400">
+              <Shield size={18} />
             </div>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-amber-600 dark:text-amber-400">{metrics.quotaAlerts}</span>
-            <span className="text-xs text-slate-400">Near Limit (&gt;80%)</span>
+            <span className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">{metrics.adminUsers}</span>
           </div>
           <p className="text-[11px] text-slate-400 dark:text-zinc-500 mt-2">
-            Prompted for upgrade to Ultra
+            Full platform privileges
           </p>
         </div>
       </div>
@@ -532,25 +548,31 @@ export default function AdminDashboard() {
         </div>
 
         <div className="divide-y divide-slate-100 dark:divide-zinc-800/80">
-          {auditLogs.map((log) => (
-            <div key={log.id} className="py-2.5 flex items-center justify-between gap-4 text-xs">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <span
-                  className={cn(
-                    'w-2 h-2 rounded-full shrink-0',
-                    log.level === 'warn' ? 'bg-amber-500' : log.level === 'success' ? 'bg-purple-500' : 'bg-blue-500'
-                  )}
-                />
-                <span className="font-medium text-slate-800 dark:text-zinc-200 truncate">{log.action}</span>
-                <span className="font-mono text-[11px] text-slate-400 dark:text-zinc-500 truncate">
-                  ({log.target})
+          {auditLogs.length === 0 ? (
+            <div className="py-4 text-center text-xs text-slate-400">
+              No administrative events logged yet. Role upgrades and system actions will appear here.
+            </div>
+          ) : (
+            auditLogs.map((log) => (
+              <div key={log.id} className="py-2.5 flex items-center justify-between gap-4 text-xs">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span
+                    className={cn(
+                      'w-2 h-2 rounded-full shrink-0',
+                      log.level === 'warn' ? 'bg-amber-500' : log.level === 'success' ? 'bg-purple-500' : 'bg-blue-500'
+                    )}
+                  />
+                  <span className="font-medium text-slate-800 dark:text-zinc-200 truncate">{log.action}</span>
+                  <span className="font-mono text-[11px] text-slate-400 dark:text-zinc-500 truncate">
+                    ({log.target})
+                  </span>
+                </div>
+                <span className="text-[11px] text-slate-400 dark:text-zinc-500 whitespace-nowrap shrink-0">
+                  {log.time}
                 </span>
               </div>
-              <span className="text-[11px] text-slate-400 dark:text-zinc-500 whitespace-nowrap shrink-0">
-                {log.time}
-              </span>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>

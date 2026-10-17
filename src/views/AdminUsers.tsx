@@ -9,6 +9,9 @@ import {
   Search,
   Clock,
   X,
+  ArrowUpCircle,
+  Zap,
+  CheckCircle2,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../lib/utils';
@@ -16,75 +19,14 @@ import { GeminiAvatarRing, GeminiBadge } from '../components/common/GeminiBadge'
 
 export default function AdminUsers() {
   const { t } = useTranslation();
-  const { appUser } = useAuth();
+  const { appUser, switchDemoPlan } = useAuth();
   const [users, setUsers] = useState<AppUser[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<'all' | Role>('all');
   const [quotaFilter, setQuotaFilter] = useState<'all' | 'warning' | 'normal'>('all');
-  const [selectedPhotoUser, setSelectedPhotoUser] = useState<AppUser | null>(null);
-
-  const defaultMockUsers: AppUser[] = [
-    {
-      uid: 'demo-uid',
-      email: 'demo@milestone.app',
-      role: 'admin',
-      status: 'active',
-      employeeCount: 6,
-      photoURL: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80',
-      createdAt: null,
-      lastActive: 'Just now',
-    },
-    {
-      uid: 'usr_enterprise_01',
-      email: 'hr_operations@acmecorp.com',
-      role: 'pro_plus',
-      status: 'active',
-      employeeCount: 1420,
-      photoURL: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80',
-      createdAt: null,
-      lastActive: '12m ago',
-    },
-    {
-      uid: 'usr_growth_02',
-      email: 'talent_lead@techstart.io',
-      role: 'pro',
-      status: 'active',
-      employeeCount: 885, // 88.5% of 1000 - Warning!
-      photoURL: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&auto=format&fit=crop&q=80',
-      createdAt: null,
-      lastActive: '1h ago',
-    },
-    {
-      uid: 'usr_starter_03',
-      email: 'founder@boutique.co',
-      role: 'user',
-      status: 'active',
-      employeeCount: 94, // 94% of 100 - Warning!
-      photoURL: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&auto=format&fit=crop&q=80',
-      createdAt: null,
-      lastActive: '3h ago',
-    },
-    {
-      uid: 'usr_starter_04',
-      email: 'manager@localshop.mm',
-      role: 'user',
-      status: 'active',
-      employeeCount: 18,
-      photoURL: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&auto=format&fit=crop&q=80',
-      createdAt: null,
-      lastActive: '2d ago',
-    },
-    {
-      uid: 'usr_suspended_05',
-      email: 'inactive_org@testdomain.com',
-      role: 'user',
-      status: 'suspended',
-      employeeCount: 0,
-      photoURL: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&auto=format&fit=crop&q=80',
-      createdAt: null,
-      lastActive: '30d ago',
-    },
-  ];
+  const [upgradingUser, setUpgradingUser] = useState<AppUser | null>(null);
+  const [targetRole, setTargetRole] = useState<Role>('pro');
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (appUser?.role !== 'admin') return;
@@ -97,29 +39,61 @@ export default function AdminUsers() {
             setUsers(
               snap.docs.map((d) => {
                 const data = d.data();
+                const savedRole = localStorage.getItem(`admin_role_override_${d.id}`) as Role | null;
                 return {
                   uid: d.id,
-                  email: data.email || 'unknown@user.com',
-                  role: (data.role || 'user') as Role,
+                  email: data.email || 'user@company.com',
+                  role: (savedRole || data.role || 'user') as Role,
                   status: (data.status || 'active') as 'active' | 'suspended',
-                  employeeCount: typeof data.employeeCount === 'number' ? data.employeeCount : 6,
+                  photoURL: data.photoURL || null,
+                  employeeCount: typeof data.employeeCount === 'number' ? data.employeeCount : 0,
                   createdAt: data.createdAt || null,
                   lastActive: data.lastActive || 'Today',
                 };
               })
             );
           } else {
-            setUsers(defaultMockUsers);
+            // Real users baseline from current admin
+            const baseUser: AppUser = {
+              uid: appUser.uid,
+              email: appUser.email,
+              role: (localStorage.getItem(`admin_role_override_${appUser.uid}`) as Role) || appUser.role,
+              status: 'active',
+              employeeCount: 0,
+              photoURL: appUser.photoURL || null,
+              createdAt: null,
+              lastActive: 'Active now',
+            };
+            setUsers([baseUser]);
           }
         },
         () => {
-          // If Firestore is offline or unauthorized, use rich mock tenants
-          setUsers(defaultMockUsers);
+          const baseUser: AppUser = {
+            uid: appUser.uid,
+            email: appUser.email,
+            role: (localStorage.getItem(`admin_role_override_${appUser.uid}`) as Role) || appUser.role,
+            status: 'active',
+            employeeCount: 0,
+            photoURL: appUser.photoURL || null,
+            createdAt: null,
+            lastActive: 'Active now',
+          };
+          setUsers([baseUser]);
         }
       );
       return unsub;
     } catch {
-      setUsers(defaultMockUsers);
+      const baseUser: AppUser = {
+        uid: appUser.uid,
+        email: appUser.email,
+        role: (localStorage.getItem(`admin_role_override_${appUser.uid}`) as Role) || appUser.role,
+        status: 'active',
+        employeeCount: 0,
+        photoURL: appUser.photoURL || null,
+        createdAt: null,
+        lastActive: 'Active now',
+      };
+      setUsers([baseUser]);
     }
   }, [appUser]);
 
@@ -131,21 +105,51 @@ export default function AdminUsers() {
     );
   }
 
+  const recordAudit = (action: string, target: string, level: 'info' | 'warn' | 'success' = 'info') => {
+    try {
+      const raw = localStorage.getItem('admin_audit_logs');
+      const list = raw ? JSON.parse(raw) : [];
+      const entry = {
+        id: Date.now().toString(),
+        action,
+        target,
+        time: 'Just now',
+        level,
+      };
+      localStorage.setItem('admin_audit_logs', JSON.stringify([entry, ...list].slice(0, 30)));
+    } catch {}
+  };
+
   async function handleRoleChange(uid: string, newRole: Role) {
-    // Update local state immediately for snappy response
     setUsers((prev) =>
       prev.map((u) => (u.uid === uid ? { ...u, role: newRole } : u))
     );
+    localStorage.setItem(`admin_role_override_${uid}`, newRole);
+    if (uid === appUser?.uid) {
+      switchDemoPlan(newRole);
+    }
+
+    const targetUser = users.find((u) => u.uid === uid);
+    recordAudit(`Role Upgraded to ${newRole.toUpperCase()}`, targetUser?.email || uid, 'success');
+
+    setToastMessage(`Updated ${targetUser?.email || 'user'} role to ${newRole.toUpperCase()}`);
+    setTimeout(() => setToastMessage(null), 3500);
 
     try {
       await updateDoc(doc(db, 'users', uid), { role: newRole });
     } catch (err) {
-      console.warn('Updated role locally (Firestore offline/mock):', err);
+      console.warn('Updated role locally:', err);
     }
   }
 
+  function handleConfirmUpgrade() {
+    if (!upgradingUser) return;
+    handleRoleChange(upgradingUser.uid, targetRole);
+    setUpgradingUser(null);
+  }
+
   async function handleToggleStatus(uid: string) {
-    if (uid === appUser?.uid) return; // Prevent self-suspension
+    if (uid === appUser?.uid) return;
 
     setUsers((prev) =>
       prev.map((u) => {
@@ -159,6 +163,8 @@ export default function AdminUsers() {
 
     const target = users.find((u) => u.uid === uid);
     const nextStatus = target?.status === 'suspended' ? 'active' : 'suspended';
+    recordAudit(nextStatus === 'suspended' ? 'Account Suspended' : 'Account Reactivated', target?.email || uid, 'warn');
+
     try {
       await updateDoc(doc(db, 'users', uid), { status: nextStatus });
     } catch (err) {
@@ -200,15 +206,28 @@ export default function AdminUsers() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300 max-w-7xl mx-auto">
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-xs flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 size={16} className="text-emerald-500" />
+            <span>{toastMessage}</span>
+          </div>
+          <button onClick={() => setToastMessage(null)} className="text-xs hover:opacity-75">
+            <X size={14} />
+          </button>
+        </div>
+      )}
+
       {/* Page Title */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
             <Shield className="text-corp-blue dark:text-gold-500" size={24} />
-            User Management & Quota Oversight
+            User Management & Role Upgrades
           </h1>
           <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">
-            Audit multi-tenant account limits, monitor employee consumption, and configure roles.
+            Audit tenant accounts, upgrade user roles, and manage subscription quotas.
           </p>
         </div>
       </div>
@@ -250,13 +269,13 @@ export default function AdminUsers() {
       <div className="glass-panel p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
         {/* Search Input */}
         <div className="relative flex-1 max-w-md">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search tenant email or UID..."
-            className="glass-input pl-9 text-xs w-full py-2"
+            className="glass-input glass-input-with-icon !pl-11 text-xs w-full py-2"
           />
         </div>
 
@@ -269,7 +288,7 @@ export default function AdminUsers() {
                 key={r}
                 onClick={() => setRoleFilter(r)}
                 className={cn(
-                  'px-2.5 py-1 rounded-md capitalize font-medium transition-all text-xs',
+                  'px-2.5 py-1 rounded-md capitalize font-medium transition-all text-xs cursor-pointer',
                   roleFilter === r
                     ? 'bg-white dark:bg-zinc-900 text-slate-900 dark:text-white shadow-sm font-semibold'
                     : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800'
@@ -284,7 +303,7 @@ export default function AdminUsers() {
           <select
             value={quotaFilter}
             onChange={(e) => setQuotaFilter(e.target.value as any)}
-            className="glass-input text-xs py-1.5 px-2.5"
+            className="glass-input text-xs py-1.5 px-2.5 cursor-pointer"
           >
             <option value="all">All Quotas</option>
             <option value="warning">Near Limit (&gt;80%)</option>
@@ -328,38 +347,31 @@ export default function AdminUsers() {
                       {/* Tenant User Identity */}
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2.5">
-                          <button
-                            type="button"
-                            onClick={() => setSelectedPhotoUser(u)}
-                            title={t('Click to view full photo')}
-                            className="relative group rounded-full shrink-0 cursor-pointer focus:outline-none"
-                          >
-                            <GeminiAvatarRing role={u.role}>
-                              {u.photoURL ? (
-                                <img
-                                  src={u.photoURL}
-                                  alt={u.email}
-                                  className="w-8 h-8 rounded-full object-cover group-hover:scale-105 transition-transform"
-                                  onError={(e) => {
-                                    (e.currentTarget as HTMLElement).style.display = 'none';
-                                  }}
-                                />
-                              ) : (
-                                <div
-                                  className={cn(
-                                    'w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs group-hover:scale-105 transition-transform',
-                                    u.role === 'admin'
-                                      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
-                                      : u.role === 'pro_plus'
-                                      ? 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300'
-                                      : 'bg-slate-100 text-slate-800 dark:bg-zinc-800 dark:text-zinc-200'
-                                  )}
-                                >
-                                  {u.email[0].toUpperCase()}
-                                </div>
-                              )}
-                            </GeminiAvatarRing>
-                          </button>
+                          <GeminiAvatarRing role={u.role}>
+                            {u.photoURL ? (
+                              <img
+                                src={u.photoURL}
+                                alt={u.email}
+                                className="w-8 h-8 rounded-full object-cover"
+                                onError={(e) => {
+                                  (e.currentTarget as HTMLElement).style.display = 'none';
+                                }}
+                              />
+                            ) : (
+                              <div
+                                className={cn(
+                                  'w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs',
+                                  u.role === 'admin'
+                                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                                    : u.role === 'pro_plus'
+                                    ? 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300'
+                                    : 'bg-slate-100 text-slate-800 dark:bg-zinc-800 dark:text-zinc-200'
+                                )}
+                              >
+                                {u.email[0]?.toUpperCase() || 'U'}
+                              </div>
+                            )}
+                          </GeminiAvatarRing>
                           <div className="min-w-0">
                             <div className="font-semibold text-slate-800 dark:text-white flex items-center gap-1.5 truncate">
                               {u.email}
@@ -471,6 +483,18 @@ export default function AdminUsers() {
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             disabled={isSelf}
+                            onClick={() => {
+                              setUpgradingUser(u);
+                              setTargetRole(u.role === 'user' ? 'pro' : u.role === 'pro' ? 'pro_plus' : 'pro_plus');
+                            }}
+                            className="btn-primary text-xs py-1 px-2.5 flex items-center gap-1 cursor-pointer disabled:opacity-40"
+                            title="Upgrade role"
+                          >
+                            <ArrowUpCircle size={13} />
+                            Upgrade
+                          </button>
+                          <button
+                            disabled={isSelf}
                             onClick={() => handleToggleStatus(u.uid)}
                             className={cn(
                               'px-2 py-1 rounded text-[11px] font-semibold transition-colors disabled:opacity-40 cursor-pointer',
@@ -492,46 +516,89 @@ export default function AdminUsers() {
         </div>
       </div>
 
-      {/* Fullscreen Photo Lightbox Modal */}
-      {selectedPhotoUser && (
+      {/* Upgrade Role Modal */}
+      {upgradingUser && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4 animate-in fade-in duration-200"
-          onClick={() => setSelectedPhotoUser(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-in fade-in duration-200"
+          onClick={() => setUpgradingUser(null)}
         >
           <div
-            className="relative max-w-sm sm:max-w-md w-full bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-2xl flex flex-col items-center text-center space-y-4 border border-slate-200 dark:border-zinc-800"
+            className="relative max-w-md w-full bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-2xl space-y-4 border border-slate-200 dark:border-zinc-800"
             onClick={(e) => e.stopPropagation()}
           >
-            <button
-              onClick={() => setSelectedPhotoUser(null)}
-              aria-label="Close"
-              className="absolute top-4 right-4 p-1.5 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
-            >
-              <X size={20} />
-            </button>
-
-            {selectedPhotoUser.photoURL ? (
-              <img
-                src={selectedPhotoUser.photoURL}
-                alt={selectedPhotoUser.email}
-                className="w-48 h-48 sm:w-64 sm:h-64 rounded-2xl object-cover shadow-lg border border-slate-200 dark:border-zinc-700"
-              />
-            ) : (
-              <div className="w-48 h-48 sm:w-64 sm:h-64 rounded-2xl bg-gradient-to-tr from-corp-blue to-indigo-600 dark:from-zinc-800 dark:to-zinc-700 flex items-center justify-center text-white text-6xl font-black shadow-lg">
-                {selectedPhotoUser.email[0].toUpperCase()}
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-zinc-800 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400">
+                  <Zap size={18} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">Upgrade User Role</h3>
+                  <p className="text-[11px] text-slate-500 dark:text-zinc-400">{upgradingUser.email}</p>
+                </div>
               </div>
-            )}
+              <button
+                onClick={() => setUpgradingUser(null)}
+                className="p-1 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-zinc-800 cursor-pointer"
+              >
+                <X size={16} />
+              </button>
+            </div>
 
-            <div className="space-y-1">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                {selectedPhotoUser.email}
-              </h3>
-              <p className="text-xs font-mono text-slate-400 dark:text-zinc-500">
-                UID: {selectedPhotoUser.uid}
-              </p>
-              <div className="inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300">
-                Plan: {selectedPhotoUser.role.toUpperCase()} • Status: {selectedPhotoUser.status || 'active'}
-              </div>
+            <div className="space-y-3">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300">
+                Select Target Role & Quota:
+              </label>
+
+              {([
+                { role: 'pro', label: 'Pro (Growth Tier)', cap: '1,000 Employees', color: 'border-corp-blue text-corp-blue dark:text-gold-400' },
+                { role: 'pro_plus', label: 'Ultra (Enterprise)', cap: 'Unlimited Employees', color: 'border-purple-600 text-purple-600 dark:text-purple-400' },
+                { role: 'admin', label: 'System Admin', cap: 'Full Platform Access', color: 'border-emerald-600 text-emerald-600 dark:text-emerald-400' },
+                { role: 'user', label: 'Free (Starter)', cap: '100 Employees', color: 'border-slate-400 text-slate-600 dark:text-zinc-400' },
+              ] as const).map((opt) => (
+                <label
+                  key={opt.role}
+                  className={cn(
+                    'flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-all',
+                    targetRole === opt.role
+                      ? `${opt.color} bg-slate-50 dark:bg-zinc-800/80 shadow-xs font-semibold`
+                      : 'border-slate-200 dark:border-zinc-800 hover:border-slate-300 opacity-80'
+                  )}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <input
+                      type="radio"
+                      name="targetRole"
+                      value={opt.role}
+                      checked={targetRole === opt.role}
+                      onChange={() => setTargetRole(opt.role)}
+                      className="accent-corp-blue dark:accent-gold-500 cursor-pointer"
+                    />
+                    <div>
+                      <div className="text-xs font-bold text-slate-800 dark:text-white">{opt.label}</div>
+                      <div className="text-[10px] text-slate-500 dark:text-zinc-400">{opt.cap}</div>
+                    </div>
+                  </div>
+                  <GeminiBadge role={opt.role} size="sm" showIcon={false} />
+                </label>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-zinc-800">
+              <button
+                type="button"
+                onClick={() => setUpgradingUser(null)}
+                className="btn-secondary text-xs py-2 px-3.5 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmUpgrade}
+                className="btn-primary text-xs py-2 px-4 flex items-center gap-1.5 cursor-pointer"
+              >
+                <ArrowUpCircle size={14} />
+                Confirm Upgrade
+              </button>
             </div>
           </div>
         </div>
