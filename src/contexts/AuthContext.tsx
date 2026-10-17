@@ -88,6 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               uid: firebaseUser.uid,
               email: firebaseUser.email ?? '',
               role: roleOverride,
+              photoURL: firebaseUser.photoURL || null,
               createdAt: null as unknown as AppUser['createdAt'],
             });
             setLoading(false);
@@ -97,7 +98,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const snap = await getDoc(ref);
           if (snap.exists()) {
             const data = snap.data() as AppUser;
-            setAppUser({ ...data, photoURL: data.photoURL || firebaseUser.photoURL || null });
+            const effectivePhoto = firebaseUser.photoURL || data.photoURL || null;
+            if (firebaseUser.photoURL && data.photoURL !== firebaseUser.photoURL) {
+              updateDoc(ref, { photoURL: firebaseUser.photoURL }).catch(() => {});
+            }
+            setAppUser({ ...data, photoURL: effectivePhoto });
           } else {
             const newUser: Omit<AppUser, 'createdAt'> & { createdAt: ReturnType<typeof serverTimestamp> } = {
               uid: firebaseUser.uid,
