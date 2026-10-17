@@ -5,7 +5,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
-import type { Employee } from '../types';
+import type { Employee, Role } from '../types';
 import { PLAN_LIMITS } from '../types';
 import { parseExcel, exportToExcel, downloadTemplate } from '../utils/excelHandler';
 import { getDemoEmployees, saveDemoEmployees } from '../utils/demoData';
@@ -13,25 +13,31 @@ import { useTranslation } from 'react-i18next';
 import {
   Plus, Upload, Download, Search, Pencil, Trash2, X,
   FileSpreadsheet, Cake, Briefcase, CheckCircle2, ChevronDown, Database,
+  Columns, Lock,
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { DatabaseConnectionModal } from '../components/employees/DatabaseConnectionModal';
+import { CustomColumnModal, DEFAULT_CUSTOM_COLUMNS } from '../components/employees/CustomColumnModal';
+import { TierComparisonModal } from '../components/pricing/TierComparisonModal';
 
 const EMPTY_FORM: Omit<Employee, 'id' | 'userId' | 'createdAt'> = {
   employeeId: '', name: '', email: '', phone: '',
   department: '', dob: '', joinedDate: '', status: 'active',
+  metadata: {},
 };
 
 function EmployeeModal({
-  initial, onSave, onClose,
+  initial, onSave, onClose, activeColumns = [],
 }: {
   initial: typeof EMPTY_FORM;
   onSave: (data: typeof EMPTY_FORM) => void;
   onClose: () => void;
+  activeColumns?: string[];
 }) {
   const { t } = useTranslation();
   const [form, setForm] = useState(initial);
-  const set = (k: keyof typeof EMPTY_FORM, v: string) => setForm((f) => ({ ...f, [k]: v }));
+  const set = (k: keyof typeof EMPTY_FORM, v: any) => setForm((f) => ({ ...f, [k]: v }));
+  const setMeta = (k: string, v: any) => setForm((f) => ({ ...f, metadata: { ...(f.metadata || {}), [k]: v } }));
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -48,7 +54,7 @@ function EmployeeModal({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-lg p-6 animate-in zoom-in-95 duration-200 relative bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 shadow-2xl rounded-2xl"
+        className="w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 animate-in zoom-in-95 duration-200 relative bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 shadow-2xl rounded-2xl"
       >
         <div className="flex items-center justify-between mb-4 border-b pb-3 border-slate-200 dark:border-zinc-800">
           <h2 className="font-bold text-lg text-slate-900 dark:text-white">{initial.name ? t('Edit Employee') : t('Add Employee')}</h2>
@@ -66,7 +72,7 @@ function EmployeeModal({
           ] as const).map(([key, label, type]) => (
             <div key={key} className={key === 'name' || key === 'email' ? 'col-span-2' : ''}>
               <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1">{t(label)}</label>
-              <input type={type} value={form[key]} onChange={(e) => set(key, e.target.value)} className="glass-input text-sm" />
+              <input type={type} value={form[key] as string} onChange={(e) => set(key, e.target.value)} className="glass-input text-sm" />
             </div>
           ))}
           <div>
@@ -76,6 +82,36 @@ function EmployeeModal({
               <option value="inactive">{t('Inactive')}</option>
             </select>
           </div>
+
+          {/* Dynamic Custom Columns Inputs */}
+          {DEFAULT_CUSTOM_COLUMNS.filter((col) => activeColumns.includes(col.key)).map((col) => (
+            <div key={col.key} className="col-span-2 pt-2 border-t border-slate-200 dark:border-zinc-800">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1 flex items-center justify-between">
+                <span>{col.label}</span>
+                <span className="text-[10px] text-purple-600 dark:text-purple-400 font-mono uppercase">{col.requiredTier}</span>
+              </label>
+              {col.type === 'select' && col.options ? (
+                <select
+                  value={(form.metadata?.[col.key] as string) || ''}
+                  onChange={(e) => setMeta(col.key, e.target.value)}
+                  className="glass-input text-sm"
+                >
+                  <option value="">{t('Select option...')}</option>
+                  {col.options.map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type={col.type}
+                  placeholder={col.placeholder || ''}
+                  value={(form.metadata?.[col.key] as string) || ''}
+                  onChange={(e) => setMeta(col.key, e.target.value)}
+                  className="glass-input text-sm"
+                />
+              )}
+            </div>
+          ))}
         </div>
         <div className="flex justify-end gap-2 mt-5">
           <button onClick={onClose} className="bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 font-semibold px-4 py-2 rounded-lg text-sm transition-colors cursor-pointer">{t('Cancel')}</button>
@@ -198,6 +234,29 @@ export default function Employees({ onCountChange }: { onCountChange: (n: number
   const [planAlert, setPlanAlert] = useState(false);
   const [excelDropdownOpen, setExcelDropdownOpen] = useState(false);
   const [dbModalOpen, setDbModalOpen] = useState(false);
+  const [customColumnsModalOpen, setCustomColumnsModalOpen] = useState(false);
+  const [activeColumns, setActiveColumns] = useState<string[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('active_employee_columns') || '["t_shirt_size", "dietary_pref"]');
+    } catch {
+      return ['t_shirt_size', 'dietary_pref'];
+    }
+  });
+  const [tierUpgradeModalOpen, setTierUpgradeModalOpen] = useState(false);
+  const [highlightTier, setHighlightTier] = useState<Role>('pro');
+
+  const handleToggleColumn = (colKey: string) => {
+    setActiveColumns((prev) => {
+      const next = prev.includes(colKey) ? prev.filter((k) => k !== colKey) : [...prev, colKey];
+      localStorage.setItem('active_employee_columns', JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const handleOpenUpgrade = (tier: Role) => {
+    setHighlightTier(tier);
+    setTierUpgradeModalOpen(true);
+  };
   const fileRef = useRef<HTMLInputElement>(null);
   const excelDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -520,6 +579,27 @@ export default function Employees({ onCountChange }: { onCountChange: (n: number
           )}
         </div>
 
+        {/* Custom Columns Button */}
+        <button
+          type="button"
+          onClick={() => setCustomColumnsModalOpen(true)}
+          className={cn(
+            'text-sm flex items-center gap-2 py-2 px-3.5 rounded-xl font-semibold transition-all cursor-pointer',
+            appUser?.role === 'user'
+              ? 'btn-secondary text-slate-600 dark:text-zinc-300'
+              : 'btn-secondary border-indigo-500/40 text-indigo-600 dark:text-indigo-400'
+          )}
+          title="Configure dynamic custom columns"
+        >
+          <Columns size={15} className="text-purple-500" />
+          <span>{t('Custom Columns')}</span>
+          {activeColumns.length > 0 && (
+            <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-purple-500/20 text-purple-600 dark:text-purple-300 font-bold">
+              {activeColumns.length}
+            </span>
+          )}
+        </button>
+
         {/* Database Connection Button (Same size as Add Employee) */}
         <button
           type="button"
@@ -608,10 +688,34 @@ export default function Employees({ onCountChange }: { onCountChange: (n: number
                   t('Contact'),
                   t('Dates'),
                   t('Status'),
-                  t('Actions'),
                 ].map((h) => (
                   <th key={h} className="px-4 py-3 text-left">{h}</th>
                 ))}
+                {/* Active Custom Columns */}
+                {DEFAULT_CUSTOM_COLUMNS.filter((col) => activeColumns.includes(col.key)).map((col) => {
+                  const isLocked = appUser?.role === 'user';
+                  return (
+                    <th key={col.key} className="px-4 py-3 text-left">
+                      <div className="flex items-center gap-1.5">
+                        <span>{col.label}</span>
+                        {isLocked ? (
+                          <button
+                            type="button"
+                            onClick={() => handleOpenUpgrade(col.requiredTier)}
+                            className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500/30 cursor-pointer"
+                            title="Click to unlock or test in Demo sandbox"
+                          >
+                            <Lock size={9} />
+                            <span>{col.requiredTier === 'pro_plus' ? 'Ultra' : 'Pro'}</span>
+                          </button>
+                        ) : (
+                          <span className="text-[9px] font-mono text-purple-400 uppercase">({col.requiredTier === 'pro_plus' ? 'Ultra' : 'Pro'})</span>
+                        )}
+                      </div>
+                    </th>
+                  );
+                })}
+                <th className="px-4 py-3 text-left">{t('Actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -646,6 +750,21 @@ export default function Employees({ onCountChange }: { onCountChange: (n: number
                       {emp.status === 'active' ? t('Active') : t('Inactive')}
                     </span>
                   </td>
+                  {/* Dynamic Custom Column Cells */}
+                  {DEFAULT_CUSTOM_COLUMNS.filter((col) => activeColumns.includes(col.key)).map((col) => {
+                    const val = emp.metadata?.[col.key];
+                    return (
+                      <td key={col.key} className="px-4 py-2 text-xs text-slate-600 dark:text-zinc-300">
+                        {val ? (
+                          <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-zinc-800 font-mono text-[11px] font-medium">
+                            {String(val)}
+                          </span>
+                        ) : (
+                          <span className="text-slate-400 opacity-60">—</span>
+                        )}
+                      </td>
+                    );
+                  })}
                   <td className="px-4 py-2">
                     <div className="flex items-center gap-2">
                       <button
@@ -680,6 +799,7 @@ export default function Employees({ onCountChange }: { onCountChange: (n: number
           initial={editTarget ? { ...editTarget } : { ...EMPTY_FORM }}
           onSave={handleSave}
           onClose={() => { setModalOpen(false); setEditTarget(null); }}
+          activeColumns={activeColumns}
         />
       )}
 
@@ -827,6 +947,22 @@ export default function Employees({ onCountChange }: { onCountChange: (n: number
         onImportEmployees={handleDatabaseImport}
         currentCount={employees.length}
         limit={limit}
+      />
+
+      {/* Custom Columns Management Modal */}
+      <CustomColumnModal
+        isOpen={customColumnsModalOpen}
+        onClose={() => setCustomColumnsModalOpen(false)}
+        activeColumns={activeColumns}
+        onToggleColumn={handleToggleColumn}
+        onOpenUpgradeModal={handleOpenUpgrade}
+      />
+
+      {/* Tier Comparison & Sandbox Switcher Modal */}
+      <TierComparisonModal
+        isOpen={tierUpgradeModalOpen}
+        onClose={() => setTierUpgradeModalOpen(false)}
+        highlightTier={highlightTier}
       />
     </div>
   );
