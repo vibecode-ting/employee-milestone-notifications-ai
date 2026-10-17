@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JAPAC 3D Earth</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #020617;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    #webgl-container {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    /* 3D Projected Country Labels Layer (Flags + Country Names Only) */
+    #labels-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+      overflow: hidden;
+    }
+
+    .country-label {
+      position: absolute;
+      left: 0;
+      top: 0;
+      transform: translate(-50%, -100%);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 9px;
+      border-radius: 6px;
+      background: rgba(4, 10, 22, 0.72);
+      border: 1px solid rgba(120, 180, 255, 0.22);
+      backdrop-filter: blur(4px);
+      color: rgba(225, 238, 255, 0.85);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      transition: opacity 0.25s ease, border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+      will-change: transform, opacity;
+    }
+
+    .country-label img.flag-icon {
+      width: 16px;
+      height: 12px;
+      object-fit: cover;
+      border-radius: 2px;
+      box-shadow: 0 0 3px rgba(0, 0, 0, 0.6);
+      flex-shrink: 0;
+    }
+
+    /* Active slide country emphasis */
+    .country-label.is-active {
+      background: rgba(8, 24, 52, 0.92);
+      border-color: rgba(56, 189, 248, 0.95);
+      color: #ffffff;
+      font-size: 13.5px;
+      font-weight: 700;
+      padding: 6px 12px;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.45);
+      z-index: 20;
+    }
+
+    .country-label.is-active img.flag-icon {
+      width: 20px;
+      height: 15px;
+    }
+
+    /* Singapore Hub anchor styling */
+    .country-label.is-hub {
+      border-color: rgba(52, 211, 153, 0.75);
+      color: #ecfdf5;
+    }
+
+    /* Featured Myanmar styling when active */
+    .country-label.is-myanmar.is-active {
+      border-color: rgba(251, 191, 36, 0.95);
+      box-shadow: 0 0 24px rgba(251, 191, 36, 0.5);
+    }
+
+    /* Subtle interactive hint pill */
+    .scroll-hint {
+      position: absolute;
+      bottom: 20px;
+      left: 24px;
+      z-index: 10;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+      color: rgba(226, 232, 240, 0.75);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    .scroll-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #38bdf8;
+      box-shadow: 0 0 8px #38bdf8;
+      animation: pulse-glow 2s infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+  </style>
+</head>
+<body>
+  <div id="webgl-container"></div>
+  <div id="labels-layer"></div>
+  <div class="scroll-hint">
+    <span class="scroll-dot"></span>
+    <span>Scroll to explore JAPAC milestone network</span>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+
+    // =========================================================================
+    // 1. COMPLETE JAPAC COUNTRIES & TERRITORIES (All 34 JAPAC Entities)
+    // =========================================================================
+    const JAPAC_COUNTRIES = [
+      // Hub
+      { code: 'sg', iso3: 'SGP', name: 'Singapore', lat: 1.3521, lon: 103.8198, isHub: true },
+      // Southeast Asia
+      { code: 'mm', iso3: 'MMR', name: 'Myanmar', lat: 19.7633, lon: 96.0785, isMyanmar: true },
+      { code: 'th', iso3: 'THA', name: 'Thailand', lat: 15.8700, lon: 100.9925 },
+      { code: 'vn', iso3: 'VNM', name: 'Vietnam', lat: 14.0583, lon: 108.2772 },
+      { code: 'my', iso3: 'MYS', name: 'Malaysia', lat: 4.2105, lon: 101.9758 },
+      { code: 'id', iso3: 'IDN', name: 'Indonesia', lat: -2.5489, lon: 118.0149 },
+      { code: 'ph', iso3: 'PHL', name: 'Philippines', lat: 12.8797, lon: 121.7740 },
+      { code: 'kh', iso3: 'KHM', name: 'Cambodia', lat: 12.5657, lon: 104.9910 },
+      { code: 'la', iso3: 'LAO', name: 'Laos', lat: 19.8563, lon: 102.4955 },
+      { code: 'bn', iso3: 'BRN', name: 'Brunei', lat: 4.5353, lon: 114.7277 },
+      { code: 'tl', iso3: 'TLS', name: 'Timor-Leste', lat: -8.8742, lon: 125.7275 },
+      // East Asia
+      { code: 'jp', iso3: 'JPN', name: 'Japan', lat: 36.2048, lon: 138.2529 },
+      { code: 'kr', iso3: 'KOR', name: 'South Korea', lat: 35.9078, lon: 127.7669 },
+      { code: 'tw', iso3: 'TWN', name: 'Taiwan', lat: 23.6978, lon: 120.9605 },
+      { code: 'hk', iso3: 'HKG', name: 'Hong Kong', lat: 22.3193, lon: 114.1694 },
+      { code: 'mo', iso3: 'MAC', name: 'Macau', lat: 22.1987, lon: 113.5439 },
+      { code: 'mn', iso3: 'MNG', name: 'Mongolia', lat: 46.8625, lon: 103.8467 },
+      { code: 'cn', iso3: 'CHN', name: 'China', lat: 35.8617, lon: 104.1954 },
+      // South Asia
+      { code: 'in', iso3: 'IND', name: 'India', lat: 20.5937, lon: 78.9629 },
+      { code: 'bd', iso3: 'BGD', name: 'Bangladesh', lat: 23.6850, lon: 90.3563 },
+      { code: 'lk', iso3: 'LKA', name: 'Sri Lanka', lat: 7.8731, lon: 80.7718 },
+      { code: 'np', iso3: 'NPL', name: 'Nepal', lat: 28.3949, lon: 84.1240 },
+      { code: 'bt', iso3: 'BTN', name: 'Bhutan', lat: 27.5142, lon: 90.4336 },
+      { code: 'mv', iso3: 'MDV', name: 'Maldives', lat: 3.2028, lon: 73.2207 },
+      { code: 'pk', iso3: 'PAK', name: 'Pakistan', lat: 30.3753, lon: 69.3451 },
+      // Oceania & Pacific Islands
+      { code: 'au', iso3: 'AUS', name: 'Australia', lat: -25.2744, lon: 133.7751 },
+      { code: 'nz', iso3: 'NZL', name: 'New Zealand', lat: -40.9006, lon: 174.8860 },
+      { code: 'pg', iso3: 'PNG', name: 'Papua New Guinea', lat: -6.3150, lon: 143.9555 },
+      { code: 'fj', iso3: 'FJI', name: 'Fiji', lat: -17.7134, lon: 178.0650 },
+      { code: 'sb', iso3: 'SLB', name: 'Solomon Islands', lat: -9.6457, lon: 160.1562 },
+      { code: 'vu', iso3: 'VUT', name: 'Vanuatu', lat: -15.3767, lon: 166.9592 },
+      { code: 'ws', iso3: 'WSM', name: 'Samoa', lat: -13.7590, lon: -172.1046 },
+      { code: 'to', iso3: 'TON', name: 'Tonga', lat: -21.1790, lon: -175.1982 },
+      { code: 'ki', iso3: 'KIR', name: 'Kiribati', lat: 1.8709, lon: -157.3626 }
+    ];
+
+    const NAME_MAP = new Map(JAPAC_COUNTRIES.map(c => [c.name.toLowerCase(), c]));
+
+    // =========================================================================
+    // 2. SCENE, CAMERA & RENDERER
+    // =========================================================================
+    const container = document.getElementById('webgl-container');
+    const labelsLayer = document.getElementById('labels-layer');
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 3000);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 0.85;
+    container.appendChild(renderer.domElement);
+
+    const worldGroup = new THREE.Group();
+    scene.add(worldGroup);
+
+    const EARTH_RADIUS = 10;
+
+    function latLonToVector3(lat, lon, radius = EARTH_RADIUS) {
+      const phi = (90 - lat) * (Math.PI / 180);
+      const theta = (lon + 180) * (Math.PI / 180);
+      const x = -(radius * Math.sin(phi) * Math.cos(theta));
+      const z = radius * Math.sin(phi) * Math.sin(theta);
+      const y = radius * Math.cos(phi);
+      return new THREE.Vector3(x, y, z);
+    }
+
+    // =========================================================================
+    // 3. DEEP SPACE GALAXY, MILKY WAY NEBULA & STARFIELD
+    // =========================================================================
+    function createGalaxyAndStars() {
+      const galaxyGroup = new THREE.Group();
+
+      const starCount = 20000;
+      const starGeo = new THREE.BufferGeometry();
+      const starPos = new Float32Array(starCount * 3);
+      const starCol = new Float32Array(starCount * 3);
+
+      const palette = [
+        new THREE.Color('#ffffff'),
+        new THREE.Color('#dbeafe'),
+        new THREE.Color('#bfdbfe'),
+        new THREE.Color('#fef3c7'),
+        new THREE.Color('#fde68a'),
+        new THREE.Color('#c7d2fe')
+      ];
+
+      for (let i = 0; i < starCount; i++) {
+        const r = 180 + Math.random() * 900;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+
+        starPos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+        starPos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+        starPos[i * 3 + 2] = r * Math.cos(phi);
+
+        const c = palette[Math.floor(Math.random() * palette.length)];
+        const brightness = 0.35 + Math.random() * 0.65;
+        starCol[i * 3] = c.r * brightness;
+        starCol[i * 3 + 1] = c.g * brightness;
+        starCol[i * 3 + 2] = c.b * brightness;
+      }
+
+      starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+      starGeo.setAttribute('color', new THREE.BufferAttribute(starCol, 3));
+
+      const starMat = new THREE.PointsMaterial({
+        size: 1.15,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.9,
+        depthWrite: false
+      });
+      galaxyGroup.add(new THREE.Points(starGeo, starMat));
+
+      const mwCount = 10000;
+      const mwGeo = new THREE.BufferGeometry();
+      const mwPos = new Float32Array(mwCount * 3);
+      const mwCol = new Float32Array(mwCount * 3);
+
+      for (let i = 0; i < mwCount; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const radius = 220 + Math.random() * 450;
+        const spreadY = (Math.random() - 0.5) * (Math.random() - 0.5) * 160;
+
+        mwPos[i * 3] = Math.cos(angle) * radius;
+        mwPos[i * 3 + 1] = spreadY;
+        mwPos[i * 3 + 2] = Math.sin(angle) * radius;
+
+        const mixRatio = Math.random();
+        const c = new THREE.Color().setHSL(0.58 + mixRatio * 0.16, 0.65, 0.55 + Math.random() * 0.3);
+        mwCol[i * 3] = c.r;
+        mwCol[i * 3 + 1] = c.g;
+        mwCol[i * 3 + 2] = c.b;
+      }
+
+      mwGeo.setAttribute('position', new THREE.BufferAttribute(mwPos, 3));
+      mwGeo.setAttribute('color', new THREE.BufferAttribute(mwCol, 3));
+
+      const mwBand = new THREE.Points(
+        mwGeo,
+        new THREE.PointsMaterial({
+          size: 1.6,
+          vertexColors: true,
+          transparent: true,
+          opacity: 0.55,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false
+        })
+      );
+      mwBand.rotation.z = 0.48;
+      mwBand.rotation.x = 0.25;
+      galaxyGroup.add(mwBand);
+
+      scene.add(galaxyGroup);
+      return galaxyGroup;
+    }
+
+    const galaxyField = createGalaxyAndStars();
+
+    // =========================================================================
+    // 4. REALISTIC EARTH GLOBE & ATMOSPHERE
+    // =========================================================================
+    const ambientLight = new THREE.AmbientLight(0x334b68, 0.75);
+    scene.add(ambientLight);
+
+    const sunLight = new THREE.DirectionalLight(0xfff6e5, 1.35);
+    sunLight.position.set(35, 18, 40);
+    scene.add(sunLight);
+
+    const rimLight = new THREE.DirectionalLight(0x1e40af, 0.45);
+    rimLight.position.set(-35, -15, -25);
+    scene.add(rimLight);
+
+    const textureLoader = new THREE.TextureLoader();
+    const earthGeo = new THREE.SphereGeometry(EARTH_RADIUS, 96, 96);
+    const earthMat = new THREE.MeshPhongMaterial({
+      color: new THREE.Color(0xaaaaaa),
+      specular: new THREE.Color(0x111c2d),
+      shininess: 12
+    });
+
+    textureLoader.load(
+      'https://unpkg.com/three-globe@2.31.0/example/img/earth-blue-marble.jpg',
+      (tex) => {
+        tex.colorSpace = THREE.SRGBColorSpace;
+        earthMat.map = tex;
+        earthMat.needsUpdate = true;
+      }
+    );
+    textureLoader.load(
+      'https://unpkg.com/three-globe@2.31.0/example/img/earth-topology.png',
+      (bump) => {
+        earthMat.bumpMap = bump;
+        earthMat.bumpScale = 0.12;
+        earthMat.needsUpdate = true;
+      }
+    );
+    textureLoader.load(
+      'https://unpkg.com/three-globe@2.31.0/example/img/earth-water.png',
+      (spec) => {
+        earthMat.specularMap = spec;
+        earthMat.needsUpdate = true;
+      }
+    );
+
+    const earthMesh = new THREE.Mesh(earthGeo, earthMat);
+    worldGroup.add(earthMesh);
+
+    const atmosGeo = new THREE.SphereGeometry(EARTH_RADIUS * 1.022, 96, 96);
+    const atmosMat = new THREE.ShaderMaterial({
+      vertexShader: `
+        varying vec3 vNormal;
+        void main() {
+          vNormal = normalize(normalMatrix * normal);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vNormal;
+        void main() {
+          float intensity = pow(0.62 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 3.2);
+          gl_FragColor = vec4(0.18, 0.52, 0.96, 1.0) * intensity * 0.65;
+        }
+      `,
+      blending: THREE.AdditiveBlending,
+      side: THREE.BackSide,
+      transparent: true,
+      depthWrite: false
+    });
+    scene.add(new THREE.Mesh(atmosGeo, atmosMat));
+
+    // =========================================================================
+    // 5. JAPAC COUNTRY MARKERS, ARCS & LABELS
+    // =========================================================================
+    const singaporeHub = JAPAC_COUNTRIES[0];
+    const sgPos = latLonToVector3(singaporeHub.lat, singaporeHub.lon, EARTH_RADIUS + 0.03);
+
+    const countryVisuals = new Map();
+    const animatedPulses = [];
+
+    JAPAC_COUNTRIES.forEach((country, idx) => {
+      const pos = latLonToVector3(country.lat, country.lon, EARTH_RADIUS + 0.03);
+
+      const markerGeo = new THREE.SphereGeometry(country.isHub ? 0.11 : 0.065, 16, 16);
+      const markerMat = new THREE.MeshBasicMaterial({
+        color: country.isHub ? 0x34d399 : (country.isMyanmar ? 0xfbbf24 : 0x38bdf8),
+        transparent: true,
+        opacity: 0.85
+      });
+      const marker = new THREE.Mesh(markerGeo, markerMat);
+      marker.position.copy(pos);
+      worldGroup.add(marker);
+
+      let arcMat = null;
+      if (!country.isHub) {
+        const dist = pos.distanceTo(sgPos);
+        const mid = pos.clone().add(sgPos).multiplyScalar(0.5);
+        mid.normalize().multiplyScalar(EARTH_RADIUS + Math.min(3.6, dist * 0.36));
+
+        const curve = new THREE.QuadraticBezierCurve3(pos, mid, sgPos);
+        const points = curve.getPoints(56);
+        const arcGeo = new THREE.BufferGeometry().setFromPoints(points);
+
+        arcMat = new THREE.LineBasicMaterial({
+          color: country.isMyanmar ? 0xfbbf24 : 0x38bdf8,
+          transparent: true,
+          opacity: 0.26,
+          blending: THREE.AdditiveBlending
+        });
+
+        const arcLine = new THREE.Line(arcGeo, arcMat);
+        worldGroup.add(arcLine);
+
+        const pulseGeo = new THREE.SphereGeometry(0.055, 10, 10);
+        const pulseMat = new THREE.MeshBasicMaterial({
+          color: country.isMyanmar ? 0xfde047 : 0x7dd3fc,
+          transparent: true,
+          opacity: 0.85
+        });
+        const pulseMesh = new THREE.Mesh(pulseGeo, pulseMat);
+        worldGroup.add(pulseMesh);
+
+        animatedPulses.push({
+          curve,
+          mesh: pulseMesh,
+          mat: pulseMat,
+          speed: 0.22 + (idx % 5) * 0.04,
+          offset: (idx * 0.13) % 1,
+          code: country.code
+        });
+      }
+
+      const labelEl = document.createElement('div');
+      labelEl.className = 'country-label' +
+        (country.isHub ? ' is-hub' : '') +
+        (country.isMyanmar ? ' is-myanmar' : '');
+
+      const flagImg = document.createElement('img');
+      flagImg.className = 'flag-icon';
+      flagImg.src = `https://flagcdn.com/w40/${country.code}.png`;
+      flagImg.alt = country.name;
+
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = country.name;
+
+      labelEl.appendChild(flagImg);
+      labelEl.appendChild(nameSpan);
+      labelsLayer.appendChild(labelEl);
+
+      countryVisuals.set(country.code, {
+        data: country,
+        pos3D: pos,
+        markerMat,
+        arcMat,
+        borderMaterials: [],
+        labelEl
+      });
+    });
+
+    // Load Country Borders GeoJSON (Local first, then remote CDN fallback)
+    function loadGeoJSON() {
+      fetch('/data/world.geojson')
+        .catch(() => fetch('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson'))
+        .then(res => res.json())
+        .then(geojson => {
+          geojson.features.forEach(feature => {
+            const iso3 = feature.id;
+            const propName = (feature.properties && feature.properties.name || '').toLowerCase();
+
+            let matchedCountry = JAPAC_COUNTRIES.find(c => c.iso3 === iso3) || NAME_MAP.get(propName);
+            if (!matchedCountry) return;
+
+            const visual = countryVisuals.get(matchedCountry.code);
+            const baseColor = matchedCountry.isHub
+              ? 0x34d399
+              : (matchedCountry.isMyanmar ? 0xfbbf24 : 0x38bdf8);
+
+            const drawRing = (ring) => {
+              const pts = [];
+              for (let i = 0; i < ring.length; i++) {
+                const [lon, lat] = ring[i];
+                pts.push(latLonToVector3(lat, lon, EARTH_RADIUS + 0.02));
+              }
+              const geo = new THREE.BufferGeometry().setFromPoints(pts);
+              const mat = new THREE.LineBasicMaterial({
+                color: baseColor,
+                transparent: true,
+                opacity: 0.42,
+                blending: THREE.AdditiveBlending
+              });
+              const line = new THREE.Line(geo, mat);
+              worldGroup.add(line);
+              if (visual) visual.borderMaterials.push(mat);
+            };
+
+            const geom = feature.geometry;
+            if (geom.type === 'Polygon') {
+              geom.coordinates.forEach(ring => drawRing(ring));
+            } else if (geom.type === 'MultiPolygon') {
+              geom.coordinates.forEach(poly => poly.forEach(ring => drawRing(ring)));
+            }
+          });
+        })
+        .catch(() => {
+          // Silent fallback if network offline
+        });
+    }
+
+    loadGeoJSON();
+
+    // =========================================================================
+    // 6. MOUSE-WHEEL & TOUCH SLIDESHOW ENGINE
+    // =========================================================================
+    let currentSlideIndex = 0;
+    const totalSlides = JAPAC_COUNTRIES.length + 1;
+
+    let targetCameraZ = 34;
+    let currentCameraZ = 34;
+
+    const targetQuaternion = new THREE.Quaternion();
+    const currentQuaternion = new THREE.Quaternion();
+
+    function computeRotationForLatLon(lat, lon) {
+      const targetPoint = latLonToVector3(lat, lon, 1).normalize();
+      const cameraForward = new THREE.Vector3(0, 0, 1);
+      return new THREE.Quaternion().setFromUnitVectors(targetPoint, cameraForward);
+    }
+
+    function applySlide(slideIndex) {
+      currentSlideIndex = ((slideIndex % totalSlides) + totalSlides) % totalSlides;
+
+      if (currentSlideIndex === 0) {
+        targetCameraZ = 34;
+        targetQuaternion.copy(computeRotationForLatLon(12.0, 115.0));
+      } else {
+        const activeCountry = JAPAC_COUNTRIES[currentSlideIndex - 1];
+        targetCameraZ = 21.5;
+        targetQuaternion.copy(computeRotationForLatLon(activeCountry.lat, activeCountry.lon));
+      }
+
+      const activeCode = currentSlideIndex === 0
+        ? null
+        : JAPAC_COUNTRIES[currentSlideIndex - 1].code;
+
+      countryVisuals.forEach((vis, code) => {
+        const isCurrent = code === activeCode;
+        const isOverview = activeCode === null;
+
+        vis.labelEl.classList.toggle('is-active', isCurrent);
+
+        if (vis.arcMat) {
+          vis.arcMat.opacity = isOverview ? 0.28 : (isCurrent ? 0.95 : 0.12);
+        }
+        vis.borderMaterials.forEach(mat => {
+          mat.opacity = isOverview ? 0.42 : (isCurrent ? 1.0 : 0.18);
+        });
+      });
+    }
+
+    applySlide(0);
+    currentQuaternion.copy(targetQuaternion);
+    worldGroup.quaternion.copy(currentQuaternion);
+    camera.position.set(0, 0, currentCameraZ);
+
+    let wheelCooldown = 0;
+    window.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const now = performance.now();
+      if (now - wheelCooldown < 260) return;
+      if (Math.abs(e.deltaY) < 6) return;
+
+      wheelCooldown = now;
+      if (e.deltaY > 0) {
+        applySlide(currentSlideIndex + 1);
+      } else {
+        applySlide(currentSlideIndex - 1);
+      }
+    }, { passive: false });
+
+    let touchStartY = null;
+    window.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    window.addEventListener('touchend', (e) => {
+      if (touchStartY === null || e.changedTouches.length === 0) return;
+      const dy = touchStartY - e.changedTouches[0].clientY;
+      if (Math.abs(dy) > 30) {
+        applySlide(currentSlideIndex + (dy > 0 ? 1 : -1));
+      }
+      touchStartY = null;
+    }, { passive: true });
+
+    // =========================================================================
+    // 7. ANIMATION & 3D PROJECTION LOOP
+    // =========================================================================
+    const tempWorldVec = new THREE.Vector3();
+    const tempNormalVec = new THREE.Vector3();
+    const cameraDirVec = new THREE.Vector3();
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      currentQuaternion.slerp(targetQuaternion, 0.065);
+      worldGroup.quaternion.copy(currentQuaternion);
+
+      currentCameraZ += (targetCameraZ - currentCameraZ) * 0.065;
+      camera.position.z = currentCameraZ;
+
+      galaxyField.rotation.y += 0.00018;
+
+      const activeCode = currentSlideIndex === 0
+        ? null
+        : JAPAC_COUNTRIES[currentSlideIndex - 1].code;
+
+      for (let i = 0; i < animatedPulses.length; i++) {
+        const p = animatedPulses[i];
+        p.offset = (p.offset + p.speed * 0.008) % 1;
+        const pt = p.curve.getPoint(p.offset);
+        p.mesh.position.copy(pt);
+        p.mat.opacity = (activeCode === null || activeCode === p.code) ? 0.95 : 0.18;
+      }
+
+      const halfW = (container.clientWidth || window.innerWidth) * 0.5;
+      const halfH = (container.clientHeight || window.innerHeight) * 0.5;
+      cameraDirVec.copy(camera.position).normalize();
+
+      countryVisuals.forEach((vis, code) => {
+        tempWorldVec.copy(vis.pos3D).applyQuaternion(worldGroup.quaternion);
+        tempNormalVec.copy(tempWorldVec).normalize();
+
+        const facingDot = tempNormalVec.dot(cameraDirVec);
+        const isActive = code === activeCode;
+
+        if (facingDot > 0.22) {
+          tempWorldVec.project(camera);
+          const screenX = (tempWorldVec.x * halfW) + halfW;
+          const screenY = -(tempWorldVec.y * halfH) + halfH;
+
+          vis.labelEl.style.transform = `translate(-50%, -120%) translate3d(${screenX.toFixed(1)}px, ${screenY.toFixed(1)}px, 0)`;
+
+          if (activeCode === null) {
+            vis.labelEl.style.opacity = Math.min(0.88, (facingDot - 0.22) * 1.6).toFixed(2);
+          } else {
+            vis.labelEl.style.opacity = isActive ? '1' : (vis.data.isHub ? '0.85' : '0.32');
+          }
+        } else {
+          vis.labelEl.style.opacity = '0';
+        }
+      });
+
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    function onResize() {
+      const w = container.clientWidth || window.innerWidth;
+      const h = container.clientHeight || window.innerHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    }
+
+    window.addEventListener('resize', onResize);
+  </script>
+</body>
+</html>
