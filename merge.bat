@@ -11,7 +11,7 @@ echo ========================================================
 echo.
 
 set "PR_NUM="
-set /p PR_NUM="Enter PR number to merge (e.g. 26) [or 'q' to quit]: "
+set /p PR_NUM="Enter PR number to merge (or 'q' to quit): "
 
 if "%PR_NUM%"=="" goto done
 if /i "%PR_NUM%"=="q" goto done
@@ -20,7 +20,7 @@ if /i "%PR_NUM%"=="exit" goto done
 
 echo.
 echo [1/5] Checking PR status...
-gh pr view %PR_NUM% --json title,state
+gh pr view %PR_NUM% --json title,state,mergeable
 
 echo.
 echo [2/5] Temporarily disabling admin enforcement on branch protection...
@@ -42,23 +42,13 @@ gh pr view %PR_NUM% --json state,mergedAt
 
 echo.
 echo ========================================================
-echo PR #%PR_NUM% processed!
+echo PR #%PR_NUM% completed. Next PR?
 echo ========================================================
-echo.
-
-set "ANOTHER="
-set /p ANOTHER="Merge another PR? (Y/n): "
-if /i "%ANOTHER%"=="n" goto done
-if /i "%ANOTHER%"=="no" goto done
-if /i "%ANOTHER%"=="q" goto done
-
-echo.
 goto merge_loop
 
 :done
 echo.
 echo ========================================================
-echo All merges complete. Exiting helper.
+echo Exiting merge helper.
 echo ========================================================
 echo.
-pause

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { collection, onSnapshot, addDoc } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { httpsCallable } from 'firebase/functions';
+import { db, fns } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import {
   Shield,
@@ -18,6 +19,9 @@ import {
   Cpu,
   Radio,
   FileSpreadsheet,
+  Bot,
+  Send,
+  Wrench,
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import type { Role, SystemBroadcast } from '../types';
@@ -46,6 +50,117 @@ interface AuditLog {
   target: string;
   time: string;
   level: 'info' | 'warn' | 'success';
+}
+
+interface CopilotMsg {
+  role: 'user' | 'assistant' | 'error';
+  text: string;
+  toolCalls?: Array<{ name: string; summary: string }>;
+}
+
+function HRCopilotPanel() {
+  const [messages, setMessages] = useState<CopilotMsg[]>([]);
+  const [input, setInput] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const send = async () => {
+    const q = input.trim();
+    if (!q || busy) return;
+    setInput('');
+    const history = messages
+      .filter((m) => m.role !== 'error')
+      .map((m) => ({ role: m.role === 'user' ? 'user' : 'model', parts: [{ text: m.text }] }));
+    setMessages((prev) => [...prev, { role: 'user', text: q }]);
+    setBusy(true);
+    try {
+      const callable = httpsCallable(fns, 'hrCopilotQuery');
+      const res = await callable({ message: q, history });
+      const { reply, toolCalls } = res.data as {
+        reply: string;
+        toolCalls: Array<{ name: string; summary: string }>;
+      };
+      setMessages((prev) => [...prev, { role: 'assistant', text: reply, toolCalls }]);
+    } catch (e: any) {
+      setMessages((prev) => [
+        ...prev,
+        { role: 'error', text: e?.message || 'Copilot request failed. Is the function deployed?' },
+      ]);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="glass-panel p-5 space-y-4">
+      <div className="flex items-center gap-2.5">
+        <div className="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+          <Bot size={18} />
+        </div>
+        <div>
+          <h3 className="text-sm font-bold text-slate-800 dark:text-white">HR Copilot</h3>
+          <p className="text-[11px] text-slate-500 dark:text-zinc-400">
+            Gemini function calling · tenant-scoped roster & milestone tools
+          </p>
+        </div>
+      </div>
+
+      <div className="space-y-3 max-h-[340px] overflow-y-auto pr-1">
+        {messages.length === 0 && (
+          <p className="text-xs text-slate-400 py-6 text-center">
+            Try: “How many birthdays are coming up in the next 30 days?” or “Show everyone in Engineering.”
+          </p>
+        )}
+        {messages.map((m, i) => (
+          <div key={i} className={cn('flex', m.role === 'user' ? 'justify-end' : 'justify-start')}>
+            <div
+              className={cn(
+                'max-w-[80%] rounded-xl px-3.5 py-2.5 text-xs',
+                m.role === 'user'
+                  ? 'bg-indigo-600 text-white'
+                  : m.role === 'error'
+                  ? 'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-300 border border-red-200 dark:border-red-900/60'
+                  : 'bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-200'
+              )}
+            >
+              {m.toolCalls && m.toolCalls.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {m.toolCalls.map((tc, j) => (
+                    <span
+                      key={j}
+                      className="inline-flex items-center gap-1 text-[10px] bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 rounded-full px-2 py-0.5"
+                    >
+                      <Wrench size={9} />
+                      {tc.summary}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <p className="whitespace-pre-wrap leading-relaxed">{m.text}</p>
+            </div>
+          </div>
+        ))}
+        {busy && <p className="text-[11px] text-slate-400 animate-pulse">Copilot is thinking…</p>}
+      </div>
+
+      <div className="flex gap-2 pt-1 border-t border-slate-100 dark:border-zinc-800">
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && send()}
+          placeholder="Ask about headcount, upcoming milestones, or a department…"
+          className="glass-input text-xs flex-1 py-2"
+          disabled={busy}
+        />
+        <button
+          onClick={send}
+          disabled={busy || !input.trim()}
+          className="btn-primary text-xs px-3 py-2 flex items-center gap-1.5 disabled:opacity-50"
+        >
+          <Send size={13} /> Ask
+        </button>
+      </div>
+    </div>
+  );
 }
 
 export default function AdminDashboard() {
@@ -206,6 +321,9 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300 max-w-7xl mx-auto">
+      {/* HR Copilot (Gemini Function Calling) */}
+      <HRCopilotPanel />
+
       {/* Top Header Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 glass-panel p-6">
         <div>
