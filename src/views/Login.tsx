@@ -12,111 +12,6 @@ import { useTranslation } from 'react-i18next';
 import i18n, { LOCALES } from '../lib/i18n';
 import { Sparkles, Mail, Lock, CheckCircle2, Sun, Moon, Info, ArrowRight, Globe } from 'lucide-react';
 
-// ---------- Slide components ----------
-
-function Slide0() {
-  return (
-    <>
-      <iframe
-        src="/earth.html"
-        title="JAPAC 3D Earth Network"
-        className="w-full h-full absolute inset-0 border-0"
-        loading="eager"
-      />
-      <div className="absolute top-5 left-5 z-10 pointer-events-none flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-slate-900/80 border border-slate-700/60 backdrop-blur-md text-slate-200 text-xs font-medium shadow-lg">
-        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-        <span>JAPAC Milestone Intelligence Network</span>
-      </div>
-      <div className="absolute inset-0 flex flex-col items-center justify-end pb-20 z-10 pointer-events-none">
-        <div className="text-center px-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-white drop-shadow-lg">JAPAC Milestone Intelligence Network</h1>
-          <p className="mt-3 text-slate-300 text-base drop-shadow">Real-time employee milestone tracking across Asia Pacific</p>
-        </div>
-      </div>
-    </>
-  );
-}
-
-function Slide1({ onSignIn }: { onSignIn: () => void }) {
-  return (
-    <div className="flex flex-col items-center justify-center h-full px-8 text-center">
-      <div className="text-8xl mb-6">🎂</div>
-      <h2 className="text-3xl font-bold text-white mb-3">Never miss a milestone</h2>
-      <p className="text-slate-400 text-base mb-8 max-w-sm">Automated birthday and work anniversary notifications — delivered before the day arrives.</p>
-      <div className="flex flex-col gap-2 w-full max-w-xs mb-8">
-        {[
-          { name: 'Sarah Chen', event: 'Birthday', when: 'Tomorrow' },
-          { name: 'David Park', event: '5yr Anniversary', when: 'in 3d' },
-          { name: 'Aung Myint', event: 'Birthday', when: 'in 7d' },
-        ].map((c) => (
-          <div key={c.name} className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-slate-800/70 border border-slate-700/50 text-sm">
-            <span className="text-white font-medium">{c.name}</span>
-            <span className="text-slate-400">{c.event}</span>
-            <span className="text-yellow-400 font-semibold">{c.when}</span>
-          </div>
-        ))}
-      </div>
-      <button onClick={onSignIn} className="bg-yellow-500 text-zinc-900 font-semibold px-6 py-2 rounded-lg hover:bg-yellow-400 transition-colors">Sign In</button>
-    </div>
-  );
-}
-
-function Slide2({ onSignIn }: { onSignIn: () => void }) {
-  return (
-    <div className="flex flex-col items-center justify-center h-full px-8 text-center">
-      <div className="flex gap-6 mb-8">
-        {[{ icon: '📧', label: 'Email' }, { icon: '💬', label: 'Teams' }, { icon: '✈️', label: 'Telegram' }].map((ch) => (
-          <div key={ch.label} className="flex flex-col items-center gap-2">
-            <div className="w-20 h-20 flex items-center justify-center rounded-2xl bg-slate-800 border border-slate-700/60 text-4xl shadow-lg">{ch.icon}</div>
-            <span className="text-slate-300 text-sm font-medium">{ch.label}</span>
-          </div>
-        ))}
-      </div>
-      <h2 className="text-3xl font-bold text-white mb-3">Notify everywhere</h2>
-      <p className="text-slate-400 text-base mb-8 max-w-sm">Send milestone messages via Email, Teams, or Telegram — with one click.</p>
-      <button onClick={onSignIn} className="bg-yellow-500 text-zinc-900 font-semibold px-6 py-2 rounded-lg hover:bg-yellow-400 transition-colors">Sign In</button>
-    </div>
-  );
-}
-
-function Slide3({ onSignIn }: { onSignIn: () => void }) {
-  return (
-    <div className="flex flex-col items-center justify-center h-full px-8 text-center">
-      <div className="flex gap-3 mb-8 text-4xl">
-        {'🇺🇸 🇲🇲 🇹🇼 🇻🇳 🇰🇷 🇯🇵 🇭🇰'.split(' ').map((f) => (
-          <span key={f}>{f}</span>
-        ))}
-      </div>
-      <h2 className="text-3xl font-bold text-white mb-3">Built for JAPAC teams</h2>
-      <p className="text-slate-400 text-base mb-8 max-w-sm">Full multilingual support for teams across Asia Pacific.</p>
-      <button onClick={onSignIn} className="bg-yellow-500 text-zinc-900 font-semibold px-6 py-2 rounded-lg hover:bg-yellow-400 transition-colors">Sign In</button>
-    </div>
-  );
-}
-
-function Slide4({ onSignIn }: { onSignIn: () => void }) {
-  const bars = [42, 78, 55, 91, 63, 38, 70];
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  return (
-    <div className="flex flex-col items-center justify-center h-full px-8 text-center">
-      <div className="flex items-end gap-3 mb-8 h-28">
-        {bars.map((h, i) => (
-          <div key={i} className="flex flex-col items-center gap-1">
-            <div
-              className="w-8 rounded-t-md"
-              style={{ height: `${h}%`, backgroundColor: '#eab308' }}
-            />
-            <span className="text-slate-400 text-xs">{days[i]}</span>
-          </div>
-        ))}
-      </div>
-      <h2 className="text-3xl font-bold text-white mb-3">Milestone insights at a glance</h2>
-      <p className="text-slate-400 text-base mb-8 max-w-sm">7-day activity, headcount by department, upcoming events — all in one dashboard.</p>
-      <button onClick={onSignIn} className="bg-yellow-500 text-zinc-900 font-semibold px-6 py-2 rounded-lg hover:bg-yellow-400 transition-colors">Sign In</button>
-    </div>
-  );
-}
-
 // ---------- Main component ----------
 
 export default function Login() {
@@ -138,10 +33,6 @@ export default function Login() {
   // Dark mode state
   const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'));
 
-  // Slideshow state
-  const [slideIndex, setSlideIndex] = useState(0);
-  const [loginVisible, setLoginVisible] = useState(false);
-
   function toggleDark() {
     const next = !dark;
     setDark(next);
@@ -152,21 +43,6 @@ export default function Login() {
   function handleLanguageChange(code: string) {
     i18n.changeLanguage(code);
   }
-
-  // Slideshow timer
-  useEffect(() => {
-    if (loginVisible) return;
-    const id = setInterval(() => {
-      setSlideIndex(prev => {
-        if (prev >= 4) {
-          setLoginVisible(true);
-          return prev;
-        }
-        return prev + 1;
-      });
-    }, 5000);
-    return () => clearInterval(id);
-  }, [loginVisible]);
 
   // Handle countdown timer for new registered account
   useEffect(() => {
@@ -293,51 +169,21 @@ export default function Login() {
     );
   }
 
-  const slides = [
-    <Slide0 key={0} />,
-    <Slide1 key={1} onSignIn={() => setLoginVisible(true)} />,
-    <Slide2 key={2} onSignIn={() => setLoginVisible(true)} />,
-    <Slide3 key={3} onSignIn={() => setLoginVisible(true)} />,
-    <Slide4 key={4} onSignIn={() => setLoginVisible(true)} />,
-  ];
-
   return (
     <div className="min-h-screen flex flex-col md:flex-row w-full bg-slate-950 relative selection:bg-corp-blue selection:text-white overflow-hidden">
-      {/* Left: Slideshow Hero (65%) */}
-      <div className="w-full md:w-[65%] h-[360px] md:h-auto min-h-[360px] md:min-h-screen relative overflow-hidden bg-slate-950 shrink-0">
-        {/* Slides */}
-        {slides.map((slide, i) => (
-          <div
-            key={i}
-            className={`absolute inset-0 transition-opacity duration-700 ${slideIndex === i ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-          >
-            {slide}
-          </div>
-        ))}
-
-        {/* Skip intro */}
-        <button
-          onClick={() => setLoginVisible(true)}
-          className="absolute top-4 right-4 z-20 text-white/60 hover:text-white text-xs transition-colors"
-        >
-          Skip intro
-        </button>
-
-        {/* Progress dots */}
-        <div className="absolute bottom-5 left-0 right-0 flex justify-center gap-2 z-20">
-          {slides.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setSlideIndex(i)}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${slideIndex === i ? 'bg-yellow-400 scale-125' : 'bg-white/30'}`}
-            />
-          ))}
-        </div>
+      {/* Left: Interactive 3D Earth Hero (65%) */}
+      <div className="w-full md:w-[65%] h-[420px] md:h-auto min-h-[420px] md:min-h-screen relative overflow-hidden bg-slate-950 shrink-0">
+        <iframe
+          src="/earth.html"
+          title="JAPAC 3D Earth Network"
+          className="w-full h-full absolute inset-0 border-0"
+          loading="eager"
+        />
       </div>
 
-      {/* Right: Login panel (35%), slides in after intro */}
+      {/* Right: Login panel (35%) */}
       <div
-        className={`w-full md:w-[35%] flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 shrink-0 bg-slate-50 dark:bg-zinc-950 md:border-l md:border-slate-200 dark:md:border-zinc-800 shadow-2xl z-10 min-h-screen transition-transform duration-700 ease-out ${loginVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}
+        className="w-full md:w-[35%] flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 shrink-0 bg-slate-50 dark:bg-zinc-950 md:border-l md:border-slate-200 dark:md:border-zinc-800 shadow-2xl z-10 min-h-screen"
       >
         {/* Language and Theme Switch ABOVE login panel */}
         <div className="glass-panel w-full max-w-sm px-3.5 py-2 mb-3 flex items-center justify-between gap-2.5 shadow-sm">
