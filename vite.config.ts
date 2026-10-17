@@ -7,6 +7,17 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore'],
+          'vendor-recharts': ['recharts'],
+          'vendor-xlsx': ['xlsx'],
+          'vendor-lucide': ['lucide-react'],
+        },
+      },
+    },
   },
   server: {
     port: 5173,

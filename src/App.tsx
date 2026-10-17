@@ -1,15 +1,24 @@
-import React, { useState, Component, type ReactNode } from 'react';
+import React, { useState, Component, Suspense, lazy, type ReactNode } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import AuthRoute from './components/auth/AuthRoute';
 import Navbar from './components/layout/Navbar';
-import Login from './views/Login';
-import Dashboard from './views/Dashboard';
-import AdminDashboard from './views/AdminDashboard';
-import Employees from './views/Employees';
-import Settings from './views/Settings';
-import Pricing from './views/Pricing';
-import AdminUsers from './views/AdminUsers';
+
+const Login = lazy(() => import('./views/Login'));
+const Dashboard = lazy(() => import('./views/Dashboard'));
+const AdminDashboard = lazy(() => import('./views/AdminDashboard'));
+const Employees = lazy(() => import('./views/Employees'));
+const Settings = lazy(() => import('./views/Settings'));
+const Pricing = lazy(() => import('./views/Pricing'));
+const AdminUsers = lazy(() => import('./views/AdminUsers'));
+
+function RouteLoadingFallback() {
+  return (
+    <div className="flex items-center justify-center min-h-[50vh]">
+      <div className="w-8 h-8 border-3 border-corp-blue dark:border-gold-500 border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+}
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -65,25 +74,27 @@ function AppLayout() {
     <div className="flex min-h-screen overflow-x-hidden">
       <Navbar employeeCount={employeeCount} />
       <main className="flex-1 p-6 transition-all duration-300 min-w-0 max-w-full overflow-x-hidden">
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <AuthRoute>
-                {appUser?.role === 'admin' ? (
-                  <AdminDashboard />
-                ) : (
-                  <Dashboard onCountChange={setEmployeeCount} />
-                )}
-              </AuthRoute>
-            }
-          />
-          <Route path="/admin" element={<AuthRoute><AdminDashboard /></AuthRoute>} />
-          <Route path="/employees" element={<AuthRoute><Employees onCountChange={setEmployeeCount} /></AuthRoute>} />
-          <Route path="/settings" element={<AuthRoute><Settings /></AuthRoute>} />
-          <Route path="/pricing" element={<AuthRoute><Pricing /></AuthRoute>} />
-          <Route path="/admin/users" element={<AuthRoute><AdminUsers /></AuthRoute>} />
-        </Routes>
+        <Suspense fallback={<RouteLoadingFallback />}>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <AuthRoute>
+                  {appUser?.role === 'admin' ? (
+                    <AdminDashboard />
+                  ) : (
+                    <Dashboard onCountChange={setEmployeeCount} />
+                  )}
+                </AuthRoute>
+              }
+            />
+            <Route path="/admin" element={<AuthRoute><AdminDashboard /></AuthRoute>} />
+            <Route path="/employees" element={<AuthRoute><Employees onCountChange={setEmployeeCount} /></AuthRoute>} />
+            <Route path="/settings" element={<AuthRoute><Settings /></AuthRoute>} />
+            <Route path="/pricing" element={<AuthRoute><Pricing /></AuthRoute>} />
+            <Route path="/admin/users" element={<AuthRoute><AdminUsers /></AuthRoute>} />
+          </Routes>
+        </Suspense>
       </main>
     </div>
   );
@@ -94,10 +105,12 @@ export default function App() {
     <ErrorBoundary>
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/*" element={<AppLayout />} />
-          </Routes>
+          <Suspense fallback={<RouteLoadingFallback />}>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/*" element={<AppLayout />} />
+            </Routes>
+          </Suspense>
         </AuthProvider>
       </BrowserRouter>
     </ErrorBoundary>
