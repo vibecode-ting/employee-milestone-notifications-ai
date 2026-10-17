@@ -24,7 +24,7 @@ html {
 }
 
 body {
-  font-family: 'Roboto', 'Noto Sans Myanmar', 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+  font-family: 'Roboto', 'Noto Sans Myanmar', 'Microsoft JhengHei', 'PingFang TC', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Hiragino Sans', 'Yu Gothic', sans-serif;
   @apply bg-slate-50 text-slate-900 dark:bg-zinc-950 dark:text-zinc-100 min-h-screen;
 }
 
