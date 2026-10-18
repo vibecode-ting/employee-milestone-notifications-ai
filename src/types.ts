@@ -149,6 +149,18 @@ export interface CopilotDiff {
   confirmedStep2?: boolean;
 }
 
+export interface OcrCandidate {
+  name: string;
+  department: string;
+  role?: string;
+  email: string;
+  phone?: string;
+  dob: string;
+  joinedDate: string;
+  location?: string;
+  confidence?: number;
+}
+
 export interface CopilotMessage {
   id: string;
   role: 'user' | 'assistant';
@@ -156,6 +168,10 @@ export interface CopilotMessage {
   timestamp: string;
   diff?: CopilotDiff;
   source?: 'text' | 'voice' | 'ocr';
+  ocrCandidates?: OcrCandidate[];
+  imported?: boolean;
+  model?: string;
 }
+
 
 
