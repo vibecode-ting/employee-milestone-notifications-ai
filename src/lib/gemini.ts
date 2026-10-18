@@ -454,9 +454,27 @@ export async function extractEmployeesFromDocument({
 }): Promise<OcrExtractionResult> {
   const apiKey = getGeminiApiKey();
 
-  // If no Gemini API key is configured, provide graceful realistic fallback
-  // with a clear hint so judges/users know they can enter a key for live vision.
+  // If no client-side Gemini API key is configured, first attempt to call the secure
+  // backend Cloud Function `extractDocumentOcr` (which uses backend GEMINI_API_KEY).
+  // If backend is unavailable (e.g. offline demo mode), provide realistic sample fallback.
   if (!apiKey) {
+    try {
+      const { httpsCallable } = await import('firebase/functions');
+      const { fns } = await import('./firebase');
+      if (fns) {
+        const extractFn = httpsCallable<{ fileBase64: string; mimeType: string }, OcrExtractionResult>(
+          fns,
+          'extractDocumentOcr'
+        );
+        const res = await extractFn({ fileBase64, mimeType });
+        if (res.data && Array.isArray(res.data.candidates) && res.data.candidates.length > 0) {
+          return res.data;
+        }
+      }
+    } catch (backendErr) {
+      console.warn('Backend Cloud Function OCR not reachable, falling back to sample preview:', backendErr);
+    }
+
     return {
       candidates: [
         {

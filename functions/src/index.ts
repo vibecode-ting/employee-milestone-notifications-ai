@@ -77,7 +77,7 @@ async function generateGeminiGreeting(
       : `Write a warm, inspiring 1-2 sentence work anniversary message for ${emp.name}, celebrating ${years} year(s) of service in the ${emp.department || 'our'} department. Include celebratory emojis. Output only the greeting text.`;
 
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -218,7 +218,7 @@ async function logNotification(
  * Two tenant-scoped tools: query_employees, get_milestone_stats.
  * ========================================================================= */
 
-const GEMINI_MODEL = 'gemini-2.5-flash';
+const GEMINI_MODEL = 'gemini-3.6-flash';
 
 /** Tool 1: search the caller's own tenant roster (never crosses tenants). */
 async function queryEmployeesTool(
@@ -465,5 +465,139 @@ export const hrCopilotQuery = functions.runWith({ timeoutSeconds: 60, memory: '5
 
     // 3. Return answer + Tool Call Pill metadata for multimodal transparency
     return { reply: finalText, toolCalls: toolCallPills, model: GEMINI_MODEL };
+  });
+
+/**
+ * Backend Cloud Function: extractDocumentOcr
+ * Enables frontend users and judges to run Gemini Multimodal Vision OCR securely
+ * via backend environment secrets without having to provide or expose their own API key.
+ */
+export const extractDocumentOcr = functions
+  .runWith({ timeoutSeconds: 60, memory: '512MB' })
+  .https.onCall(async (data) => {
+    const fileBase64 = data?.fileBase64;
+    const mimeType = data?.mimeType || 'image/jpeg';
+    if (!fileBase64 || typeof fileBase64 !== 'string') {
+      throw new functions.https.HttpsError('invalid-argument', 'Missing fileBase64 data.');
+    }
+
+    const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new functions.https.HttpsError(
+        'failed-precondition',
+        'Backend GEMINI_API_KEY is not configured.'
+      );
+    }
+
+    const prompt = `You are an expert HR Document AI parser for enterprise workforce systems.
+Analyze this uploaded document/image (employee badge, roster spreadsheet, ID card, business card, onboarding slip, or team roster).
+Extract all individual employee records present in the document.
+
+For each employee found, return a JSON object with:
+- "name": Full name (required)
+- "department": Department or functional division (e.g. Engineering, People & Culture, Cloud DevOps, Product Design, Marketing, Finance). If not explicitly visible, infer from job title.
+- "role": Job title (e.g. Senior Software Engineer, HR Business Partner)
+- "email": Work email address (if not found in document, infer from name and standard company domain @company.com)
+- "phone": Phone number if visible (or empty string)
+- "dob": Date of birth in YYYY-MM-DD or MM-DD format if visible (or estimate e.g. "1994-06-15")
+- "joinedDate": Hire date or work anniversary in YYYY-MM-DD format if visible (or current year estimate e.g. "2023-05-01")
+- "location": City or country if visible
+- "confidence": Estimated parsing confidence between 0.0 and 1.0
+
+Return ONLY a valid JSON array of employee objects matching this schema (no markdown formatting, no backticks, no explanatory text):
+[
+  {
+    "name": "Alex Morgan",
+    "department": "Engineering",
+    "role": "Cloud Architect",
+    "email": "alex.m@company.com",
+    "phone": "+65 9123 4567",
+    "dob": "1991-04-12",
+    "joinedDate": "2021-03-01",
+    "location": "Singapore",
+    "confidence": 0.97
+  }
+]
+If the image does not contain any employee data, return an empty array [].`;
+
+    const candidateModels = [
+      'gemini-3.6-flash',
+      'gemini-3.8-flash',
+      'gemini-3.5-flash',
+      'gemini-3.1-flash-lite',
+      'gemini-flash-lite-latest',
+    ];
+
+    let lastError: any = null;
+    for (const model of candidateModels) {
+      try {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [
+                {
+                  parts: [
+                    { text: prompt },
+                    {
+                      inlineData: {
+                        mimeType,
+                        data: fileBase64,
+                      },
+                    },
+                  ],
+                },
+              ],
+              generationConfig: {
+                temperature: 0.1,
+                maxOutputTokens: 2048,
+                responseMimeType: 'application/json',
+              },
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          if (response.status === 404 || response.status === 503) {
+            continue;
+          }
+          const errText = await response.text();
+          throw new Error(`Gemini API error (${response.status}): ${errText}`);
+        }
+
+        const resData: any = await response.json();
+        const rawText = resData?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (rawText) {
+          const cleaned = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
+          let parsed: any;
+          try {
+            parsed = JSON.parse(cleaned);
+          } catch {
+            const match = cleaned.match(/(\[[\s\S]*\]|\{[\s\S]*\})/);
+            if (match) parsed = JSON.parse(match[0]);
+            else throw new Error('Unparseable output from Gemini Vision');
+          }
+
+          const candidates = (Array.isArray(parsed) ? parsed : [parsed]).filter(
+            (c: any) => c && typeof c.name === 'string' && c.name.trim().length > 0
+          );
+
+          return {
+            candidates,
+            model: `Backend Gemini Vision (${model})`,
+            isLiveApi: true,
+          };
+        }
+      } catch (err: any) {
+        lastError = err;
+      }
+    }
+
+    throw new functions.https.HttpsError(
+      'internal',
+      lastError?.message || 'Failed to process document with Gemini Vision.'
+    );
   });
 
