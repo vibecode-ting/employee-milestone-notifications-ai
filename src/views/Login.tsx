@@ -33,10 +33,11 @@ import {
 
 // ---------- Slide components ----------
 
-function Slide0() {
+function Slide0({ iframeRef }: { iframeRef?: React.RefObject<HTMLIFrameElement | null> }) {
   return (
     <div className="relative w-full h-full overflow-hidden bg-slate-950">
       <iframe
+        ref={iframeRef}
         src="/earth.html"
         title="JAPAC 3D Earth Network"
         className="w-full h-full absolute inset-0 border-0 pointer-events-auto"
@@ -156,6 +157,7 @@ function Slide3({ onSignIn, onInteract }: { onSignIn?: () => void; onInteract?: 
   const japacLangs = [
     {
       code: 'us',
+      locale: 'en',
       key: 'EN',
       name: 'English',
       native: 'English',
@@ -164,6 +166,7 @@ function Slide3({ onSignIn, onInteract }: { onSignIn?: () => void; onInteract?: 
     },
     {
       code: 'mm',
+      locale: 'mm',
       key: 'MM',
       name: 'Myanmar',
       native: 'မြန်မာ',
@@ -172,6 +175,7 @@ function Slide3({ onSignIn, onInteract }: { onSignIn?: () => void; onInteract?: 
     },
     {
       code: 'jp',
+      locale: 'ja',
       key: 'JA',
       name: 'Japanese',
       native: '日本語',
@@ -180,6 +184,7 @@ function Slide3({ onSignIn, onInteract }: { onSignIn?: () => void; onInteract?: 
     },
     {
       code: 'kr',
+      locale: 'ko',
       key: 'KO',
       name: 'Korean',
       native: '한국어',
@@ -188,6 +193,7 @@ function Slide3({ onSignIn, onInteract }: { onSignIn?: () => void; onInteract?: 
     },
     {
       code: 'tw',
+      locale: 'zh',
       key: 'ZH',
       name: 'Traditional',
       native: '繁體中文',
@@ -196,6 +202,7 @@ function Slide3({ onSignIn, onInteract }: { onSignIn?: () => void; onInteract?: 
     },
     {
       code: 'hk',
+      locale: 'zh-HK',
       key: 'HK',
       name: 'Hong Kong',
       native: '粵語',
@@ -204,6 +211,7 @@ function Slide3({ onSignIn, onInteract }: { onSignIn?: () => void; onInteract?: 
     },
     {
       code: 'vn',
+      locale: 'vn',
       key: 'VN',
       name: 'Vietnamese',
       native: 'Tiếng Việt',
@@ -242,11 +250,11 @@ function Slide3({ onSignIn, onInteract }: { onSignIn?: () => void; onInteract?: 
               onClick={() => {
                 setActiveLang(idx);
                 setLangPaused(true);
+                i18n.changeLanguage(item.locale);
                 onInteract?.();
               }}
               onMouseEnter={() => {
                 setActiveLang(idx);
-                setLangPaused(true);
                 onInteract?.();
               }}
               className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs transition-all duration-300 cursor-pointer ${
@@ -425,13 +433,16 @@ export default function Login() {
   const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'));
 
   // Slideshow state
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [slideIndex, setSlideIndex] = useState(0);
-  const [loginVisible, setLoginVisible] = useState(true);
+  const [cycleIndex, setCycleIndex] = useState(0);
+  const SLIDE_CYCLE = [0, 1, 0, 2, 0, 3, 0, 4];
+
   const [isPaused, setIsPaused] = useState(false);
   const [isInteracting, setIsInteracting] = useState(false);
   const interactionTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const markInteracting = (holdDurationMs = 12000) => {
+  const markInteracting = (holdDurationMs = 15000) => {
     setIsInteracting(true);
     if (interactionTimerRef.current) {
       clearTimeout(interactionTimerRef.current);
@@ -439,17 +450,51 @@ export default function Login() {
     if (holdDurationMs > 0) {
       interactionTimerRef.current = setTimeout(() => {
         setIsInteracting(false);
+        // Auto reset to Earth home page after interaction ends
+        setSlideIndex(0);
+        setCycleIndex(0);
       }, holdDurationMs);
     }
   };
 
-  // Listen for interaction events from the 3D globe iframe
+  // Sync theme to 3D Earth iframe on load and theme switch
+  useEffect(() => {
+    const postTheme = () => {
+      if (iframeRef.current?.contentWindow) {
+        iframeRef.current.contentWindow.postMessage(
+          { type: 'SET_THEME', theme: dark ? 'dark' : 'light' },
+          '*'
+        );
+      }
+    };
+    postTheme();
+    const t = setTimeout(postTheme, 500);
+    return () => clearTimeout(t);
+  }, [dark]);
+
+  // Listen for interaction and country selection events from the 3D globe iframe
   useEffect(() => {
     function handleMessage(event: MessageEvent) {
       if (event.data && event.data.type === 'EARTH_INTERACTION') {
         if (event.data.isInteracting) {
-          markInteracting(12000);
+          markInteracting(15000);
         }
+      }
+      if (event.data && event.data.type === 'SELECT_COUNTRY' && event.data.code) {
+        const countryCode = String(event.data.code).toLowerCase();
+        const codeToLocale: Record<string, string> = {
+          sg: 'en',
+          us: 'en',
+          mm: 'mm',
+          jp: 'ja',
+          kr: 'ko',
+          tw: 'zh',
+          hk: 'zh-HK',
+          vn: 'vn',
+          th: 'en',
+        };
+        const targetLocale = codeToLocale[countryCode] || 'en';
+        i18n.changeLanguage(targetLocale);
       }
     }
     window.addEventListener('message', handleMessage);
@@ -464,20 +509,32 @@ export default function Login() {
     setDark(next);
     document.documentElement.classList.toggle('dark', next);
     localStorage.setItem('theme', next ? 'dark' : 'light');
+    if (iframeRef.current?.contentWindow) {
+      iframeRef.current.contentWindow.postMessage(
+        { type: 'SET_THEME', theme: next ? 'dark' : 'light' },
+        '*'
+      );
+    }
   }
 
   function handleLanguageChange(code: string) {
     i18n.changeLanguage(code);
   }
 
-  // Smooth continuous slideshow timer (6s) — suspended whenever user is interacting or paused
+  // Dynamic continuous slideshow timer: Earth Home slide (0) stays 15s (3x duration), feature slides stay 5s
   useEffect(() => {
     if (isPaused || isInteracting) return;
-    const id = setInterval(() => {
-      setSlideIndex((prev) => (prev + 1) % 5);
-    }, 6000);
-    return () => clearInterval(id);
-  }, [isPaused, isInteracting]);
+    const currentSlide = SLIDE_CYCLE[cycleIndex % SLIDE_CYCLE.length];
+    const duration = currentSlide === 0 ? 15000 : 5000;
+    const id = setTimeout(() => {
+      setCycleIndex((prev) => {
+        const next = (prev + 1) % SLIDE_CYCLE.length;
+        setSlideIndex(SLIDE_CYCLE[next]);
+        return next;
+      });
+    }, duration);
+    return () => clearTimeout(id);
+  }, [isPaused, isInteracting, cycleIndex]);
 
   // Handle countdown timer for new registered account
   useEffect(() => {
@@ -605,20 +662,18 @@ export default function Login() {
   }
 
   const slides = [
-    <Slide0 key={0} />,
-    <Slide1 key={1} onSignIn={() => setLoginVisible(true)} onInteract={() => markInteracting(15000)} />,
-    <Slide2 key={2} onSignIn={() => setLoginVisible(true)} onInteract={() => markInteracting(15000)} />,
-    <Slide3 key={3} onSignIn={() => setLoginVisible(true)} onInteract={() => markInteracting(15000)} />,
-    <Slide4 key={4} onSignIn={() => setLoginVisible(true)} onInteract={() => markInteracting(15000)} />,
+    <Slide0 key={0} iframeRef={iframeRef} />,
+    <Slide1 key={1} onSignIn={() => {}} onInteract={() => markInteracting(15000)} />,
+    <Slide2 key={2} onSignIn={() => {}} onInteract={() => markInteracting(15000)} />,
+    <Slide3 key={3} onSignIn={() => {}} onInteract={() => markInteracting(15000)} />,
+    <Slide4 key={4} onSignIn={() => {}} onInteract={() => markInteracting(15000)} />,
   ];
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row w-full bg-slate-950 relative selection:bg-corp-blue selection:text-white overflow-hidden">
-      {/* Left: Slideshow Hero (65% desktop, toggleable on mobile) */}
+    <div className="min-h-screen flex flex-col md:flex-row w-full bg-slate-950 relative selection:bg-corp-blue selection:text-white overflow-x-hidden">
+      {/* Left: Slideshow Hero (60% desktop wide landscape, top on mobile/portrait) */}
       <div
-        className={`w-full md:w-[65%] md:h-auto min-h-[360px] md:min-h-screen relative overflow-hidden bg-slate-950 shrink-0 ${
-          loginVisible ? 'hidden md:block' : 'h-[520px] block'
-        }`}
+        className="w-full md:w-[60%] h-[380px] sm:h-[460px] md:h-screen md:min-h-screen relative overflow-hidden bg-slate-950 shrink-0 block"
         onMouseEnter={() => {
           setIsPaused(true);
           markInteracting(12000);
@@ -664,17 +719,6 @@ export default function Login() {
         >
           <ChevronRight size={16} />
         </button>
-
-        {/* Mobile Return to Sign In button */}
-        {!loginVisible && (
-          <button
-            type="button"
-            onClick={() => setLoginVisible(true)}
-            className="md:hidden absolute top-4 right-4 z-20 px-3 py-1.5 rounded-full bg-blue-600/90 text-white font-medium text-xs shadow-lg backdrop-blur-md cursor-pointer"
-          >
-            Sign In →
-          </button>
-        )}
 
         {/* Progress dots & Pause/Play Indicator */}
         <div className="absolute bottom-5 left-0 right-0 flex items-center justify-between px-6 z-20 pointer-events-none">
@@ -728,27 +772,8 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Right: Login panel (35%), always visible on desktop, toggleable on mobile */}
-      <div
-        className={`w-full md:w-[35%] flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 shrink-0 bg-slate-50 dark:bg-zinc-950 md:border-l md:border-slate-200 dark:md:border-zinc-800 shadow-2xl z-10 min-h-screen ${
-          loginVisible ? 'flex' : 'hidden md:flex'
-        }`}
-      >
-        {/* Mobile-only toggle to view the showcase tour */}
-        <div className="md:hidden w-full max-w-sm mb-3 flex justify-between items-center px-1">
-          <div className="flex items-center gap-2">
-            <img src="/logo.svg" alt="Milestone" className="w-6 h-6 text-corp-blue" />
-            <span className="text-sm font-bold text-corp-blue dark:text-gold-500">Milestone</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => setLoginVisible(false)}
-            className="text-xs text-blue-600 dark:text-amber-400 font-semibold inline-flex items-center gap-1 hover:underline cursor-pointer"
-          >
-            <span>✦ View Product Highlights</span>
-          </button>
-        </div>
-
+      {/* Right: Login panel (40% desktop wide landscape, bottom stack on mobile/portrait) */}
+      <div className="w-full md:w-[40%] flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 shrink-0 bg-slate-50 dark:bg-zinc-950 md:border-l md:border-slate-200 dark:md:border-zinc-800 shadow-2xl z-10 min-h-screen">
         {/* Language and Theme Switch ABOVE login panel */}
         <div className="glass-panel w-full max-w-sm px-3.5 py-2 mb-3 flex items-center justify-between gap-2.5 shadow-sm">
           {/* Language Selector */}
@@ -768,15 +793,15 @@ export default function Login() {
             </select>
           </div>
 
-          {/* Theme Toggle Button */}
+          {/* Theme Toggle Button — showing current condition */}
           <button
             onClick={toggleDark}
             type="button"
-            aria-label={dark ? t('Light Mode') : t('Dark Mode')}
+            aria-label={dark ? t('Dark Mode') : t('Light Mode')}
             className="py-1.5 px-3 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 text-slate-600 dark:text-zinc-300 shadow-xs hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors flex items-center gap-1.5 text-xs font-medium shrink-0 cursor-pointer"
           >
-            {dark ? <Sun size={14} className="text-amber-400" /> : <Moon size={14} className="text-slate-500" />}
-            <span>{dark ? t('Light Mode') : t('Dark Mode')}</span>
+            {dark ? <Moon size={14} className="text-indigo-400" /> : <Sun size={14} className="text-amber-500" />}
+            <span>{dark ? t('Dark Mode') : t('Light Mode')}</span>
           </button>
         </div>
 

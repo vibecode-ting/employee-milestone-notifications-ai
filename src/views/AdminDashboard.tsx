@@ -22,9 +22,12 @@ import {
   Bot,
   Send,
   Wrench,
+  MessageSquare,
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import type { Role, SystemBroadcast } from '../types';
+import { FeedbackReviewModal } from '../components/admin/FeedbackReviewModal';
+import { SentNotificationsModal } from '../components/admin/SentNotificationsModal';
 
 interface SystemMetric {
   totalUsers: number;
@@ -173,6 +176,8 @@ export default function AdminDashboard() {
   });
   const [broadcastDraft, setBroadcastDraft] = useState(broadcastMessage);
   const [broadcastSaved, setBroadcastSaved] = useState(false);
+  const [showFeedbackReview, setShowFeedbackReview] = useState(false);
+  const [showSentNotifications, setShowSentNotifications] = useState(false);
 
   // System metrics state
   const [metrics, setMetrics] = useState<SystemMetric>(() => {
@@ -567,17 +572,31 @@ export default function AdminDashboard() {
 
         {/* Quick Admin Tools (1 Col) */}
         <div className="glass-panel p-6 space-y-4">
-          <h2 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
-            <Cpu size={18} className="text-purple-600 dark:text-purple-400" />
-            Admin Operations
-          </h2>
-          <p className="text-xs text-slate-500 dark:text-zinc-400">Direct platform controls and tools</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                <Cpu size={18} className="text-purple-600 dark:text-purple-400" />
+                Admin Operations
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-zinc-400">Direct platform controls and tools</p>
+            </div>
+          </div>
 
           {/* Broadcast Announcement Form */}
-          <form onSubmit={handleSaveBroadcast} className="space-y-2 pt-1">
-            <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300">
-              System Announcement Banner
-            </label>
+          <form onSubmit={handleSaveBroadcast} className="space-y-2 pt-1" id="sent-notifications">
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300">
+                Sent Notifications (System Announcement Banner)
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowSentNotifications(true)}
+                className="text-[11px] font-bold text-corp-blue dark:text-gold-400 hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                <Radio size={12} />
+                <span>Manage History</span>
+              </button>
+            </div>
             <input
               type="text"
               value={broadcastDraft}
@@ -589,7 +608,7 @@ export default function AdminDashboard() {
               <span className="text-[10px] text-slate-400">Broadcasts to all logged-in users</span>
               <button
                 type="submit"
-                className="px-2.5 py-1 rounded-lg bg-corp-blue text-white dark:bg-gold-500 dark:text-zinc-950 font-bold text-xs hover:opacity-90 transition-opacity"
+                className="px-2.5 py-1 rounded-lg bg-corp-blue text-white dark:bg-gold-500 dark:text-zinc-950 font-bold text-xs hover:opacity-90 transition-opacity cursor-pointer"
               >
                 {broadcastSaved ? 'Saved!' : 'Publish Banner'}
               </button>
@@ -598,6 +617,34 @@ export default function AdminDashboard() {
 
           {/* Quick Actions List */}
           <div className="pt-3 border-t border-slate-200/60 dark:border-zinc-800 space-y-2">
+            <button
+              onClick={() => setShowFeedbackReview(true)}
+              className="w-full text-left p-2.5 rounded-lg border border-purple-500/30 bg-purple-500/5 hover:bg-purple-500/10 dark:border-purple-500/30 dark:bg-purple-500/10 transition-colors flex items-center justify-between text-xs cursor-pointer"
+            >
+              <div>
+                <div className="font-bold text-purple-700 dark:text-purple-300 flex items-center gap-1.5">
+                  <MessageSquare size={13} />
+                  <span>Feedback Review</span>
+                </div>
+                <div className="text-[10px] text-slate-400">Triage user suggestions, bug reports & telemetry</div>
+              </div>
+              <ArrowRight size={14} className="text-purple-500" />
+            </button>
+
+            <button
+              onClick={() => setShowSentNotifications(true)}
+              className="w-full text-left p-2.5 rounded-lg border border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-900 transition-colors flex items-center justify-between text-xs cursor-pointer"
+            >
+              <div>
+                <div className="font-semibold text-slate-800 dark:text-zinc-200 flex items-center gap-1.5">
+                  <Radio size={13} className="text-corp-blue dark:text-gold-400" />
+                  <span>Sent Notifications Manager</span>
+                </div>
+                <div className="text-[10px] text-slate-400">Dispatch, toggle & review announcement banners</div>
+              </div>
+              <ArrowRight size={14} className="text-slate-400" />
+            </button>
+
             <button
               onClick={() => navigate('/admin/users')}
               className="w-full text-left p-2.5 rounded-lg border border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-900 transition-colors flex items-center justify-between text-xs"
@@ -693,6 +740,16 @@ export default function AdminDashboard() {
           )}
         </div>
       </div>
+
+      {/* Admin Operations Modals */}
+      <FeedbackReviewModal
+        isOpen={showFeedbackReview}
+        onClose={() => setShowFeedbackReview(false)}
+      />
+      <SentNotificationsModal
+        isOpen={showSentNotifications}
+        onClose={() => setShowSentNotifications(false)}
+      />
     </div>
   );
 }
