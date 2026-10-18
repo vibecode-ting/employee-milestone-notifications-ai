@@ -196,3 +196,15 @@ To evaluate the application instantly without configuring Firebase or cloud cred
 1. Navigate to the login screen (`/login`).
 2. Click **"Demo Mode"** on the login card.
 3. You will be authenticated immediately as an **Admin** with populated mock employees, milestone statistics, and operational telemetry.
+
+---
+
+## 👥 Contributors & AI Collaborators
+
+| Contributor | Role | Profile |
+|---|---|---|
+| **Htet Aung Hlaing** | Lead Architect & Full-Stack Developer | [@vibecode-ting](https://github.com/vibecode-ting) |
+| **Myo Set Paing** | Core Contributor & UI/UX Specialist | [@Mark3172](https://github.com/Mark3172) |
+| **Ko Htun** | DevOps & Cloud Emulator Lead | [@kohtun386](https://github.com/kohtun386) |
+| **Google Gemini** | AI Co-Author, Vision OCR & Copilot Engine | [Gemini AI](https://deepmind.google/technologies/gemini/) |
+
