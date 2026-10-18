@@ -59,24 +59,7 @@ function Slide0({ iframeRef }: { iframeRef?: React.RefObject<HTMLIFrameElement |
         <span>JAPAC Milestone Intelligence Network</span>
       </div>
 
-      {/* Cinematic left-panel bottom overlay */}
-      <div className="absolute inset-x-0 bottom-16 sm:bottom-20 z-10 pointer-events-none flex flex-col items-center text-center px-6">
-        <div className="max-w-lg space-y-2.5">
-          {/* Official award sub-tag pill */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-400/40 backdrop-blur-md text-amber-300 text-[11px] font-semibold tracking-wide uppercase shadow-sm">
-            <Trophy size={13} className="text-amber-400" />
-            <span>A 2026 AI BUILDERS CUP ENTRY • BORN IN JAPAC, BUILT FOR THE WORLD</span>
-          </div>
-
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight drop-shadow-xl bg-clip-text text-transparent bg-gradient-to-r from-white via-sky-100 to-sky-300">
-            HRChronicle AI
-          </h1>
-          <p className="text-slate-300 text-xs sm:text-sm drop-shadow leading-relaxed max-w-md mx-auto">
-            Intelligent HR Annual Date Notifications & Multilingual Workforce Copilot
-          </p>
-        </div>
       </div>
-    </div>
   );
 }
 
@@ -416,10 +399,9 @@ export default function Login() {
   // Slideshow state
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [slideIndex, setSlideIndex] = useState(0);
-  const [cycleIndex, setCycleIndex] = useState(0);
-  const SLIDE_CYCLE = [0, 1, 0, 2, 0, 3, 0, 4];
+  
 
-  const [isPaused, setIsPaused] = useState(false);
+  const [isPaused, setIsPaused] = useState(true);
   const [isInteracting, setIsInteracting] = useState(false);
   const interactionTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -433,7 +415,7 @@ export default function Login() {
         setIsInteracting(false);
         // Auto reset to Earth home page after interaction ends
         setSlideIndex(0);
-        setCycleIndex(0);
+        // reset cycle
       }, holdDurationMs);
     }
   };
@@ -502,20 +484,14 @@ export default function Login() {
     i18n.changeLanguage(code);
   }
 
-  // Dynamic continuous slideshow timer: Earth Home slide (0) stays 15s (3x duration), feature slides stay 5s
+  // Slideshow timer: 5s interval to rotate only when NOT paused
   useEffect(() => {
     if (isPaused || isInteracting) return;
-    const currentSlide = SLIDE_CYCLE[cycleIndex % SLIDE_CYCLE.length];
-    const duration = currentSlide === 0 ? 15000 : 5000;
-    const id = setTimeout(() => {
-      setCycleIndex((prev) => {
-        const next = (prev + 1) % SLIDE_CYCLE.length;
-        setSlideIndex(SLIDE_CYCLE[next]);
-        return next;
-      });
-    }, duration);
-    return () => clearTimeout(id);
-  }, [isPaused, isInteracting, cycleIndex]);
+    const id = setInterval(() => {
+      setSlideIndex((prev) => (prev + 1) % 5);
+    }, 5000);
+    return () => clearInterval(id);
+  }, [isPaused, isInteracting]);
 
   // Handle countdown timer for new registered account
   useEffect(() => {
@@ -657,17 +633,9 @@ export default function Login() {
           ========================================================================= */}
       <div
         className="w-full md:w-[60%] lg:w-[60%] h-[420px] sm:h-[480px] md:h-screen md:min-h-screen relative overflow-hidden bg-slate-950 shrink-0 block"
-        onMouseEnter={() => {
-          setIsPaused(true);
-          markInteracting(12000);
-        }}
-        onMouseMove={() => {
-          setIsPaused(true);
-          markInteracting(12000);
-        }}
-        onMouseLeave={() => {
-          setIsPaused(false);
-        }}
+        
+        
+        
       >
         {/* Slides */}
         {slides.map((slide, i) => (
@@ -757,33 +725,20 @@ export default function Login() {
           {/* Play / Pause indicator */}
           <button
             type="button"
-            onClick={() => {
-              if (isPaused || isInteracting) {
-                setIsPaused(false);
-                setIsInteracting(false);
-                if (interactionTimerRef.current) clearTimeout(interactionTimerRef.current);
-              } else {
-                setIsPaused(true);
-                markInteracting(99999999);
-              }
-            }}
-            className={`pointer-events-auto hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium backdrop-blur-md transition-all shadow-md cursor-pointer border ${
-              isPaused || isInteracting
+            onClick={() => setIsPaused((prev) => !prev)}
+            className={`pointer-events-auto flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium backdrop-blur-md transition-all shadow-md cursor-pointer border ${
+              isPaused
                 ? 'bg-slate-900/85 border-amber-500/50 text-amber-300 hover:bg-slate-800'
-                : 'bg-slate-900/60 border-slate-700/60 text-slate-400 hover:text-slate-200 hover:border-slate-600'
+                : 'bg-slate-900/85 border-emerald-500/50 text-emerald-300 hover:bg-slate-800'
             }`}
-            title={
-              isPaused || isInteracting
-                ? 'Slideshow paused while interacting. Click to play.'
-                : 'Click to pause slideshow'
-            }
+            title={isPaused ? 'Slideshow paused. Click to auto-play (5s).' : 'Click to pause'}
           >
             <span
               className={`w-1.5 h-1.5 rounded-full ${
-                isPaused || isInteracting ? 'bg-amber-400' : 'bg-emerald-400 animate-pulse'
+                isPaused ? 'bg-amber-400' : 'bg-emerald-400 animate-pulse'
               }`}
             />
-            <span>{isPaused || isInteracting ? 'Paused' : 'Auto-play'}</span>
+            <span>{isPaused ? 'Paused' : 'Auto-play'}</span>
           </button>
         </div>
       </div>
@@ -794,7 +749,7 @@ export default function Login() {
       <div className={`w-full md:w-[40%] lg:w-[40%] flex flex-col justify-between p-5 sm:p-8 lg:p-10 shrink-0 relative min-h-screen border-t md:border-t-0 md:border-l transition-colors duration-500 ${
         dark
           ? 'bg-slate-950/95 text-slate-100 border-white/10'
-          : 'bg-slate-50/95 text-slate-800 border-slate-200'
+          : 'bg-slate-50/95 text-slate-900 border-black md:border-l-2'
       }`}>
         {/* Top-Right Utility Row: Language Selector & Orbital Sunrise/Sunset Toggle */}
         <div className="w-full flex items-center justify-end gap-2.5 mb-4 z-20">
@@ -802,7 +757,7 @@ export default function Login() {
           <div className={`h-9 flex items-center gap-1.5 px-3 rounded-lg border backdrop-blur-md text-xs font-medium transition-colors ${
             dark
               ? 'bg-slate-900/60 border-white/10 text-slate-300 hover:border-white/20'
-              : 'bg-white/80 border-slate-200 text-slate-700 hover:border-slate-300 shadow-sm'
+              : 'bg-white border-2 border-black text-slate-900 shadow-sm'
           }`}>
             <Globe size={14} className={dark ? 'text-slate-400 shrink-0' : 'text-slate-500 shrink-0'} />
             <select
@@ -851,7 +806,7 @@ export default function Login() {
         <div className={`w-full max-w-md mx-auto my-auto p-6 sm:p-8 rounded-2xl backdrop-blur-xl border shadow-2xl relative overflow-hidden transition-colors duration-500 ${
           dark
             ? 'bg-slate-900/40 border-white/10'
-            : 'bg-white/90 border-slate-200 shadow-slate-200/50'
+            : 'bg-white border-2 border-black shadow-slate-300'
         }`}>
           {/* Brand Header with Glowing Gold Cake Icon */}
           <div className="flex items-center gap-3 mb-6">
@@ -1071,7 +1026,7 @@ export default function Login() {
               className={`w-full py-2.5 px-4 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2.5 transition-all shadow-sm cursor-pointer disabled:opacity-50 ${
                 dark
                   ? 'border-white/15 bg-slate-950/60 hover:bg-slate-800/80 text-white'
-                  : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
+                  : 'border-2 border-black bg-white hover:bg-slate-100 text-black font-bold'
               }`}
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24">
@@ -1096,14 +1051,20 @@ export default function Login() {
             </button>
 
             <button
-              onClick={handleDemoLogin}
-              disabled={newAccountCountdown !== null}
-              type="button"
-              className="w-full py-2.5 px-4 rounded-xl border border-purple-500/50 bg-gradient-to-r from-purple-500/15 via-indigo-500/15 to-purple-500/15 hover:border-purple-400 hover:from-purple-500/25 hover:to-indigo-500/25 text-purple-200 text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:shadow-[0_0_20px_rgba(168,85,247,0.35)] cursor-pointer"
-            >
-              <Zap size={14} className="text-amber-400 fill-amber-400" />
-              <span>⚡ Demo Mode</span>
-            </button>
+                onClick={handleDemoLogin}
+                disabled={newAccountCountdown !== null}
+                type="button"
+                className={`w-full py-2.5 px-4 rounded-xl border flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                  dark
+                    ? 'border-purple-500/50 bg-gradient-to-r from-purple-500/15 via-indigo-500/15 to-purple-500/15 hover:border-purple-400 hover:from-purple-500/25 hover:to-indigo-500/25 text-purple-200 text-xs font-bold shadow-[0_0_15px_rgba(168,85,247,0.2)]'
+                    : 'border-2 border-black bg-slate-200 hover:bg-slate-300 text-black text-xs font-black shadow-sm'
+                }`}
+              >
+                <Zap size={14} className={dark ? 'text-amber-400 fill-amber-400' : 'text-black fill-black'} />
+                <span className={dark ? 'text-purple-200 font-bold' : 'text-black font-black tracking-wide'}>
+                  ⚡ Demo Mode
+                </span>
+              </button>
           </div>
         </div>
 
