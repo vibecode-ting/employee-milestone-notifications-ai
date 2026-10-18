@@ -4,6 +4,7 @@ import { collection, onSnapshot, addDoc } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 import { db, fns } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 import {
   Shield,
   Zap,
@@ -62,6 +63,7 @@ interface CopilotMsg {
 }
 
 function HRCopilotPanel() {
+  const { t } = useTranslation();
   const [messages, setMessages] = useState<CopilotMsg[]>([]);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
@@ -100,9 +102,9 @@ function HRCopilotPanel() {
           <Bot size={18} />
         </div>
         <div>
-          <h3 className="text-sm font-bold text-slate-800 dark:text-white">HR Copilot</h3>
+          <h3 className="text-sm font-bold text-slate-800 dark:text-white">{t('HR Copilot')}</h3>
           <p className="text-[11px] text-slate-500 dark:text-zinc-400">
-            Gemini function calling · tenant-scoped roster & milestone tools
+            {t('Gemini function calling · tenant-scoped roster & milestone tools')}
           </p>
         </div>
       </div>
@@ -110,7 +112,7 @@ function HRCopilotPanel() {
       <div className="space-y-3 max-h-[340px] overflow-y-auto pr-1">
         {messages.length === 0 && (
           <p className="text-xs text-slate-400 py-6 text-center">
-            Try: “How many birthdays are coming up in the next 30 days?” or “Show everyone in Engineering.”
+            {t('Try: "How many birthdays are coming up in the next 30 days?" or "Show everyone in Engineering."')}
           </p>
         )}
         {messages.map((m, i) => (
@@ -142,7 +144,7 @@ function HRCopilotPanel() {
             </div>
           </div>
         ))}
-        {busy && <p className="text-[11px] text-slate-400 animate-pulse">Copilot is thinking…</p>}
+        {busy && <p className="text-[11px] text-slate-400 animate-pulse">{t('Copilot is thinking…')}</p>}
       </div>
 
       <div className="flex gap-2 pt-1 border-t border-slate-100 dark:border-zinc-800">
@@ -150,7 +152,7 @@ function HRCopilotPanel() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && send()}
-          placeholder="Ask about headcount, upcoming milestones, or a department…"
+          placeholder={t('Ask about headcount, upcoming milestones, or a department…')}
           className="glass-input text-xs flex-1 py-2"
           disabled={busy}
         />
@@ -159,7 +161,7 @@ function HRCopilotPanel() {
           disabled={busy || !input.trim()}
           className="btn-primary text-xs px-3 py-2 flex items-center gap-1.5 disabled:opacity-50"
         >
-          <Send size={13} /> Ask
+          <Send size={13} /> {t('Ask')}
         </button>
       </div>
     </div>
@@ -167,6 +169,7 @@ function HRCopilotPanel() {
 }
 
 export default function AdminDashboard() {
+  const { t } = useTranslation();
   const { appUser } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -335,16 +338,16 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-2 mb-1">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              System Healthy
+              {t('System Healthy')}
             </span>
-            <span className="text-xs text-slate-400">· Checked {lastRefreshed}</span>
+            <span className="text-xs text-slate-400">· {t('Checked')} {lastRefreshed}</span>
           </div>
           <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2.5">
             <Shield className="text-corp-blue dark:text-gold-500" size={26} />
-            Admin Control Center
+            {t('Admin Control Center')}
           </h1>
           <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">
-            Platform monitoring, multi-tenant subscription quotas, and operational tools.
+            {t('Platform monitoring, multi-tenant subscription quotas, and operational tools.')}
           </p>
         </div>
 
@@ -353,17 +356,17 @@ export default function AdminDashboard() {
             onClick={handleRefresh}
             disabled={loading}
             className="btn-secondary text-xs flex items-center gap-1.5 py-2 px-3 cursor-pointer"
-            title="Refresh System Metrics"
+            title={t('Refresh System Metrics')}
           >
             <RefreshCw size={14} className={cn(loading && 'animate-spin')} />
-            Refresh
+            {t('Refresh')}
           </button>
           <button
             onClick={() => navigate('/admin/users')}
             className="btn-primary text-xs flex items-center gap-1.5 py-2 px-3.5"
           >
             <Users size={14} />
-            User Quotas
+            {t('User Quotas')}
             <ArrowRight size={13} />
           </button>
         </div>
@@ -375,7 +378,7 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-2">
             <AlertTriangle size={16} className="shrink-0 text-amber-500" />
             <span>
-              <strong>Active Broadcast Banner:</strong> {broadcastMessage}
+              <strong>{t('Active Broadcast Banner:')}</strong> {broadcastMessage}
             </span>
           </div>
           <button
@@ -386,7 +389,7 @@ export default function AdminDashboard() {
             }}
             className="px-2 py-0.5 text-[11px] font-bold rounded bg-amber-200 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 hover:opacity-80"
           >
-            Dismiss
+            {t('Dismiss')}
           </button>
         </div>
       )}
@@ -397,7 +400,7 @@ export default function AdminDashboard() {
         <div className="glass-panel p-5 relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
-              Total Platform Tenants
+              {t('Total Platform Tenants')}
             </span>
             <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-corp-blue dark:text-gold-400">
               <Users size={18} />
@@ -407,7 +410,7 @@ export default function AdminDashboard() {
             <span className="text-3xl font-extrabold text-slate-900 dark:text-white">{metrics.totalUsers}</span>
           </div>
           <p className="text-[11px] text-slate-400 dark:text-zinc-500 mt-2">
-            Free: {metrics.freeUsers} · Pro: {metrics.proUsers} · Ultra: {metrics.proPlusUsers}
+            {t('Free')}: {metrics.freeUsers} · {t('Pro')}: {metrics.proUsers} · {t('Ultra')}: {metrics.proPlusUsers}
           </p>
         </div>
 
@@ -415,7 +418,7 @@ export default function AdminDashboard() {
         <div className="glass-panel p-5 relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
-              Active Paid Subscribers
+              {t('Active Paid Subscribers')}
             </span>
             <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400">
               <Zap size={18} />
@@ -430,7 +433,7 @@ export default function AdminDashboard() {
             </span>
           </div>
           <p className="text-[11px] text-slate-400 dark:text-zinc-500 mt-2">
-            {metrics.proUsers} Pro · {metrics.proPlusUsers} Ultra
+            {metrics.proUsers} {t('Pro')} · {metrics.proPlusUsers} {t('Ultra')}
           </p>
         </div>
 
@@ -438,7 +441,7 @@ export default function AdminDashboard() {
         <div className="glass-panel p-5 relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
-              Tracked Employees
+              {t('Tracked Employees')}
             </span>
             <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400">
               <Activity size={18} />
@@ -448,7 +451,7 @@ export default function AdminDashboard() {
             <span className="text-3xl font-extrabold text-slate-900 dark:text-white">{metrics.totalEmployees}</span>
           </div>
           <p className="text-[11px] text-slate-400 dark:text-zinc-500 mt-2">
-            Active milestone records
+            {t('Active milestone records')}
           </p>
         </div>
 
@@ -456,7 +459,7 @@ export default function AdminDashboard() {
         <div className="glass-panel p-5 relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
-              System Administrators
+              {t('System Administrators')}
             </span>
             <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400">
               <Shield size={18} />
@@ -466,7 +469,7 @@ export default function AdminDashboard() {
             <span className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">{metrics.adminUsers}</span>
           </div>
           <p className="text-[11px] text-slate-400 dark:text-zinc-500 mt-2">
-            Full platform privileges
+            {t('Full platform privileges')}
           </p>
         </div>
       </div>
@@ -479,12 +482,12 @@ export default function AdminDashboard() {
             <div>
               <h2 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
                 <Server size={18} className="text-corp-blue dark:text-gold-500" />
-                Infrastructure & Gateway Health
+                {t('Infrastructure & Gateway Health')}
               </h2>
-              <p className="text-xs text-slate-500 dark:text-zinc-400">Live operational telemetry across platform services</p>
+              <p className="text-xs text-slate-500 dark:text-zinc-400">{t('Live operational telemetry across platform services')}</p>
             </div>
             <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-              <CheckCircle2 size={14} /> 100% Uptime
+              <CheckCircle2 size={14} /> {t('100% Uptime')}
             </span>
           </div>
 
@@ -522,49 +525,49 @@ export default function AdminDashboard() {
           {/* Plan Distribution Bar */}
           <div className="pt-4 border-t border-slate-200/60 dark:border-zinc-800">
             <div className="flex items-center justify-between text-xs font-semibold mb-2">
-              <span className="text-slate-700 dark:text-zinc-300">Subscription Breakdown</span>
-              <span className="text-slate-400">{metrics.totalUsers} accounts</span>
+              <span className="text-slate-700 dark:text-zinc-300">{t('Subscription Breakdown')}</span>
+              <span className="text-slate-400">{metrics.totalUsers} {t('accounts')}</span>
             </div>
             {/* Visual Stacked Bar */}
             <div className="h-3 w-full rounded-full bg-slate-100 dark:bg-zinc-800 flex overflow-hidden">
               <div
                 style={{ width: `${(metrics.freeUsers / metrics.totalUsers) * 100}%` }}
                 className="bg-slate-400 dark:bg-zinc-600 transition-all"
-                title={`Free Users: ${metrics.freeUsers}`}
+                title={`${t('Free')}: ${metrics.freeUsers}`}
               />
               <div
                 style={{ width: `${(metrics.proUsers / metrics.totalUsers) * 100}%` }}
                 className="bg-corp-blue dark:bg-gold-500 transition-all"
-                title={`Pro Users: ${metrics.proUsers}`}
+                title={`${t('Pro')}: ${metrics.proUsers}`}
               />
               <div
                 style={{ width: `${(metrics.proPlusUsers / metrics.totalUsers) * 100}%` }}
                 className="bg-purple-600 transition-all"
-                title={`Ultra Users: ${metrics.proPlusUsers}`}
+                title={`${t('Ultra')}: ${metrics.proPlusUsers}`}
               />
               <div
                 style={{ width: `${(metrics.adminUsers / metrics.totalUsers) * 100}%` }}
                 className="bg-emerald-500 transition-all"
-                title={`Admins: ${metrics.adminUsers}`}
+                title={`${t('Admin')}: ${metrics.adminUsers}`}
               />
             </div>
             {/* Legend */}
             <div className="flex flex-wrap items-center gap-4 mt-3 text-xs">
               <span className="flex items-center gap-1 text-slate-600 dark:text-zinc-400">
                 <span className="w-2.5 h-2.5 rounded-full bg-slate-400 dark:bg-zinc-600" />
-                Free ({metrics.freeUsers})
+                {t('Free')} ({metrics.freeUsers})
               </span>
               <span className="flex items-center gap-1 text-slate-600 dark:text-zinc-400">
                 <span className="w-2.5 h-2.5 rounded-full bg-corp-blue dark:bg-gold-500" />
-                Pro ({metrics.proUsers})
+                {t('Pro')} ({metrics.proUsers})
               </span>
               <span className="flex items-center gap-1 text-slate-600 dark:text-zinc-400">
                 <span className="w-2.5 h-2.5 rounded-full bg-purple-600" />
-                Ultra ({metrics.proPlusUsers})
+                {t('Ultra')} ({metrics.proPlusUsers})
               </span>
               <span className="flex items-center gap-1 text-slate-600 dark:text-zinc-400">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                Admin ({metrics.adminUsers})
+                {t('Admin')} ({metrics.adminUsers})
               </span>
             </div>
           </div>
@@ -576,9 +579,9 @@ export default function AdminDashboard() {
             <div>
               <h2 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
                 <Cpu size={18} className="text-purple-600 dark:text-purple-400" />
-                Admin Operations
+                {t('Admin Operations')}
               </h2>
-              <p className="text-xs text-slate-500 dark:text-zinc-400">Direct platform controls and tools</p>
+              <p className="text-xs text-slate-500 dark:text-zinc-400">{t('Direct platform controls and tools')}</p>
             </div>
           </div>
 
@@ -586,7 +589,7 @@ export default function AdminDashboard() {
           <form onSubmit={handleSaveBroadcast} className="space-y-2 pt-1" id="sent-notifications">
             <div className="flex items-center justify-between">
               <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300">
-                Sent Notifications (System Announcement Banner)
+                {t('Sent Notifications (System Announcement Banner)')}
               </label>
               <button
                 type="button"
@@ -594,23 +597,23 @@ export default function AdminDashboard() {
                 className="text-[11px] font-bold text-corp-blue dark:text-gold-400 hover:underline flex items-center gap-1 cursor-pointer"
               >
                 <Radio size={12} />
-                <span>Manage History</span>
+                <span>{t('Manage History')}</span>
               </button>
             </div>
             <input
               type="text"
               value={broadcastDraft}
               onChange={(e) => setBroadcastDraft(e.target.value)}
-              placeholder="e.g. Maintenance scheduled for Sunday 02:00..."
+              placeholder={t('e.g. Maintenance scheduled for Sunday 02:00...')}
               className="glass-input text-xs w-full py-1.5 px-2.5"
             />
             <div className="flex items-center justify-between">
-              <span className="text-[10px] text-slate-400">Broadcasts to all logged-in users</span>
+              <span className="text-[10px] text-slate-400">{t('Broadcasts to all logged-in users')}</span>
               <button
                 type="submit"
                 className="px-2.5 py-1 rounded-lg bg-corp-blue text-white dark:bg-gold-500 dark:text-zinc-950 font-bold text-xs hover:opacity-90 transition-opacity cursor-pointer"
               >
-                {broadcastSaved ? 'Saved!' : 'Publish Banner'}
+                {broadcastSaved ? t('Saved!') : t('Publish Banner')}
               </button>
             </div>
           </form>
@@ -624,9 +627,9 @@ export default function AdminDashboard() {
               <div>
                 <div className="font-bold text-purple-700 dark:text-purple-300 flex items-center gap-1.5">
                   <MessageSquare size={13} />
-                  <span>Feedback Review</span>
+                  <span>{t('Feedback Review')}</span>
                 </div>
-                <div className="text-[10px] text-slate-400">Triage user suggestions, bug reports & telemetry</div>
+                <div className="text-[10px] text-slate-400">{t('Triage user suggestions, bug reports & telemetry')}</div>
               </div>
               <ArrowRight size={14} className="text-purple-500" />
             </button>
@@ -638,46 +641,46 @@ export default function AdminDashboard() {
               <div>
                 <div className="font-semibold text-slate-800 dark:text-zinc-200 flex items-center gap-1.5">
                   <Radio size={13} className="text-corp-blue dark:text-gold-400" />
-                  <span>Sent Notifications Manager</span>
+                  <span>{t('Sent Notifications Manager')}</span>
                 </div>
-                <div className="text-[10px] text-slate-400">Dispatch, toggle & review announcement banners</div>
+                <div className="text-[10px] text-slate-400">{t('Dispatch, toggle & review announcement banners')}</div>
               </div>
               <ArrowRight size={14} className="text-slate-400" />
             </button>
 
             <button
               onClick={() => navigate('/admin/users')}
-              className="w-full text-left p-2.5 rounded-lg border border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-900 transition-colors flex items-center justify-between text-xs"
+              className="w-full text-left p-2.5 rounded-lg border border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-900 transition-colors flex items-center justify-between text-xs cursor-pointer"
             >
               <div>
-                <div className="font-semibold text-slate-800 dark:text-zinc-200">Manage Tenant Quotas</div>
-                <div className="text-[10px] text-slate-400">Inspect user employee limits and plan tiers</div>
+                <div className="font-semibold text-slate-800 dark:text-zinc-200">{t('Manage Tenant Quotas')}</div>
+                <div className="text-[10px] text-slate-400">{t('Inspect user employee limits and plan tiers')}</div>
               </div>
               <ArrowRight size={14} className="text-slate-400" />
             </button>
 
             <button
               onClick={() => {
-                alert('Database cache cleared and real-time subscription pools re-synced.');
+                alert(t('Database cache cleared and real-time subscription pools re-synced.'));
               }}
-              className="w-full text-left p-2.5 rounded-lg border border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-900 transition-colors flex items-center justify-between text-xs"
+              className="w-full text-left p-2.5 rounded-lg border border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-900 transition-colors flex items-center justify-between text-xs cursor-pointer"
             >
               <div>
-                <div className="font-semibold text-slate-800 dark:text-zinc-200">Flush Client Caches</div>
-                <div className="text-[10px] text-slate-400">Clear stale localStorage & auth cache</div>
+                <div className="font-semibold text-slate-800 dark:text-zinc-200">{t('Flush Client Caches')}</div>
+                <div className="text-[10px] text-slate-400">{t('Clear stale localStorage & auth cache')}</div>
               </div>
               <RefreshCw size={13} className="text-slate-400" />
             </button>
 
             <button
               onClick={() => {
-                alert('Triggered dry-run milestone check. 0 failures detected across SMTP & Webhooks.');
+                alert(t('Triggered dry-run milestone check. 0 failures detected across SMTP & Webhooks.'));
               }}
-              className="w-full text-left p-2.5 rounded-lg border border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-900 transition-colors flex items-center justify-between text-xs"
+              className="w-full text-left p-2.5 rounded-lg border border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-900 transition-colors flex items-center justify-between text-xs cursor-pointer"
             >
               <div>
-                <div className="font-semibold text-slate-800 dark:text-zinc-200">Test Notification Dispatch</div>
-                <div className="text-[10px] text-slate-400">Simulate daily milestone cron job</div>
+                <div className="font-semibold text-slate-800 dark:text-zinc-200">{t('Test Notification Dispatch')}</div>
+                <div className="text-[10px] text-slate-400">{t('Simulate daily milestone cron job')}</div>
               </div>
               <Mail size={13} className="text-slate-400" />
             </button>
@@ -691,9 +694,9 @@ export default function AdminDashboard() {
           <div>
             <h2 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
               <Activity size={18} className="text-emerald-500" />
-              Administrative Audit Log
+              {t('Administrative Audit Log')}
             </h2>
-            <p className="text-xs text-slate-500 dark:text-zinc-400">Recent security, quota, and authentication events</p>
+            <p className="text-xs text-slate-500 dark:text-zinc-400">{t('Recent security, quota, and authentication events')}</p>
           </div>
           <button
             onClick={() => {
@@ -705,17 +708,17 @@ export default function AdminDashboard() {
               a.download = `audit-log-${new Date().toISOString().slice(0, 10)}.csv`;
               a.click();
             }}
-            className="btn-secondary text-xs flex items-center gap-1.5 py-1.5 px-3"
+            className="btn-secondary text-xs flex items-center gap-1.5 py-1.5 px-3 cursor-pointer"
           >
             <FileSpreadsheet size={13} />
-            Export Audit Log
+            {t('Export Audit Log')}
           </button>
         </div>
 
         <div className="divide-y divide-slate-100 dark:divide-zinc-800/80">
           {auditLogs.length === 0 ? (
             <div className="py-4 text-center text-xs text-slate-400">
-              No administrative events logged yet. Role upgrades and system actions will appear here.
+              {t('No administrative events logged yet. Role upgrades and system actions will appear here.')}
             </div>
           ) : (
             auditLogs.map((log) => (

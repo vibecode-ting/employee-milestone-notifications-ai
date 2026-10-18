@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   X, MessageSquare, Bug, Lightbulb, Sparkles,
   ExternalLink, Search, Clock, Laptop,
@@ -14,6 +15,7 @@ interface FeedbackReviewModalProps {
 }
 
 export function FeedbackReviewModal({ isOpen, onClose }: FeedbackReviewModalProps) {
+  const { t } = useTranslation();
   const [feedbacks, setFeedbacks] = useState<FeedbackItem[]>(() => {
     try {
       const stored = JSON.parse(localStorage.getItem('app_feedbacks_list') || '[]');
@@ -166,14 +168,14 @@ export function FeedbackReviewModal({ isOpen, onClose }: FeedbackReviewModalProp
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-bold text-slate-800 dark:text-white">
-                  Admin Feedback Review
+                  {t('Admin Feedback Review')}
                 </h2>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/15 text-purple-600 dark:text-purple-400 font-mono">
-                  {feedbacks.length} Submissions
+                  {t('{{count}} Submissions', { count: feedbacks.length })}
                 </span>
               </div>
               <p className="text-xs text-slate-500 dark:text-zinc-400">
-                Direct triage pipeline • User submissions with diagnostic telemetry
+                {t('Direct triage pipeline • User submissions with diagnostic telemetry')}
               </p>
             </div>
           </div>
@@ -190,10 +192,10 @@ export function FeedbackReviewModal({ isOpen, onClose }: FeedbackReviewModalProp
           {/* Category Chips */}
           <div className="flex items-center gap-1.5 flex-wrap">
             {[
-              { id: 'all', label: 'All', count: feedbacks.length },
-              { id: 'bug', label: 'Bugs', count: feedbacks.filter((f) => f.category === 'bug').length },
-              { id: 'feature', label: 'Features', count: feedbacks.filter((f) => f.category === 'feature').length },
-              { id: 'improvement', label: 'Improvements', count: feedbacks.filter((f) => f.category === 'improvement').length },
+              { id: 'all', label: t('All'), count: feedbacks.length },
+              { id: 'bug', label: t('Bugs'), count: feedbacks.filter((f) => f.category === 'bug').length },
+              { id: 'feature', label: t('Features'), count: feedbacks.filter((f) => f.category === 'feature').length },
+              { id: 'improvement', label: t('Improvements'), count: feedbacks.filter((f) => f.category === 'improvement').length },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -219,7 +221,7 @@ export function FeedbackReviewModal({ isOpen, onClose }: FeedbackReviewModalProp
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search feedback or user..."
+              placeholder={t('Search feedback or user...')}
               className="w-full text-xs py-1.5 pl-8 pr-3 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 text-slate-800 dark:text-zinc-200 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-corp-blue"
             />
           </div>
@@ -230,7 +232,7 @@ export function FeedbackReviewModal({ isOpen, onClose }: FeedbackReviewModalProp
           {filteredFeedbacks.length === 0 ? (
             <div className="text-center py-12 text-slate-400 dark:text-zinc-500">
               <MessageSquare size={36} className="mx-auto mb-2 opacity-40" />
-              <p className="text-sm font-medium">No feedback items match your filter</p>
+              <p className="text-sm font-medium">{t('No feedback items match your filter')}</p>
             </div>
           ) : (
             filteredFeedbacks.map((f) => {
@@ -258,7 +260,7 @@ export function FeedbackReviewModal({ isOpen, onClose }: FeedbackReviewModalProp
                         }`}
                       >
                         {isBug ? <Bug size={11} /> : isFeature ? <Lightbulb size={11} /> : <Sparkles size={11} />}
-                        <span>{f.category}</span>
+                        <span>{t(f.category)}</span>
                       </span>
 
                       <span className="text-[11px] text-slate-400 flex items-center gap-1 font-mono">
@@ -283,7 +285,7 @@ export function FeedbackReviewModal({ isOpen, onClose }: FeedbackReviewModalProp
                               : 'text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 bg-slate-100 dark:bg-zinc-800'
                           }`}
                         >
-                          {s}
+                          {t(s)}
                         </button>
                       ))}
                     </div>
@@ -304,7 +306,7 @@ export function FeedbackReviewModal({ isOpen, onClose }: FeedbackReviewModalProp
                       {f.userRole && <GeminiBadge role={f.userRole as any} size="sm" />}
                       {f.isDemo && (
                         <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 font-medium">
-                          Demo User
+                          {t('Demo User')}
                         </span>
                       )}
                     </div>
@@ -317,7 +319,7 @@ export function FeedbackReviewModal({ isOpen, onClose }: FeedbackReviewModalProp
                           className="text-[11px] font-medium text-slate-500 dark:text-zinc-400 hover:text-corp-blue dark:hover:text-gold-400 flex items-center gap-1 cursor-pointer"
                         >
                           <Laptop size={12} />
-                          <span>{expandedTelemetry[f.id] ? 'Hide Diagnostics' : 'Client Diagnostics'}</span>
+                          <span>{expandedTelemetry[f.id] ? t('Hide Diagnostics') : t('Client Diagnostics')}</span>
                         </button>
                       )}
 

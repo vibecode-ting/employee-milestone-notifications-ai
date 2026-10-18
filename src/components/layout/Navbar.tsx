@@ -161,13 +161,13 @@ export default function Navbar({
     ? [
         { to: '/', icon: Shield, label: t('Admin Dashboard') || 'Admin Dashboard' },
         { to: '/admin/users', icon: Users, label: t('User Management') },
-        { to: '/analytics', icon: BarChart2, label: 'BigQuery Analytics' },
+        { to: '/analytics', icon: BarChart2, label: t('BigQuery Analytics') },
         { to: '/settings', icon: Settings, label: t('Settings') },
       ]
     : [
         { to: '/', icon: LayoutDashboard, label: t('Dashboard') },
         { to: '/employees', icon: Users, label: t('Employees') },
-        { to: '/analytics', icon: BarChart2, label: 'Analytics' },
+        { to: '/analytics', icon: BarChart2, label: t('Analytics') },
         { to: '/settings', icon: Settings, label: t('Settings') },
       ];
 
@@ -241,8 +241,8 @@ export default function Navbar({
           <button
             type="button"
             onClick={onOpenCopilot}
-            title="HR Copilot"
-            aria-label="HR Copilot"
+            title={t('HR Copilot')}
+            aria-label={t('HR Copilot')}
             className={cn(
               'rounded-xl text-slate-600 hover:bg-slate-500/10 dark:text-zinc-400 dark:hover:bg-zinc-800/50 transition-all text-sm font-medium cursor-pointer flex items-center group',
               open
@@ -255,7 +255,7 @@ export default function Navbar({
             </div>
             {open && (
               <div className="flex items-center justify-between flex-1 min-w-0">
-                <span className="whitespace-nowrap font-semibold text-slate-700 dark:text-zinc-200">HR Copilot</span>
+                <span className="whitespace-nowrap font-semibold text-slate-700 dark:text-zinc-200">{t('HR Copilot')}</span>
                 <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 uppercase">
                   AI OCR
                 </span>
