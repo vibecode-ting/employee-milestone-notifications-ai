@@ -13,5 +13,3 @@ firestore-debug.log*
 tmp/
 *.tsbuildinfo
 
-# Local helper scripts
-# merge.bat
