@@ -1,5 +1,7 @@
 # HRChronicle AI — Intelligent HR Annual Date Notifications & Multilingual Workforce Copilot
 
+[![Live Demo](https://img.shields.io/badge/Live_App-myanmardev.web.app-00C853?logo=googlecloud&logoColor=white)](https://myanmardev.web.app)
+[![Submission Deck](https://img.shields.io/badge/Submission_Deck-Download_PDF-EA4335?logo=adobeacrobatreader&logoColor=white)](./HR_Chronicle_AI_Builder_Cup_2026_Submission.pdf)
 [![CI Build](https://github.com/vibecode-ting/employee-milestone-notifications-ai/actions/workflows/pr_check.yml/badge.svg)](https://github.com/vibecode-ting/employee-milestone-notifications-ai/actions)
 [![React](https://img.shields.io/badge/React-19.0-61dafb?logo=react&logoColor=black)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
@@ -10,6 +12,9 @@
 [![Firebase](https://img.shields.io/badge/Firebase-v10-ffca28?logo=firebase&logoColor=black)](https://firebase.google.com)
 
 A cloud-native, multi-tenant employee milestone tracking, recognition intelligence, and autonomous HR operations platform purpose-built for distributed teams across the Asia Pacific region.
+
+> 🌐 **Live Web Application**: **[https://myanmardev.web.app](https://myanmardev.web.app)**  
+> 📑 **AI Builder Cup 2026 Submission Deck**: **[HR_Chronicle_AI_Builder_Cup_2026_Submission.pdf](./HR_Chronicle_AI_Builder_Cup_2026_Submission.pdf)** *(Natively viewable on GitHub)*
 
 ---
 
@@ -22,7 +27,7 @@ Hybrid and distributed organizations across Asia Pacific face critical operation
 - **Administrative Overhead & Risk**: HR teams spend countless hours manually crafting cards, managing gift budgets, and dispatching announcements across fragmented communication channels (Email, Teams, Telegram).
 
 ### Solution Overview
-**Milestone** unifies roster intelligence, multimodal generative AI, and multi-channel delivery into a cohesive, high-performance platform:
+**HRChronicle AI** unifies roster intelligence, multimodal generative AI, and multi-channel delivery into a cohesive, high-performance platform:
 1. **Interactive 3D JAPAC Earth**: Visualizes cross-border workforce connectivity across 34 countries and territories with cinematic sunrise shaders and Great-Circle trajectories centered at the Singapore hub.
 2. **Universal AI Employee Copilot (`gemini-2.5-flash`)**: Context-aware assistant featuring tool-based function calling, multimodal OCR roster import from photo/PDF badges, Voice STT/TTS readouts, and interactive 2-step database mutation safeguards.
 3. **✨ GenAI Celebration Card Studio**: Generates personalized, culture-conscious recognition copy and renders high-resolution 1200x630 PNG celebration cards for zero-touch or instant multi-channel dispatch.
@@ -30,6 +35,46 @@ Hybrid and distributed organizations across Asia Pacific face critical operation
 5. **Multi-Currency OCR Checkout**: Frictionless payment workflows supporting global currencies and Myanmar local mobile wallets (KBZ Pay, Wave Pay, AYA Pay, CB Pay) backed by client-side receipt OCR verification.
 6. **Enterprise Admin Control Center**: Superuser monitoring, audit logs, tenant quota management, diagnostic telemetry feedback triage, and real-time announcement banners.
 7. **100% Multilingual Parity**: Complete coverage across 7 JAPAC business languages with 486 localized keys per language and 0 untranslated UI leaks.
+
+---
+
+## 📄 AI Builder Cup 2026 Submission Deck (PDF)
+
+The full hackathon presentation submission is packaged in the repository:
+
+[![AI Builder Cup 2026 Submission Deck Preview](screenshots/01_login.png)](./HR_Chronicle_AI_Builder_Cup_2026_Submission.pdf)
+
+> 💡 **Viewing the PDF in GitHub**:
+> - Click **[HR_Chronicle_AI_Builder_Cup_2026_Submission.pdf](./HR_Chronicle_AI_Builder_Cup_2026_Submission.pdf)** to view the presentation in GitHub's native interactive document viewer with full page navigation and zooming.
+> - Or download the raw PDF directly from the file page.
+
+---
+
+## 📸 Visual Showcase & Feature Tour
+
+| 3D Interactive JAPAC Earth & Login | ✨ GenAI Celebration Card Studio |
+| :---: | :---: |
+| ![Login & 3D Earth](screenshots/01_login.png) | ![GenAI Card Studio](screenshots/27_dashboard_ai_card_studio.png) |
+
+| Recognition Velocity Dashboard | 🤖 Universal HR Copilot (STT/TTS & Tools) |
+| :---: | :---: |
+| ![Dashboard](screenshots/02_dashboard.png) | ![Universal HR Copilot](screenshots/28_copilot_sidebar.png) |
+
+| Workforce Roster & Batch Actions | Dynamic Custom Columns Schema Manager (PLG) |
+| :---: | :---: |
+| ![Employees Table](screenshots/03_employees.png) | ![Custom Columns](screenshots/25_employees_custom_columns_modal.png) |
+
+| BigQuery HR Analytics & Retention Cohorts | Multi-Currency OCR Receipt Checkout |
+| :---: | :---: |
+| ![Analytics](screenshots/04_analytics.png) | ![Pricing Checkout](screenshots/34_pricing_payment_checkout.png) |
+
+| Enterprise Admin Operations & Telemetry | Multi-Tenant User Management & Quotas |
+| :---: | :---: |
+| ![Admin Operations](screenshots/07_admin_dashboard.png) | ![Admin Users](screenshots/08_admin_users.png) |
+
+| Light Theme Dashboard View | Light Theme Workforce Roster |
+| :---: | :---: |
+| ![Light Theme Dashboard](screenshots/39_dashboard_light_theme.png) | ![Light Theme Employees](screenshots/38_employees_light_theme.png) |
 
 ---
 
@@ -266,8 +311,8 @@ npm run build
 
 ## 🧪 Instant Demo & Sandbox Mode
 
-Evaluate the application instantly without configuring Firebase, cloud keys, or payment gateways:
-1. Navigate to the login page (`/login`).
+Evaluate the application live without configuring Firebase, cloud keys, or payment gateways:
+1. Open the live deployment at **[https://myanmardev.web.app](https://myanmardev.web.app)** (or local dev at `http://localhost:5180`).
 2. Click **"Demo Mode"** on the login card.
 3. You will immediately sign in with an **Admin** session with mock employees, upcoming celebrations, and operational telemetry.
 4. Open the **Tier Comparison Modal** from the Navbar or Pricing page and click **"⚡ Active Sandbox Demo"** to freely simulate switching between **Free**, **Pro**, and **Ultra** plans with zero credit card required!
