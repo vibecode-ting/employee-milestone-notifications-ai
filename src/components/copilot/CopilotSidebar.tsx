@@ -481,7 +481,7 @@ export function CopilotSidebar({
           <button
             type="button"
             onClick={() => setShowKeyModal(true)}
-            title={hasApiKey ? 'Gemini 2.0 Flash API Connected' : 'Configure Gemini API Key'}
+            title={hasApiKey ? 'Gemini Flash API Connected' : 'Configure Gemini API Key'}
             className={`px-2.5 py-1 rounded-xl text-[10px] font-bold flex items-center gap-1.5 transition-all cursor-pointer border ${
               hasApiKey
                 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20'
@@ -489,7 +489,7 @@ export function CopilotSidebar({
             }`}
           >
             <Key size={12} />
-            <span>{hasApiKey ? 'Gemini 2.0 Flash' : 'Set API Key'}</span>
+            <span>{hasApiKey ? 'Gemini Connected' : 'Set API Key'}</span>
           </button>
 
           <button
@@ -520,18 +520,18 @@ export function CopilotSidebar({
             </div>
 
             <p className="text-xs text-slate-300 leading-relaxed">
-              Enter your Google AI Studio API key to run live <strong>Gemini 2.0 Flash Multimodal Vision</strong> and personalized AI milestone greetings in local.
+              Enter your Google AI Studio API key to run live <strong>Gemini Multimodal Vision</strong> and personalized AI milestone greetings in local.
             </p>
 
             <div>
               <label className="block text-[11px] font-semibold text-slate-400 mb-1">
-                Gemini API Key (AIzaSy...)
+                Gemini API Key
               </label>
               <input
                 type="password"
                 value={apiKeyInput}
                 onChange={(e) => setApiKeyInput(e.target.value)}
-                placeholder="Paste AIzaSy key here..."
+                placeholder="Paste your Gemini API key here..."
                 className="w-full text-xs py-2 px-3 rounded-xl bg-slate-950 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-400 font-mono"
               />
             </div>
