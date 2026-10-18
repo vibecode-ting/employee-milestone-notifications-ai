@@ -653,10 +653,10 @@ export default function Login() {
   return (
     <div className="min-h-screen flex flex-col md:flex-row w-full bg-slate-950 relative selection:bg-sky-500 selection:text-white overflow-x-hidden">
       {/* =========================================================================
-          LEFT PANEL: Cinematic 3D JAPAC Network Globe (WebGL) - Exactly 50%
+          LEFT PANEL: Cinematic 3D JAPAC Network Globe (WebGL) - Exactly 60%
           ========================================================================= */}
       <div
-        className="w-full md:w-1/2 h-[420px] sm:h-[480px] md:h-screen md:min-h-screen relative overflow-hidden bg-slate-950 shrink-0 block"
+        className="w-full md:w-[60%] lg:w-[60%] h-[420px] sm:h-[480px] md:h-screen md:min-h-screen relative overflow-hidden bg-slate-950 shrink-0 block"
         onMouseEnter={() => {
           setIsPaused(true);
           markInteracting(12000);
@@ -789,22 +789,32 @@ export default function Login() {
       </div>
 
       {/* =========================================================================
-          RIGHT PANEL: Premium Authentication & Info Card (Tailwind) - Exactly 50%
+          RIGHT PANEL: Premium Authentication & Info Card (Tailwind) - Exactly 40%
           ========================================================================= */}
-      <div className="w-full md:w-1/2 flex flex-col justify-between p-5 sm:p-8 lg:p-10 shrink-0 bg-slate-950/95 text-slate-100 relative min-h-screen border-t md:border-t-0 md:border-l border-white/10">
+      <div className={`w-full md:w-[40%] lg:w-[40%] flex flex-col justify-between p-5 sm:p-8 lg:p-10 shrink-0 relative min-h-screen border-t md:border-t-0 md:border-l transition-colors duration-500 ${
+        dark
+          ? 'bg-slate-950/95 text-slate-100 border-white/10'
+          : 'bg-slate-50/95 text-slate-800 border-slate-200'
+      }`}>
         {/* Top-Right Utility Row: Language Selector & Orbital Sunrise/Sunset Toggle */}
         <div className="w-full flex items-center justify-end gap-2.5 mb-4 z-20">
           {/* Language Selector */}
-          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900/60 border border-white/10 backdrop-blur-md text-xs font-medium text-slate-300 hover:border-white/20 transition-colors">
-            <Globe size={13} className="text-slate-400 shrink-0" />
+          <div className={`h-9 flex items-center gap-1.5 px-3 rounded-lg border backdrop-blur-md text-xs font-medium transition-colors ${
+            dark
+              ? 'bg-slate-900/60 border-white/10 text-slate-300 hover:border-white/20'
+              : 'bg-white/80 border-slate-200 text-slate-700 hover:border-slate-300 shadow-sm'
+          }`}>
+            <Globe size={14} className={dark ? 'text-slate-400 shrink-0' : 'text-slate-500 shrink-0'} />
             <select
               value={i18n.language}
               onChange={(e) => handleLanguageChange(e.target.value)}
               aria-label={t('Language')}
-              className="bg-transparent text-xs text-slate-200 font-medium focus:outline-none cursor-pointer pr-1"
+              className={`bg-transparent text-xs font-medium focus:outline-none cursor-pointer pr-1 ${
+                dark ? 'text-slate-200' : 'text-slate-800'
+              }`}
             >
               {LOCALES.map((l) => (
-                <option key={l.code} value={l.code} className="bg-slate-900 text-slate-200">
+                <option key={l.code} value={l.code} className={dark ? 'bg-slate-900 text-slate-200' : 'bg-white text-slate-800'}>
                   {l.flag} {l.name}
                 </option>
               ))}
@@ -816,7 +826,11 @@ export default function Login() {
             onClick={toggleDark}
             type="button"
             aria-label={dark ? 'Sunrise Daylight Mode' : 'Sunset Night Mode'}
-            className="px-3 py-1.5 rounded-lg bg-slate-900/60 border border-white/10 backdrop-blur-md text-slate-300 hover:text-white hover:border-white/20 hover:bg-slate-800/80 transition-all flex items-center gap-1.5 text-xs font-medium cursor-pointer shadow-sm"
+            className={`h-9 px-3 rounded-lg border backdrop-blur-md transition-all flex items-center gap-1.5 text-xs font-medium cursor-pointer shadow-sm ${
+              dark
+                ? 'bg-slate-900/60 border-white/10 text-slate-300 hover:text-white hover:border-white/20 hover:bg-slate-800/80'
+                : 'bg-white/80 border-slate-200 text-slate-700 hover:text-slate-950 hover:border-slate-300 hover:bg-slate-100 shadow-sm'
+            }`}
             title={dark ? 'Toggle Sunrise (Light Mode)' : 'Toggle Sunset (Dark Mode)'}
           >
             {dark ? (
@@ -826,7 +840,7 @@ export default function Login() {
               </>
             ) : (
               <>
-                <Moon size={14} className="text-indigo-400" />
+                <Moon size={14} className="text-indigo-600" />
                 <span className="hidden sm:inline">Sunset</span>
               </>
             )}
@@ -834,22 +848,32 @@ export default function Login() {
         </div>
 
         {/* Center Single Auth Card */}
-        <div className="w-full max-w-md mx-auto my-auto p-6 sm:p-8 rounded-2xl backdrop-blur-xl bg-slate-900/40 border border-white/10 shadow-2xl relative overflow-hidden">
+        <div className={`w-full max-w-md mx-auto my-auto p-6 sm:p-8 rounded-2xl backdrop-blur-xl border shadow-2xl relative overflow-hidden transition-colors duration-500 ${
+          dark
+            ? 'bg-slate-900/40 border-white/10'
+            : 'bg-white/90 border-slate-200 shadow-slate-200/50'
+        }`}>
           {/* Brand Header with Glowing Gold Cake Icon */}
           <div className="flex items-center gap-3 mb-6">
             <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-400/20 to-orange-500/20 border border-amber-400/40 flex items-center justify-center text-amber-400 shadow-lg shadow-amber-500/20">
               <Cake size={24} className="text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
             </div>
             <div>
-              <span className="text-2xl font-black tracking-tight text-white flex items-center gap-1.5">
+              <span className={`text-2xl font-black tracking-tight flex items-center gap-1.5 ${
+                dark ? 'text-white' : 'text-slate-900'
+              }`}>
                 {t('HRChronicle AI')}
               </span>
-              <p className="text-[11px] text-slate-400 font-medium">{t('JAPAC Milestone Intelligence Network')}</p>
+              <p className={`text-[11px] font-medium ${
+                dark ? 'text-slate-400' : 'text-slate-500'
+              }`}>{t('JAPAC Milestone Intelligence Network')}</p>
             </div>
           </div>
 
           {/* Dual Tabs: Password vs Magic Link */}
-          <div className="flex rounded-xl bg-slate-950/60 border border-white/10 p-1 mb-6 text-xs font-semibold">
+          <div className={`flex rounded-xl border p-1 mb-6 text-xs font-semibold ${
+            dark ? 'bg-slate-950/60 border-white/10' : 'bg-slate-100 border-slate-200'
+          }`}>
             <button
               type="button"
               onClick={() => {
@@ -860,7 +884,7 @@ export default function Login() {
               className={`flex-1 py-2 rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 authMode === 'password'
                   ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-md shadow-blue-500/25 font-bold'
-                  : 'text-slate-400 hover:text-white'
+                  : dark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'
               }`}
             >
               <Lock size={13} />
@@ -876,7 +900,7 @@ export default function Login() {
               className={`flex-1 py-2 rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 authMode === 'magic-link'
                   ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-md shadow-blue-500/25 font-bold'
-                  : 'text-slate-400 hover:text-white'
+                  : dark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'
               }`}
             >
               <Mail size={13} />
@@ -909,7 +933,9 @@ export default function Login() {
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+              <label className={`block text-xs font-semibold uppercase tracking-wider mb-1.5 ${
+                dark ? 'text-slate-300' : 'text-slate-700'
+              }`}>
                 {t('Email')}
               </label>
               <input
@@ -920,7 +946,11 @@ export default function Login() {
                 disabled={loading || newAccountCountdown !== null}
                 onChange={(e) => setEmail(e.target.value)}
                 onFocus={() => markInteracting(30000)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/70 border border-white/15 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400 transition-all"
+                className={`w-full px-3.5 py-2.5 rounded-xl border text-sm focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400 transition-all ${
+                  dark
+                    ? 'bg-slate-950/70 border-white/15 text-white placeholder-slate-500'
+                    : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400'
+                }`}
                 placeholder="you@company.com"
               />
             </div>
@@ -928,7 +958,9 @@ export default function Login() {
             {authMode === 'password' ? (
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+                  <label className={`block text-xs font-semibold uppercase tracking-wider mb-1.5 ${
+                    dark ? 'text-slate-300' : 'text-slate-700'
+                  }`}>
                     {t('Password')}
                   </label>
                   <div className="relative">
@@ -940,13 +972,19 @@ export default function Login() {
                       disabled={loading || newAccountCountdown !== null}
                       onChange={(e) => setPassword(e.target.value)}
                       onFocus={() => markInteracting(30000)}
-                      className="w-full px-3.5 py-2.5 pr-10 rounded-xl bg-slate-950/70 border border-white/15 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400 transition-all"
+                      className={`w-full px-3.5 py-2.5 pr-10 rounded-xl border text-sm focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400 transition-all ${
+                        dark
+                          ? 'bg-slate-950/70 border-white/15 text-white placeholder-slate-500'
+                          : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400'
+                      }`}
                       placeholder="••••••••"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword((prev) => !prev)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+                      className={`absolute right-3 top-1/2 -translate-y-1/2 transition-colors cursor-pointer ${
+                        dark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-400 hover:text-slate-600'
+                      }`}
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -955,16 +993,24 @@ export default function Login() {
                 </div>
 
                 {/* Informative Blue/Indigo Beta Notice */}
-                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-blue-950/40 border border-blue-500/30 text-blue-200 text-xs leading-relaxed">
-                  <Info size={15} className="shrink-0 mt-0.5 text-sky-400" />
+                <div className={`flex items-start gap-2.5 p-3 rounded-xl border text-xs leading-relaxed ${
+                  dark
+                    ? 'bg-blue-950/40 border-blue-500/30 text-blue-200'
+                    : 'bg-blue-50 border-blue-200 text-blue-800'
+                }`}>
+                  <Info size={15} className="shrink-0 mt-0.5 text-sky-500" />
                   <span>Beta notice: Instant activation enabled. No email verification code needed.</span>
                 </div>
               </div>
             ) : (
               <div>
                 {/* Magic Link Notice */}
-                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-blue-950/40 border border-blue-500/30 text-blue-200 text-xs leading-relaxed">
-                  <Info size={15} className="shrink-0 mt-0.5 text-sky-400" />
+                <div className={`flex items-start gap-2.5 p-3 rounded-xl border text-xs leading-relaxed ${
+                  dark
+                    ? 'bg-blue-950/40 border-blue-500/30 text-blue-200'
+                    : 'bg-blue-50 border-blue-200 text-blue-800'
+                }`}>
+                  <Info size={15} className="shrink-0 mt-0.5 text-sky-500" />
                   <span>{t('Magic Link info')}</span>
                 </div>
               </div>
@@ -1005,10 +1051,12 @@ export default function Login() {
           {/* Clean Separator: or continue with */}
           <div className="relative my-5">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/10" />
+              <div className={`w-full border-t ${dark ? 'border-white/10' : 'border-slate-200'}`} />
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="bg-slate-900/90 px-3 text-slate-400 font-medium rounded-full">
+              <span className={`px-3 font-medium rounded-full ${
+                dark ? 'bg-slate-900/90 text-slate-400' : 'bg-white text-slate-500'
+              }`}>
                 {t('or continue with')}
               </span>
             </div>
@@ -1020,7 +1068,11 @@ export default function Login() {
               onClick={handleGoogleLogin}
               disabled={googleLoading || newAccountCountdown !== null}
               type="button"
-              className="w-full py-2.5 px-4 rounded-xl border border-white/15 bg-slate-950/60 hover:bg-slate-800/80 text-white text-xs font-semibold flex items-center justify-center gap-2.5 transition-all shadow-sm cursor-pointer disabled:opacity-50"
+              className={`w-full py-2.5 px-4 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2.5 transition-all shadow-sm cursor-pointer disabled:opacity-50 ${
+                dark
+                  ? 'border-white/15 bg-slate-950/60 hover:bg-slate-800/80 text-white'
+                  : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
+              }`}
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24">
                 <path
@@ -1056,22 +1108,26 @@ export default function Login() {
         </div>
 
         {/* Quotes & High-Value Footer */}
-        <div className="w-full max-w-md mx-auto mt-6 pt-5 border-t border-white/10 space-y-3 z-10 text-center sm:text-left">
+        <div className={`w-full max-w-md mx-auto mt-6 pt-5 border-t space-y-3 z-10 text-center sm:text-left ${
+          dark ? 'border-white/10' : 'border-slate-200'
+        }`}>
           {/* Title & Quote */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-slate-400">
-            <div className="flex items-center justify-center sm:justify-start gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-amber-400/90">
-              <Trophy size={13} className="text-amber-400" />
+            <div className="flex items-center justify-center sm:justify-start gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-amber-500/90">
+              <Trophy size={13} className="text-amber-500" />
               <span>AI BUILDER CUP 2026</span>
             </div>
-            <div className="text-xs italic text-slate-300 font-serif text-center sm:text-right">
+            <div className={`text-xs italic font-serif text-center sm:text-right ${
+              dark ? 'text-slate-300' : 'text-slate-600'
+            }`}>
               "Build in JAPAC, Build for the World"
             </div>
           </div>
 
           {/* Base Line Credit Links */}
           <div className="flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 pt-1 gap-2">
-            <span>Milestone v1.4 | Powered by JAPAC AI | © 2026</span>
-            <div className="flex items-center gap-3 text-slate-400">
+            <span>HRChronicle AI © 2026</span>
+            <div className={`flex items-center gap-3 ${dark ? 'text-slate-400' : 'text-slate-600'}`}>
               <a href="#privacy" onClick={(e) => e.preventDefault()} className="hover:text-slate-200 transition-colors">
                 Privacy
               </a>

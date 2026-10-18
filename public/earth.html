@@ -1148,13 +1148,16 @@
       container.style.cursor = 'grab';
     });
 
-    // Mouse wheel: Step countries (+1 / -1) with smooth throttle
+    // Mouse wheel: Step countries (+1 / -1) with smooth throttle and zoom adjustment
     let wheelThrottleTimer = null;
     let wheelAccumulator = 0;
     window.addEventListener('wheel', (e) => {
       e.preventDefault();
       notifyInteraction(true);
       wheelAccumulator += e.deltaY;
+
+      const zoomDelta = e.deltaY * 0.025;
+      targetCameraZ = Math.max(18, Math.min(48, targetCameraZ + zoomDelta));
 
       if (!wheelThrottleTimer) {
         wheelThrottleTimer = setTimeout(() => {
@@ -1171,10 +1174,6 @@
           wheelThrottleTimer = null;
         }, 160);
       }
-    }, { passive: false });
-      notifyInteraction(true);
-      const zoomDelta = e.deltaY * 0.025;
-      targetCameraZ = Math.max(18, Math.min(48, targetCameraZ + zoomDelta));
     }, { passive: false });
 
     // Double-click resets view to JAPAC overview

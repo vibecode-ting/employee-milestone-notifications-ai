@@ -509,7 +509,7 @@ const translation = {
   'Schedule celebration card for automatic dispatch': '排程自動發送慶祝卡片',
   'Dispatch celebration card immediately across employee channels': '立即向員工各渠道發送慶祝卡片',
 
-// HRChronicle AI Brand & Subtitle
+  // HRChronicle AI Brand & Subtitle
   'HRChronicle AI': 'HRChronicle AI',
   'Intelligent HR Annual Date Notifications & Multilingual Workforce Copilot': '智能 HR 年度關鍵日期通知與多語言跨國團隊 AI 副駕駛',
   'JAPAC Milestone Intelligence Network': 'JAPAC 里程碑智能感知網絡',
