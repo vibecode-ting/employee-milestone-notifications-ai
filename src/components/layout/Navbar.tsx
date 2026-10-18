@@ -4,7 +4,7 @@ import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import {
   LayoutDashboard, Users, Settings, Shield, Zap, Moon, Sun, LogOut, Pin, PinOff,
-  Bell, MessageSquare, BarChart2, Bot, Radio,
+  Bell, MessageSquare, BarChart2, Bot, Radio, Sparkles,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
@@ -212,16 +212,20 @@ export default function Navbar({
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 px-2 space-y-1 overflow-visible">
+        <nav className="flex-1 px-2 space-y-1.5 overflow-visible">
           {navItems.map(({ to, icon: Icon, label }) => (
             <NavLink
               key={to}
               to={to}
               end={to === '/'}
+              title={label}
               aria-label={label}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-sm font-medium',
+                  'rounded-xl transition-all text-sm font-medium flex items-center',
+                  open
+                    ? 'gap-3 px-3 py-2.5 w-full'
+                    : 'w-10 h-10 justify-center p-0 mx-auto',
                   isActive
                     ? 'bg-corp-blue/10 text-corp-blue dark:bg-cobalt-500/15 dark:text-cobalt-400 font-bold'
                     : 'text-slate-600 hover:bg-slate-500/10 dark:text-zinc-400 dark:hover:bg-zinc-800/50',
@@ -237,8 +241,14 @@ export default function Navbar({
           <button
             type="button"
             onClick={onOpenCopilot}
+            title="HR Copilot"
             aria-label="HR Copilot"
-            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-500/10 dark:text-zinc-400 dark:hover:bg-zinc-800/50 transition-all text-sm font-medium cursor-pointer group"
+            className={cn(
+              'rounded-xl text-slate-600 hover:bg-slate-500/10 dark:text-zinc-400 dark:hover:bg-zinc-800/50 transition-all text-sm font-medium cursor-pointer flex items-center group',
+              open
+                ? 'gap-3 w-full px-3 py-2.5'
+                : 'w-10 h-10 justify-center p-0 mx-auto'
+            )}
           >
             <div className="p-1 rounded-lg bg-gradient-to-tr from-cyan-500/20 to-indigo-500/20 text-cyan-600 dark:text-cyan-400 shrink-0 group-hover:scale-110 transition-transform">
               <Bot size={18} />
@@ -260,8 +270,14 @@ export default function Navbar({
               <button
                 type="button"
                 onClick={() => setShowSentNotifications(true)}
-                aria-label="Sent Notifications"
-                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-500/10 dark:text-zinc-400 dark:hover:bg-zinc-800/50 transition-all text-sm font-medium cursor-pointer"
+                title={t('Sent Notifications')}
+                aria-label={t('Sent Notifications')}
+                className={cn(
+                  'rounded-xl text-slate-600 hover:bg-slate-500/10 dark:text-zinc-400 dark:hover:bg-zinc-800/50 transition-all text-sm font-medium cursor-pointer flex items-center',
+                  open
+                    ? 'gap-3 w-full px-3 py-2.5'
+                    : 'w-10 h-10 justify-center p-0 mx-auto'
+                )}
               >
                 <Radio size={20} className="shrink-0 text-corp-blue dark:text-gold-400" />
                 {open && (
@@ -278,8 +294,14 @@ export default function Navbar({
               <button
                 type="button"
                 onClick={() => setShowFeedbackReview(true)}
-                aria-label="Feedback Review"
-                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-500/10 dark:text-zinc-400 dark:hover:bg-zinc-800/50 transition-all text-sm font-medium cursor-pointer"
+                title={t('Feedback Review')}
+                aria-label={t('Feedback Review')}
+                className={cn(
+                  'rounded-xl text-slate-600 hover:bg-slate-500/10 dark:text-zinc-400 dark:hover:bg-zinc-800/50 transition-all text-sm font-medium cursor-pointer flex items-center',
+                  open
+                    ? 'gap-3 w-full px-3 py-2.5'
+                    : 'w-10 h-10 justify-center p-0 mx-auto'
+                )}
               >
                 <MessageSquare size={20} className="shrink-0 text-purple-500 dark:text-purple-400" />
                 {open && (
@@ -301,9 +323,13 @@ export default function Navbar({
                 <button
                   type="button"
                   onClick={() => setShowNotifications(!showNotifications)}
+                  title={t('Notifications')}
                   aria-label={t('Notifications')}
                   className={cn(
-                    'flex items-center gap-3 w-full px-3 py-2.5 rounded-xl transition-all text-sm font-medium cursor-pointer',
+                    'rounded-xl transition-all text-sm font-medium cursor-pointer flex items-center',
+                    open
+                      ? 'gap-3 w-full px-3 py-2.5'
+                      : 'w-10 h-10 justify-center p-0 mx-auto',
                     showNotifications
                       ? 'bg-corp-blue/10 text-corp-blue dark:bg-cobalt-500/15 dark:text-cobalt-400 font-bold'
                       : 'text-slate-600 hover:bg-slate-500/10 dark:text-zinc-400 dark:hover:bg-zinc-800/50'
@@ -343,8 +369,14 @@ export default function Navbar({
               <button
                 type="button"
                 onClick={() => setShowFeedback(true)}
+                title={t('Feedback')}
                 aria-label={t('Feedback')}
-                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-500/10 dark:text-zinc-400 dark:hover:bg-zinc-800/50 transition-all text-sm font-medium cursor-pointer"
+                className={cn(
+                  'rounded-xl text-slate-600 hover:bg-slate-500/10 dark:text-zinc-400 dark:hover:bg-zinc-800/50 transition-all text-sm font-medium cursor-pointer flex items-center',
+                  open
+                    ? 'gap-3 w-full px-3 py-2.5'
+                    : 'w-10 h-10 justify-center p-0 mx-auto'
+                )}
               >
                 <MessageSquare size={20} className="shrink-0 text-amber-500 dark:text-amber-400" />
                 {open && <span className="whitespace-nowrap">{t('Feedback')}</span>}
@@ -409,49 +441,67 @@ export default function Navbar({
 
           {/* Demo Plan Switcher */}
           {isDemo && (
-            <div className={cn('rounded-xl border p-2 transition-all', 'bg-purple-500/10 border-purple-500/20')}>
-              <div className="flex items-center justify-between text-[11px] font-semibold text-purple-600 dark:text-purple-400 mb-1">
-                <span>{open ? 'Demo Plan' : 'Demo'}</span>
-                {open && <span className="text-[9px] uppercase tracking-wider font-mono bg-purple-500/20 px-1 py-0.5 rounded">1-Click</span>}
-              </div>
-              {open ? (
-                <div className="grid grid-cols-2 gap-1">
+            open ? (
+              <div className="rounded-xl border p-2.5 bg-purple-500/10 border-purple-500/25 transition-all">
+                <div className="flex items-center justify-between text-[11px] font-semibold text-purple-600 dark:text-purple-400 mb-2">
+                  <span className="flex items-center gap-1.5">
+                    <Sparkles size={12} />
+                    <span>Demo Sandbox</span>
+                  </span>
+                  <span className="text-[9px] uppercase tracking-wider font-mono bg-purple-500/20 text-purple-600 dark:text-purple-300 px-1.5 py-0.5 rounded-full font-bold">
+                    Switch Tier
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-1.5">
                   {(['user', 'pro', 'pro_plus', 'admin'] as const).map((r) => (
                     <button
                       key={r}
                       onClick={() => switchDemoPlan(r)}
                       className={cn(
-                        'px-1.5 py-1 text-xs rounded-md font-medium transition-all cursor-pointer text-center',
+                        'px-2 py-1 text-xs rounded-lg font-semibold transition-all cursor-pointer text-center',
                         appUser?.role === r
                           ? 'bg-purple-600 text-white shadow-xs font-bold'
-                          : 'text-purple-700 dark:text-purple-300 hover:bg-purple-500/20'
+                          : 'bg-white/60 dark:bg-zinc-800/60 text-purple-800 dark:text-purple-300 hover:bg-purple-500/20'
                       )}
                     >
                       {r === 'pro_plus' ? 'Ultra' : r === 'user' ? 'Free' : r.toUpperCase()}
                     </button>
                   ))}
                 </div>
-              ) : (
+              </div>
+            ) : (
+              <div className="flex justify-center py-0.5">
                 <button
                   onClick={() => {
                     const roles: Role[] = ['user', 'pro', 'pro_plus', 'admin'];
                     const next = roles[(roles.indexOf(appUser?.role || 'user') + 1) % roles.length];
                     switchDemoPlan(next);
                   }}
-                  title="Click to cycle Demo plan"
-                  className="w-full text-[10px] font-bold py-1 bg-purple-600 text-white rounded text-center cursor-pointer"
+                  title={`Current Demo Tier: ${appUser?.role === 'pro_plus' ? 'Ultra (Pro+)' : appUser?.role?.toUpperCase()} — Click to cycle tier`}
+                  className="w-10 h-10 rounded-xl flex flex-col items-center justify-center bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/30 text-purple-600 dark:text-purple-300 transition-all cursor-pointer shadow-xs group"
                 >
-                  {appUser?.role === 'pro_plus' ? 'U' : appUser?.role?.[0]?.toUpperCase()}
+                  <span className="text-[8px] font-mono font-bold uppercase tracking-tighter text-purple-500 dark:text-purple-400 leading-none">
+                    DEMO
+                  </span>
+                  <span className="text-[10px] font-extrabold text-purple-700 dark:text-white mt-0.5 leading-none group-hover:scale-110 transition-transform">
+                    {appUser?.role === 'pro_plus' ? 'PRO+' : appUser?.role === 'user' ? 'FREE' : appUser?.role?.toUpperCase()}
+                  </span>
                 </button>
-              )}
-            </div>
+              </div>
+            )
           )}
 
           {/* Dark mode — showing current condition */}
           <button
             onClick={toggleDark}
+            title={dark ? t('Dark Mode') : t('Light Mode')}
             aria-label={dark ? t('Dark Mode') : t('Light Mode')}
-            className="flex items-center gap-3 w-full px-3 py-2 rounded-xl text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all text-sm cursor-pointer"
+            className={cn(
+              'rounded-xl text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all text-sm cursor-pointer flex items-center',
+              open
+                ? 'w-full px-3 py-2 gap-3'
+                : 'w-10 h-10 justify-center p-0 mx-auto'
+            )}
           >
             {dark ? <Moon size={20} className="shrink-0 text-indigo-400" /> : <Sun size={20} className="shrink-0 text-amber-500" />}
             {open && <span>{dark ? t('Dark Mode') : t('Light Mode')}</span>}
@@ -460,30 +510,61 @@ export default function Navbar({
           {/* Language */}
           <button
             onClick={cycleLocale}
+            title={`${t('Language')}: ${LOCALES.find((l) => l.code === i18n.language)?.name || i18n.language}`}
             aria-label={t('Language')}
-            className="flex items-center gap-3 w-full px-3 py-2 rounded-xl text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all text-sm cursor-pointer"
+            className={cn(
+              'rounded-xl text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all text-sm cursor-pointer flex items-center',
+              open
+                ? 'w-full px-3 py-2 gap-3'
+                : 'w-10 h-10 justify-center p-0 mx-auto'
+            )}
           >
-            <span className="text-lg shrink-0">{currentFlag()}</span>
-            {open && <span>{t('Language')}: <span className="font-semibold text-slate-800 dark:text-zinc-200">{LOCALES.find((l) => l.code === i18n.language)?.name || i18n.language}</span></span>}
+            <span className="text-base shrink-0 leading-none">{currentFlag()}</span>
+            {open && (
+              <span className="truncate">
+                {t('Language')}: <span className="font-semibold text-slate-800 dark:text-zinc-200">{LOCALES.find((l) => l.code === i18n.language)?.name || i18n.language}</span>
+              </span>
+            )}
           </button>
 
           {/* Upgrade — free users only */}
           {appUser?.role === 'user' && (
-            <button
-              onClick={() => navigate('/pricing')}
-              aria-label={t('Upgrade to PRO')}
-              className="w-full px-3 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-sm font-semibold hover:opacity-90 transition-all flex items-center gap-3"
-            >
-              <Zap size={20} className="shrink-0" />
-              {open && <span>{t('Upgrade to PRO')}</span>}
-            </button>
+            <div className={open ? 'w-full' : 'flex justify-center'}>
+              <button
+                onClick={() => navigate('/pricing')}
+                title={t('Upgrade to PRO')}
+                aria-label={t('Upgrade to PRO')}
+                className={cn(
+                  'rounded-xl bg-gradient-to-r from-purple-500 via-indigo-600 to-purple-600 text-white font-semibold hover:opacity-90 transition-all shadow-md shadow-purple-500/20 cursor-pointer flex items-center',
+                  open
+                    ? 'w-full px-3.5 py-2.5 gap-2.5 text-xs justify-between'
+                    : 'w-10 h-10 justify-center p-0'
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <Zap size={18} className="shrink-0 fill-current text-amber-300" />
+                  {open && <span>{t('Upgrade to PRO')}</span>}
+                </div>
+                {open && (
+                  <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">
+                    PRO
+                  </span>
+                )}
+              </button>
+            </div>
           )}
 
           {/* Sign out */}
           <button
             onClick={signOut}
+            title={t('Sign Out')}
             aria-label={t('Sign Out')}
-            className="flex items-center gap-3 w-full px-3 py-2 rounded-xl text-red-500 hover:bg-red-500/10 transition-all text-sm"
+            className={cn(
+              'rounded-xl text-red-500 hover:bg-red-500/10 transition-all text-sm cursor-pointer flex items-center',
+              open
+                ? 'w-full px-3 py-2 gap-3'
+                : 'w-10 h-10 justify-center p-0 mx-auto'
+            )}
           >
             <LogOut size={20} className="shrink-0" />
             {open && <span>{t('Sign Out')}</span>}

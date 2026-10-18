@@ -149,6 +149,18 @@ export interface CopilotDiff {
   confirmedStep2?: boolean;
 }
 
+export interface OcrCandidate {
+  name: string;
+  department: string;
+  role?: string;
+  email: string;
+  phone?: string;
+  dob: string;
+  joinedDate: string;
+  location?: string;
+  confidence?: number;
+}
+
 export interface CopilotMessage {
   id: string;
   role: 'user' | 'assistant';
@@ -157,6 +169,9 @@ export interface CopilotMessage {
   diff?: CopilotDiff;
   source?: 'text' | 'voice' | 'ocr';
   imageDataUrl?: string;
+  ocrCandidates?: OcrCandidate[];
+  imported?: boolean;
+  model?: string;
 }
 
 export interface FeedbackItem {
@@ -181,4 +196,5 @@ export interface FeedbackItem {
   createdAt: string;
   githubDispatched?: boolean;
 }
+
 
