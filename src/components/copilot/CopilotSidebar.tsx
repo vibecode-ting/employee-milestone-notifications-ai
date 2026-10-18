@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   X, Send, Sparkles, Mic, MicOff, Volume2, Upload, AlertTriangle,
@@ -28,6 +29,7 @@ export function CopilotSidebar({
   employees,
   onOpenCardStudio: _onOpenCardStudio,
 }: CopilotSidebarProps) {
+  const { t, i18n } = useTranslation();
   const { appUser, isDemo } = useAuth();
   const [messages, setMessages] = useState<CopilotMessage[]>([
     {
@@ -79,7 +81,18 @@ export function CopilotSidebar({
       const recognition = new SpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = true;
-      recognition.lang = 'en-US';
+      recognition.lang =
+        i18n.language === 'ja'
+          ? 'ja-JP'
+          : i18n.language === 'ko'
+          ? 'ko-KR'
+          : i18n.language.startsWith('zh')
+          ? 'zh-TW'
+          : i18n.language === 'vn'
+          ? 'vi-VN'
+          : i18n.language === 'mm'
+          ? 'my-MM'
+          : 'en-US';
 
       recognition.onstart = () => setIsListening(true);
       recognition.onend = () => setIsListening(false);
@@ -116,6 +129,18 @@ export function CopilotSidebar({
     window.speechSynthesis.cancel();
     const cleanText = text.replace(/[*#_`]/g, '');
     const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang =
+      i18n.language === 'ja'
+        ? 'ja-JP'
+        : i18n.language === 'ko'
+        ? 'ko-KR'
+        : i18n.language.startsWith('zh')
+        ? 'zh-TW'
+        : i18n.language === 'vn'
+        ? 'vi-VN'
+        : i18n.language === 'mm'
+        ? 'my-MM'
+        : 'en-US';
     utterance.rate = 1.05;
     window.speechSynthesis.speak(utterance);
   };
@@ -133,7 +158,7 @@ export function CopilotSidebar({
         const userMsg: CopilotMessage = {
           id: `ocr-req-${Date.now()}`,
           role: 'user',
-          content: `📷 Uploaded roster document: ${file.name}`,
+          content: t('Uploaded roster document: {{name}}', { name: file.name }),
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           source: 'ocr',
           imageDataUrl: dataUrl,
@@ -359,9 +384,9 @@ export function CopilotSidebar({
       const successMsg: CopilotMessage = {
         id: `import-success-${Date.now()}`,
         role: 'assistant',
-        content: `🎉 **Successfully imported ${newEmployees.length} employee(s) into your roster!**\n\n${newEmployees
+        content: `${t('Successfully imported {{count}} employee(s) into your roster!', { count: newEmployees.length })}\n\n${newEmployees
           .map((e) => `• **${e.name}** (${e.department}) • Joined: ${e.joinedDate}`)
-          .join('\n')}\n\nYour dashboard incoming milestones and active headcount have been updated automatically.`,
+          .join('\n')}\n\n${t('Your dashboard incoming milestones and active headcount have been updated automatically.', 'Your dashboard incoming milestones and active headcount have been updated automatically.')}`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       setMessages((prev) => [...prev, successMsg]);
@@ -393,6 +418,7 @@ export function CopilotSidebar({
         employees,
         conversationHistory: messages.map((m) => ({ role: m.role, content: m.content })),
         userName: appUser?.email?.split('@')[0] || 'Team Member',
+        language: i18n.language,
       });
 
       const botMsg: CopilotMessage = {
@@ -480,12 +506,12 @@ export function CopilotSidebar({
           </div>
           <div>
             <h2 className="text-sm font-bold text-white flex items-center gap-2">
-              <span>Employee Copilot</span>
+              <span>{t('Employee Copilot')}</span>
               <span className="text-[9px] font-mono uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">
-                Safe CRUD
+                {t('Safe CRUD')}
               </span>
             </h2>
-            <p className="text-[11px] text-slate-400">Natural language roster & milestone assistant</p>
+            <p className="text-[11px] text-slate-400">{t('Natural language roster & milestone assistant')}</p>
           </div>
         </div>
 
@@ -493,7 +519,7 @@ export function CopilotSidebar({
           <button
             type="button"
             onClick={() => setShowKeyModal(true)}
-            title={hasApiKey ? 'Gemini Flash API Connected' : 'Configure Gemini API Key'}
+            title={hasApiKey ? t('Gemini Flash API Connected') : t('Configure Gemini API Key')}
             className={`px-2.5 py-1 rounded-xl text-[10px] font-bold flex items-center gap-1.5 transition-all cursor-pointer border ${
               hasApiKey
                 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20'
@@ -501,7 +527,7 @@ export function CopilotSidebar({
             }`}
           >
             <Key size={12} />
-            <span>{hasApiKey ? 'Gemini Connected' : 'Set API Key'}</span>
+            <span>{hasApiKey ? t('Gemini Connected') : t('Set API Key')}</span>
           </button>
 
           <button
@@ -520,7 +546,7 @@ export function CopilotSidebar({
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div className="flex items-center gap-2 text-white font-bold text-sm">
                 <Key size={16} className="text-indigo-400" />
-                <span>Gemini API Key Settings</span>
+                <span>{t('Gemini API Key Settings')}</span>
               </div>
               <button
                 type="button"
@@ -532,18 +558,18 @@ export function CopilotSidebar({
             </div>
 
             <p className="text-xs text-slate-300 leading-relaxed">
-              Enter your Google AI Studio API key to run live <strong>Gemini Multimodal Vision</strong> and personalized AI milestone greetings in local.
+              {t('Enter your Google AI Studio API key to run live Gemini Multimodal Vision and personalized AI milestone greetings in local.')}
             </p>
 
             <div>
               <label className="block text-[11px] font-semibold text-slate-400 mb-1">
-                Gemini API Key
+                {t('Gemini API Key')}
               </label>
               <input
                 type="password"
                 value={apiKeyInput}
                 onChange={(e) => setApiKeyInput(e.target.value)}
-                placeholder="Paste your Gemini API key here..."
+                placeholder={t('Paste your Gemini API key here...')}
                 className="w-full text-xs py-2 px-3 rounded-xl bg-slate-950 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-400 font-mono"
               />
             </div>
@@ -560,7 +586,7 @@ export function CopilotSidebar({
                   }}
                   className="px-3 py-1.5 rounded-lg text-xs text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
                 >
-                  Clear Key
+                  {t('Clear Key')}
                 </button>
               )}
               <button
@@ -568,14 +594,14 @@ export function CopilotSidebar({
                 onClick={() => setShowKeyModal(false)}
                 className="px-3 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 transition-colors cursor-pointer"
               >
-                Cancel
+                {t('Cancel')}
               </button>
               <button
                 type="button"
                 onClick={handleSaveApiKey}
                 className="px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-colors shadow-sm cursor-pointer"
               >
-                Save & Connect
+                {t('Save & Connect')}
               </button>
             </div>
           </div>
@@ -602,7 +628,7 @@ export function CopilotSidebar({
                 {m.source === 'voice' && (
                   <div className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-white/20 text-white mb-2 font-medium">
                     <Mic size={10} />
-                    <span>Voice Prompt</span>
+                    <span>{t('Voice Prompt')}</span>
                   </div>
                 )}
 
@@ -617,7 +643,7 @@ export function CopilotSidebar({
                   </div>
                 )}
 
-                <div className="whitespace-pre-wrap">{m.content}</div>
+                <div className="whitespace-pre-wrap">{m.id === 'welcome' ? t('Copilot Welcome Message') : m.content}</div>
 
                 {/* OCR Candidates Interactive Preview Card */}
                 {m.ocrCandidates && m.ocrCandidates.length > 0 && (
@@ -631,12 +657,12 @@ export function CopilotSidebar({
                           <div className="flex items-center justify-between gap-2">
                             <span className="font-bold text-white text-sm tracking-tight">{cand.name}</span>
                             <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 font-mono border border-cyan-500/30">
-                              {Math.round((cand.confidence || 0.95) * 100)}% Confidence
+                              {Math.round((cand.confidence || 0.95) * 100)}% {t('Confidence')}
                             </span>
                           </div>
 
                           <div className="text-[11px] text-slate-300 flex items-center gap-1.5">
-                            <span className="text-indigo-400 font-semibold">{cand.role || 'Team Member'}</span>
+                            <span className="text-indigo-400 font-semibold">{cand.role || t('Team Member')}</span>
                             <span>•</span>
                             <span className="text-slate-400">{cand.department}</span>
                             {cand.location && (
@@ -648,8 +674,8 @@ export function CopilotSidebar({
                           </div>
 
                           <div className="text-[10px] text-slate-400 grid grid-cols-2 gap-1 pt-1.5 border-t border-slate-800">
-                            <div>🎂 DOB: <span className="text-slate-200 font-mono">{cand.dob}</span></div>
-                            <div>🏆 Joined: <span className="text-slate-200 font-mono">{cand.joinedDate}</span></div>
+                            <div>🎂 {t('DOB:')} <span className="text-slate-200 font-mono">{cand.dob}</span></div>
+                            <div>🏆 {t('Joined:')} <span className="text-slate-200 font-mono">{cand.joinedDate}</span></div>
                             <div className="col-span-2 truncate">✉️ {cand.email}</div>
                           </div>
                         </div>
@@ -660,7 +686,7 @@ export function CopilotSidebar({
                     {m.imported ? (
                       <div className="p-2.5 rounded-xl bg-emerald-950/80 border border-emerald-500/50 text-emerald-300 flex items-center justify-center gap-2 text-xs font-bold shadow-xs">
                         <CheckCircle2 size={16} />
-                        <span>Imported into Roster! ✓</span>
+                        <span>{t('Imported into Roster! ✓')}</span>
                       </div>
                     ) : (
                       <button
@@ -669,7 +695,7 @@ export function CopilotSidebar({
                         className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/25 transition-all cursor-pointer border border-emerald-400/40"
                       >
                         <Sparkles size={14} />
-                        <span>Import {m.ocrCandidates.length} Candidate(s) into Roster</span>
+                        <span>{t('Import {{count}} Candidate(s) into Roster', { count: m.ocrCandidates.length })}</span>
                       </button>
                     )}
                   </div>
@@ -680,7 +706,7 @@ export function CopilotSidebar({
                   <div className="mt-3 p-3 rounded-xl bg-slate-900 border border-amber-500/40 text-slate-200 space-y-2.5">
                     <div className="flex items-center gap-2 text-amber-400 font-bold text-xs">
                       <AlertTriangle size={15} />
-                      <span>Action Confirmation Required</span>
+                      <span>{t('Action Confirmation Required')}</span>
                     </div>
 
                     <div className="text-[11px] text-slate-300">
@@ -708,7 +734,7 @@ export function CopilotSidebar({
                       {m.diff.confirmedStep2 ? (
                         <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-xs py-1">
                           <Check size={14} />
-                          <span>Action executed & committed safely!</span>
+                          <span>{t('Action executed & committed safely!')}</span>
                         </div>
                       ) : !m.diff.confirmedStep1 ? (
                         <button
@@ -716,13 +742,13 @@ export function CopilotSidebar({
                           onClick={() => handleConfirmStep1(m.id)}
                           className="w-full py-1.5 px-3 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
                         >
-                          <span>Review & Confirm Action</span>
+                          <span>{t('Review & Confirm Action')}</span>
                           <ArrowRight size={12} />
                         </button>
                       ) : (
                         <div className="space-y-1.5 animate-in zoom-in-95 duration-150">
                           <div className="text-[10px] text-red-300 font-medium">
-                            ⚠️ Step 2: Are you sure? This writes directly to the database.
+                            {t('⚠️ Step 2: Are you sure? This writes directly to the database.')}
                           </div>
                           <button
                             type="button"
@@ -730,7 +756,7 @@ export function CopilotSidebar({
                             className="w-full py-1.5 px-3 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-red-600/30"
                           >
                             <UserCheck size={13} />
-                            <span>Yes, I'm Sure (Commit Mutation)</span>
+                            <span>{t("Yes, I'm Sure (Commit Mutation)")}</span>
                           </button>
                         </div>
                       )}
@@ -746,10 +772,10 @@ export function CopilotSidebar({
                       type="button"
                       onClick={() => speakText(m.content)}
                       className="hover:text-cyan-400 flex items-center gap-1 transition-colors cursor-pointer"
-                      title="Listen with TTS"
+                      title={t('Listen with TTS')}
                     >
                       <Volume2 size={12} />
-                      <span>Listen</span>
+                      <span>{t('Listen')}</span>
                     </button>
                   </div>
                 )}
@@ -761,14 +787,14 @@ export function CopilotSidebar({
         {loading && (
           <div className="flex items-center gap-2 p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60 text-slate-400 text-xs w-fit animate-pulse">
             <Sparkles size={14} className="text-indigo-400 animate-spin" />
-            <span>Copilot is reasoning with Gemini…</span>
+            <span>{t('Copilot is reasoning with Gemini…')}</span>
           </div>
         )}
 
         {ocrScanning && (
           <div className="flex items-center gap-2 p-3 rounded-2xl bg-indigo-950/60 border border-indigo-700/60 text-indigo-300 text-xs w-fit">
             <FileText size={14} className="animate-bounce" />
-            <span>Scanning image with Gemini Flash Multimodal Vision…</span>
+            <span>{t('Scanning image with Gemini Flash Multimodal Vision…')}</span>
           </div>
         )}
 
@@ -776,7 +802,7 @@ export function CopilotSidebar({
           <div className="flex items-center justify-between p-3 rounded-2xl bg-red-950/70 border border-red-500/50 text-red-200 text-xs animate-pulse">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" />
-              <span>Listening to voice prompt... {input ? `"${input}"` : 'Speak now'}</span>
+              <span>{t('Listening to voice prompt...')} {input ? `"${input}"` : t('Speak now')}</span>
             </div>
             <button
               type="button"
@@ -784,7 +810,7 @@ export function CopilotSidebar({
               disabled={!input.trim()}
               className="px-2.5 py-1 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold text-[11px] disabled:opacity-40 cursor-pointer"
             >
-              Send Voice
+              {t('Send Voice')}
             </button>
           </div>
         )}
@@ -808,28 +834,56 @@ export function CopilotSidebar({
         >
           <button
             type="button"
-            onClick={() => handleSendQuery('Who has an upcoming milestone this month?')}
+            onClick={() =>
+              handleSendQuery(
+                i18n.language === 'ja'
+                  ? '今月マイルストーンを迎えるメンバー'
+                  : i18n.language === 'ko'
+                  ? '이번 달 마일스톤 맞이한 직원'
+                  : i18n.language.startsWith('zh')
+                  ? '本月有哪些人生日或周年慶'
+                  : i18n.language === 'vn'
+                  ? 'Ai có sinh nhật hoặc kỷ niệm trong tháng này'
+                  : i18n.language === 'mm'
+                  ? 'ယခုလတွင် မွေးနေ့ သို့မဟုတ် နှစ်ပတ်လည်ရှိသူ'
+                  : 'Who has an upcoming milestone this month?'
+              )
+            }
             className="px-3 py-1 rounded-full bg-slate-800/90 hover:bg-slate-700 hover:text-white text-slate-300 border border-slate-700/80 whitespace-nowrap transition-all duration-150 cursor-pointer shadow-xs active:scale-95 flex items-center gap-1.5"
           >
             <span>🎂</span>
-            <span>Upcoming Milestones</span>
+            <span>{t('Upcoming Milestones')}</span>
           </button>
           <button
             type="button"
-            onClick={() => handleSendQuery('Show all engineers in Singapore')}
+            onClick={() =>
+              handleSendQuery(
+                i18n.language === 'ja'
+                  ? 'シンガポールのエンジニアを表示して'
+                  : i18n.language === 'ko'
+                  ? '싱가포르의 모든 엔지니어 목록 보여줘'
+                  : i18n.language.startsWith('zh')
+                  ? '顯示新加坡的所有工程師'
+                  : i18n.language === 'vn'
+                  ? 'Hiển thị tất cả kỹ sư tại Singapore'
+                  : i18n.language === 'mm'
+                  ? 'စင်ကာပူရှိ အင်ဂျင်နီယာများကို ပြပါ'
+                  : 'Show all engineers in Singapore'
+              )
+            }
             className="px-3 py-1 rounded-full bg-slate-800/90 hover:bg-slate-700 hover:text-white text-slate-300 border border-slate-700/80 whitespace-nowrap transition-all duration-150 cursor-pointer shadow-xs active:scale-95 flex items-center gap-1.5"
           >
             <span>🇸🇬</span>
-            <span>Singapore Engineers</span>
+            <span>{t('Singapore Engineers')}</span>
           </button>
           <button
             type="button"
             onClick={handleTestSampleDocument}
             className="px-3 py-1 rounded-full bg-cyan-950/70 hover:bg-cyan-900/90 text-cyan-300 border border-cyan-700/70 whitespace-nowrap transition-all duration-150 cursor-pointer flex items-center gap-1.5 shadow-sm active:scale-95 hover:border-cyan-500/80"
-            title="Generate multi-lingual roster canvas and run live Multimodal Vision OCR"
+            title={t('Generate multi-lingual roster canvas and run live Multimodal Vision OCR')}
           >
             <Sparkles size={12} className="text-cyan-400" />
-            <span>Try Sample Badge OCR</span>
+            <span>{t('Try Sample Badge OCR')}</span>
           </button>
           <button
             type="button"
@@ -837,7 +891,7 @@ export function CopilotSidebar({
             className="px-3 py-1 rounded-full bg-indigo-950/70 hover:bg-indigo-900/90 text-indigo-300 border border-indigo-700/70 whitespace-nowrap transition-all duration-150 cursor-pointer flex items-center gap-1.5 shadow-sm active:scale-95 hover:border-indigo-500/80"
           >
             <Upload size={12} className="text-indigo-400" />
-            <span>Upload Image / PDF</span>
+            <span>{t('Upload Image / PDF')}</span>
           </button>
         </div>
       </div>
@@ -863,7 +917,7 @@ export function CopilotSidebar({
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            title="Upload photo / ID card / PDF roster"
+            title={t('Upload photo / ID card / PDF roster')}
             className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <Upload size={18} />
@@ -872,7 +926,7 @@ export function CopilotSidebar({
           <button
             type="button"
             onClick={toggleListening}
-            title={isListening ? 'Stop listening' : 'Speak voice prompt (STT)'}
+            title={isListening ? t('Stop listening') : t('Speak voice prompt (STT)')}
             className={`p-2 rounded-xl transition-colors cursor-pointer ${
               isListening
                 ? 'bg-red-500 text-white animate-pulse'
@@ -886,7 +940,7 @@ export function CopilotSidebar({
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask Copilot or request an update..."
+            placeholder={t('Ask Copilot or request an update...')}
             className="flex-1 text-xs py-2 px-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
           />
 
