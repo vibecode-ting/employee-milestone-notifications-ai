@@ -167,7 +167,7 @@ export default function Dashboard({ onCountChange }: { onCountChange: (n: number
             className="px-3 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-indigo-600/25 transition-all cursor-pointer"
           >
             <Sparkles size={14} />
-            <span>Customize Card with AI</span>
+            <span>{t('AI Card Studio')}</span>
           </button>
 
           <button
@@ -175,7 +175,7 @@ export default function Dashboard({ onCountChange }: { onCountChange: (n: number
             className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition-all cursor-pointer shadow-xs"
           >
             <Bot size={14} className="text-cyan-400" />
-            <span>Ask Employee Copilot</span>
+            <span>{t('AI Copilot')}</span>
           </button>
 
           <button
@@ -183,7 +183,7 @@ export default function Dashboard({ onCountChange }: { onCountChange: (n: number
             className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition-all cursor-pointer shadow-xs"
           >
             <Upload size={14} className="text-emerald-400" />
-            <span>Import via OCR</span>
+            <span>{t('OCR Import')}</span>
           </button>
 
           <button
@@ -191,7 +191,7 @@ export default function Dashboard({ onCountChange }: { onCountChange: (n: number
             className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition-all cursor-pointer shadow-xs"
           >
             <BarChart2 size={14} className="text-amber-400" />
-            <span>BigQuery Analytics</span>
+            <span>{t('BigQuery Analytics')}</span>
           </button>
         </div>
       </div>
@@ -202,7 +202,7 @@ export default function Dashboard({ onCountChange }: { onCountChange: (n: number
         <div className="glass-panel p-5 border-l-4 border-l-pink-500 flex items-center justify-between">
           <div>
             <div className="text-xs font-medium text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
-              Birthdays (30 Days)
+              {t('Birthdays')} (30 Days)
             </div>
             <div className="text-2xl font-bold text-pink-600 dark:text-pink-400 mt-1 tabular">
               {birthdayCount}
@@ -220,13 +220,13 @@ export default function Dashboard({ onCountChange }: { onCountChange: (n: number
         <div className="glass-panel p-5 border-l-4 border-l-indigo-500 flex items-center justify-between">
           <div>
             <div className="text-xs font-medium text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
-              Anniversaries (30 Days)
+              {t('Anniversaries (30 Days)')}
             </div>
             <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-1 tabular">
               {anniversaryCount}
             </div>
             <div className="text-[11px] text-slate-400 mt-1">
-              Tenure milestones
+              {t('Tenure milestones')}
             </div>
           </div>
           <div className="p-3 rounded-xl bg-indigo-500/10 text-indigo-500">
@@ -238,14 +238,14 @@ export default function Dashboard({ onCountChange }: { onCountChange: (n: number
         <div className="glass-panel p-5 border-l-4 border-l-emerald-500 flex items-center justify-between">
           <div>
             <div className="text-xs font-medium text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
-              Recognition Velocity
+              {t('Recognition Velocity')}
             </div>
             <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 tabular">
               98.4%
             </div>
             <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1 mt-1">
               <TrendingUp size={12} />
-              <span>Sent on-time with AI cards</span>
+              <span>{t('Sent on-time with AI cards')}</span>
             </div>
           </div>
           <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-500">
@@ -257,13 +257,13 @@ export default function Dashboard({ onCountChange }: { onCountChange: (n: number
         <div className="glass-panel p-5 border-l-4 border-l-corp-blue dark:border-l-cobalt-500 flex items-center justify-between">
           <div>
             <div className="text-xs font-medium text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
-              Active JAPAC Roster
+              {t('Active JAPAC Roster')}
             </div>
             <div className="text-2xl font-bold text-corp-blue dark:text-cobalt-400 mt-1 tabular">
               {employees.length}
             </div>
             <div className="text-[11px] text-slate-400 mt-1">
-              Employees synced
+              {t('Employees synced')}
             </div>
           </div>
           <div className="p-3 rounded-xl bg-corp-blue/10 dark:bg-cobalt-500/10 text-corp-blue dark:text-cobalt-400">
@@ -281,10 +281,10 @@ export default function Dashboard({ onCountChange }: { onCountChange: (n: number
             </div>
             <div>
               <h2 className="text-base font-bold text-slate-800 dark:text-white">
-                This Month's Incoming Milestones
+                {t("This Month's Incoming Milestones")}
               </h2>
               <p className="text-xs text-slate-500 dark:text-zinc-400">
-                Actionable celebration feed • One-click to generate Gemini personalized cards
+                {t('Actionable celebration feed • One-click to generate Gemini personalized cards')}
               </p>
             </div>
           </div>
@@ -293,14 +293,14 @@ export default function Dashboard({ onCountChange }: { onCountChange: (n: number
             onClick={() => navigate('/employees')}
             className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold hover:underline flex items-center gap-1"
           >
-            <span>View full roster</span>
+            <span>{t('View full roster')}</span>
             <ChevronRight size={14} />
           </button>
         </div>
 
         {milestones30.length === 0 ? (
           <div className="p-8 text-center bg-slate-50 dark:bg-zinc-900/40 rounded-xl border border-dashed border-slate-300 dark:border-zinc-800">
-            <p className="text-sm text-slate-500 dark:text-zinc-400">No upcoming milestones this month 🎉</p>
+            <p className="text-sm text-slate-500 dark:text-zinc-400">{t('No upcoming milestones this month 🎉')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -345,12 +345,12 @@ export default function Dashboard({ onCountChange }: { onCountChange: (n: number
                       {isBday ? (
                         <>
                           <Cake size={14} className="text-pink-500" />
-                          <span>Birthday Celebration ({m.employee.dob})</span>
+                          <span>{t('Birthday Celebration ({{date}})', { date: m.employee.dob })}</span>
                         </>
                       ) : (
                         <>
                           <Briefcase size={14} className="text-indigo-500" />
-                          <span>{m.years}-Year Anniversary ({m.employee.joinedDate})</span>
+                          <span>{t('{{years}}-Year Anniversary ({{date}})', { years: m.years, date: m.employee.joinedDate })}</span>
                         </>
                       )}
                     </div>
@@ -362,7 +362,7 @@ export default function Dashboard({ onCountChange }: { onCountChange: (n: number
                     className="w-full py-2 px-3 rounded-lg bg-indigo-600/10 hover:bg-indigo-600 text-indigo-600 hover:text-white dark:bg-indigo-500/15 dark:hover:bg-indigo-600 dark:text-indigo-300 dark:hover:text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-indigo-500/30 shadow-xs"
                   >
                     <Sparkles size={13} />
-                    <span>✨ Customize with Gen AI</span>
+                    <span>{t('✨ Customize with Gen AI')}</span>
                   </button>
                 </div>
               );
