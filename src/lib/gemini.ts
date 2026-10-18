@@ -87,6 +87,7 @@ interface GenerateCardParams {
   tone: CardTone;
   theme?: CardTheme;
   customNotes?: string;
+  achievements?: string;
   language?: string;
 }
 
@@ -94,7 +95,7 @@ interface GenerateCardParams {
 // 1. TONE-BASED PROMPT ENGINE & LOCAL FALLBACK TEMPLATES
 // ---------------------------------------------------------------------------
 
-const LOCAL_FALLBACKS: Record<CardTone, (e: Employee, type: string, years?: number, lang?: string) => { headline: string; message: string; quote: string }> = {
+const LOCAL_FALLBACKS: Record<CardTone, (e: Employee, type: string, years?: number, lang?: string, achievements?: string) => { headline: string; message: string; quote: string }> = {
   warm: (e, type, years, lang) => {
     if (lang === 'mm') {
       return {
@@ -274,6 +275,30 @@ const LOCAL_FALLBACKS: Record<CardTone, (e: Employee, type: string, years?: numb
       quote: '“Diverse perspectives unite to create harmonious achievements.”',
     };
   },
+
+  professional: (e, type, years, _lang, achievements) => ({
+    headline: type === 'BIRTHDAY' ? `Honoring ${e.name} on Their Special Day` : `Executive Commendation: ${years}-Year Milestone`,
+    message: type === 'BIRTHDAY'
+      ? `On behalf of leadership and the ${e.department} division, we extend our sincerest congratulations to ${e.name}. Your strategic contributions${achievements ? ` including ${achievements}` : ''} drive continuous innovation across our organization.`
+      : `Leadership proudly recognizes ${e.name} for achieving ${years} years of impactful service${achievements ? `, highlighted by ${achievements}` : ''}. Your dedication sets a benchmark for organizational excellence across Asia Pacific.`,
+    quote: '“Leadership and sustained commitment are the foundational pillars of enterprise achievement.”',
+  }),
+
+  celebratory: (e, type, years, _lang, achievements) => ({
+    headline: type === 'BIRTHDAY' ? `Happy Birthday, ${e.name}! 🎉` : `Cheers to ${years} Incredible Years with ${e.name}! 🌟`,
+    message: type === 'BIRTHDAY'
+      ? `Wishing you a day filled with joy, laughter, and high energy! Thank you for bringing warmth, kindness, and incredible dedication${achievements ? ` (such as ${achievements})` : ''} to ${e.department} every single day!`
+      : `Happy ${years}-year work anniversary! Your steadfast dedication, mentorship, and creative drive${achievements ? ` including ${achievements}` : ''} continue to inspire everyone across ${e.department}. We are truly lucky to have you on our team!`,
+    quote: '“True culture is built by the people who show up with heart every single day.”',
+  }),
+
+  visionary: (e, type, years, _lang, achievements) => ({
+    headline: type === 'BIRTHDAY' ? `Pioneering the Future: Happy Birthday, ${e.name}! 🚀` : `Shaping Tomorrow: ${years} Years of Vision with ${e.name}! 🌌`,
+    message: type === 'BIRTHDAY'
+      ? `To a visionary thinker and relentless innovator in ${e.department}: may your upcoming year unlock unprecedented breakthroughs${achievements ? `, building upon ${achievements}` : ''} and bold achievements!`
+      : `Celebrating ${years} years of transformative impact! Your visionary perspective${achievements ? `, demonstrated in ${achievements}` : ''}, challenges conventions and steers our JAPAC team toward extraordinary future milestones.`,
+    quote: '“The best way to predict the future is to create it together.”',
+  }),
 };
 
 // ---------------------------------------------------------------------------
@@ -287,13 +312,21 @@ export async function generatePersonalizedCard({
   tone,
   theme = 'sapphire',
   customNotes = '',
+  achievements = '',
   language = 'en',
 }: GenerateCardParams): Promise<GeneratedCard> {
-  const fallback = LOCAL_FALLBACKS[tone](employee, milestoneType, years, language);
+  const fallback = LOCAL_FALLBACKS[tone](employee, milestoneType, years, language, achievements);
   const apiKey = getGeminiApiKey();
 
   if (!apiKey) {
     // Return high quality offline fallback
+    let msg = fallback.message;
+    if (achievements && !msg.includes(achievements)) {
+      msg += ` Recent Highlights: ${achievements}.`;
+    }
+    if (customNotes) {
+      msg += `\n\nP.S. ${customNotes}`;
+    }
     return {
       id: `gen-card-${Date.now()}`,
       employeeName: employee.name,
@@ -302,7 +335,7 @@ export async function generatePersonalizedCard({
       tone,
       theme,
       headline: fallback.headline,
-      message: customNotes ? `${fallback.message}\n\nP.S. ${customNotes}` : fallback.message,
+      message: msg,
       quote: fallback.quote,
     };
   }
@@ -314,14 +347,15 @@ Generate a personalized celebration card with the following details:
 - Employee Name: ${employee.name}
 - Department: ${employee.department}
 - Milestone: ${milestoneType === 'BIRTHDAY' ? 'Birthday' : `${years}-Year Work Anniversary`}
-- Desired Tone: ${tone} (warm, executive, fun, or culturally localized)
+- Desired Tone: ${tone} (warm, executive, fun, professional, celebratory, visionary, or cultural)
 - Language Locale: ${language}
+- Recent Achievements: ${achievements || 'None specified'}
 - Additional Context / Custom Notes: ${customNotes || 'None'}
 
 Return ONLY a valid JSON object matching this schema (no markdown, no backticks):
 {
   "headline": "concise headline string",
-  "message": "2-3 sentences of heartwarming, personalized milestone text",
+  "message": "2-3 sentences of heartwarming, personalized milestone text reflecting tone and achievements",
   "quote": "short inspirational one-liner quote"
 }
 `;

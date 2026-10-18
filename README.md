@@ -1,4 +1,4 @@
-# Milestone — JAPAC Workforce Milestone & Recognition Intelligence
+# HRChronicle AI — Intelligent HR Annual Date Notifications & Multilingual Workforce Copilot
 
 [![CI Build](https://github.com/vibecode-ting/employee-milestone-notifications-ai/actions/workflows/pr_check.yml/badge.svg)](https://github.com/vibecode-ting/employee-milestone-notifications-ai/actions)
 [![React](https://img.shields.io/badge/React-19.0-61dafb?logo=react&logoColor=black)](https://react.dev)

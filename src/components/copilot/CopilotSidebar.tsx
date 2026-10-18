@@ -81,18 +81,16 @@ export function CopilotSidebar({
       const recognition = new SpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = true;
-      recognition.lang =
-        i18n.language === 'ja'
-          ? 'ja-JP'
-          : i18n.language === 'ko'
-          ? 'ko-KR'
-          : i18n.language.startsWith('zh')
-          ? 'zh-TW'
-          : i18n.language === 'vn'
-          ? 'vi-VN'
-          : i18n.language === 'mm'
-          ? 'my-MM'
-          : 'en-US';
+      const langMap: Record<string, string> = {
+        en: 'en-US',
+        mm: 'my-MM',
+        zh: 'zh-TW',
+        'zh-HK': 'zh-HK',
+        vn: 'vi-VN',
+        ja: 'ja-JP',
+        ko: 'ko-KR',
+      };
+      recognition.lang = langMap[i18n.language] || 'en-US';
 
       recognition.onstart = () => setIsListening(true);
       recognition.onend = () => setIsListening(false);

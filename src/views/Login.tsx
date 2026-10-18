@@ -23,15 +23,19 @@ import {
   Cake,
   Trophy,
   Award,
-  Gift,
-  PartyPopper,
-  Star,
-  BarChart3,
   ChevronLeft,
   ChevronRight,
   Eye,
   EyeOff,
   Zap,
+  Cpu,
+  Database,
+  Volume2,
+  Bot,
+  ShieldCheck,
+  FileSpreadsheet,
+  AlertTriangle,
+  Layers,
 } from 'lucide-react';
 
 // ---------- Slide components ----------
@@ -65,10 +69,10 @@ function Slide0({ iframeRef }: { iframeRef?: React.RefObject<HTMLIFrameElement |
           </div>
 
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight drop-shadow-xl bg-clip-text text-transparent bg-gradient-to-r from-white via-sky-100 to-sky-300">
-            Milestone Intelligence
+            HRChronicle AI
           </h1>
           <p className="text-slate-300 text-xs sm:text-sm drop-shadow leading-relaxed max-w-md mx-auto">
-            Real-time workforce recognition & automated celebration delivery across Asia Pacific.
+            Intelligent HR Annual Date Notifications & Multilingual Workforce Copilot
           </p>
         </div>
       </div>
@@ -79,41 +83,67 @@ function Slide0({ iframeRef }: { iframeRef?: React.RefObject<HTMLIFrameElement |
 function Slide1({ onSignIn, onInteract }: { onSignIn?: () => void; onInteract?: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center h-full px-6 sm:px-8 text-center max-w-lg mx-auto">
-      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/30 flex items-center justify-center text-3xl mb-5 shadow-lg shadow-amber-500/10 backdrop-blur-md">
-        🎂
+      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-medium mb-4 backdrop-blur-md">
+        <AlertTriangle size={13} />
+        <span>The JAPAC Enterprise Dilemma</span>
       </div>
-      <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2.5">Never miss a milestone</h2>
-      <p className="text-slate-400 text-sm sm:text-base mb-6 max-w-sm leading-relaxed">
-        Automated birthday and work anniversary notifications — delivered proactively before the day arrives.
+
+      <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2.5">
+        Scattered Dates & Forgotten Milestones
+      </h2>
+      <p className="text-slate-400 text-sm mb-6 max-w-md leading-relaxed">
+        When employee birthdays and work jubilees live in fragmented spreadsheets, critical dates get overlooked and cross-border teams feel detached.
       </p>
-      <div className="flex flex-col gap-2 w-full max-w-xs mb-6">
+
+      <div className="flex flex-col gap-2.5 w-full max-w-sm mb-6 text-left">
         {[
-          { name: 'Sarah Chen', event: 'Birthday', when: 'Tomorrow', icon: Cake, color: 'text-amber-400' },
-          { name: 'David Park', event: '5yr Anniversary', when: 'in 3d', icon: Trophy, color: 'text-blue-400' },
-          { name: 'Aung Myint', event: 'Birthday', when: 'in 7d', icon: Cake, color: 'text-amber-400' },
-        ].map((c) => {
-          const Icon = c.icon;
+          {
+            icon: FileSpreadsheet,
+            color: 'text-rose-400',
+            bg: 'bg-rose-500/10 border-rose-500/20',
+            title: '42% Milestones Overlooked',
+            desc: 'Legacy spreadsheets fail to alert leaders with sufficient lead time.',
+          },
+          {
+            icon: Globe,
+            color: 'text-amber-400',
+            bg: 'bg-amber-500/10 border-amber-500/20',
+            title: 'Cultural Tone Friction',
+            desc: 'Generic English templates lack nuance across 14 distinct JAPAC cultures.',
+          },
+          {
+            icon: Layers,
+            color: 'text-indigo-400',
+            bg: 'bg-indigo-500/10 border-indigo-500/20',
+            title: '15+ Hours Manual Overhead',
+            desc: 'HR teams waste hours drafting repetitive emails and cards manually.',
+          },
+        ].map((item, idx) => {
+          const Icon = item.icon;
           return (
             <div
-              key={c.name}
+              key={idx}
               onMouseEnter={() => onInteract?.()}
               onClick={() => onInteract?.()}
-              className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-900/80 border border-slate-800/80 text-xs backdrop-blur-md hover:border-slate-700/80 transition-colors cursor-pointer"
+              className="flex items-start gap-3 p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-xs backdrop-blur-md hover:border-slate-700 transition-colors cursor-pointer"
             >
-              <div className="flex items-center gap-2">
-                <Icon size={14} className={c.color} />
-                <span className="text-white font-medium">{c.name}</span>
+              <div className={`p-2 rounded-lg ${item.bg} border flex-shrink-0 mt-0.5`}>
+                <Icon size={16} className={item.color} />
               </div>
-              <span className="text-slate-400">{c.event}</span>
-              <span className="text-amber-400 font-semibold">{c.when}</span>
+              <div>
+                <h4 className="text-white font-semibold text-xs">{item.title}</h4>
+                <p className="text-slate-400 text-[11px] leading-relaxed mt-0.5">{item.desc}</p>
+              </div>
             </div>
           );
         })}
       </div>
-      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium">
-        <CheckCircle2 size={12} />
-        <span>100% On-Time Scheduled Delivery</span>
+
+      <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
+        <CheckCircle2 size={13} />
+        <span>Solved with Proactive AI Automation</span>
       </div>
+
       {onSignIn && (
         <button onClick={onSignIn} className="mt-5 md:hidden btn-primary text-xs py-2 px-5 rounded-lg">
           Sign In
@@ -126,34 +156,67 @@ function Slide1({ onSignIn, onInteract }: { onSignIn?: () => void; onInteract?: 
 function Slide2({ onSignIn, onInteract }: { onSignIn?: () => void; onInteract?: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center h-full px-6 sm:px-8 text-center max-w-lg mx-auto">
-      <div className="flex gap-4 sm:gap-6 mb-6">
+      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-400 text-xs font-medium mb-4 backdrop-blur-md">
+        <Zap size={13} />
+        <span>Zero-Touch Automation Engine</span>
+      </div>
+
+      <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2.5">
+        Proactive Omnichannel Delivery
+      </h2>
+      <p className="text-slate-400 text-sm mb-6 max-w-md leading-relaxed">
+        AI detects upcoming jubilees, drafts personalized cultural copy, and dispatches across all your enterprise communication channels automatically.
+      </p>
+
+      <div className="grid grid-cols-2 gap-3 w-full max-w-sm mb-6 text-left">
         {[
-          { icon: '📧', label: 'Email SMTP', desc: 'Direct Inbox', color: 'from-sky-500/20 to-blue-600/20 border-sky-500/30 text-sky-400' },
-          { icon: '💬', label: 'MS Teams', desc: 'Channel Webhooks', color: 'from-indigo-500/20 to-purple-600/20 border-indigo-500/30 text-indigo-400' },
-          { icon: '✈️', label: 'Telegram', desc: 'Instant Bot', color: 'from-cyan-500/20 to-teal-600/20 border-cyan-500/30 text-cyan-400' },
-        ].map((ch) => (
+          {
+            icon: '📧',
+            name: 'Email SMTP',
+            desc: 'Personalized inbox letters with responsive celebration card HTML.',
+            color: 'from-sky-500/20 to-blue-600/20 border-sky-500/30',
+          },
+          {
+            icon: '💬',
+            name: 'Google Chat',
+            desc: 'Instant space webhooks with interactive milestone card embeds.',
+            color: 'from-emerald-500/20 to-teal-600/20 border-emerald-500/30',
+          },
+          {
+            icon: '👥',
+            name: 'MS Teams',
+            desc: 'Rich adaptive cards delivered directly to team collaboration channels.',
+            color: 'from-indigo-500/20 to-purple-600/20 border-indigo-500/30',
+          },
+          {
+            icon: '✈️',
+            name: 'Telegram Bot',
+            desc: 'Instant mobile alerts with milestone badges for field & remote staff.',
+            color: 'from-cyan-500/20 to-sky-600/20 border-cyan-500/30',
+          },
+        ].map((ch, idx) => (
           <div
-            key={ch.label}
+            key={idx}
             onMouseEnter={() => onInteract?.()}
             onClick={() => onInteract?.()}
-            className="flex flex-col items-center gap-2 group cursor-pointer"
+            className={`p-3 rounded-xl bg-gradient-to-br ${ch.color} border bg-slate-900/60 backdrop-blur-md hover:scale-[1.02] transition-transform cursor-pointer`}
           >
-            <div className={`w-18 h-18 sm:w-20 sm:h-20 flex flex-col items-center justify-center rounded-2xl bg-gradient-to-br ${ch.color} border text-3xl shadow-lg backdrop-blur-md group-hover:scale-105 transition-transform`}>
-              {ch.icon}
-            </div>
-            <span className="text-slate-200 text-xs font-semibold">{ch.label}</span>
-            <span className="text-slate-500 text-[10px]">{ch.desc}</span>
+            <div className="text-xl mb-1.5">{ch.icon}</div>
+            <h4 className="text-white font-semibold text-xs">{ch.name}</h4>
+            <p className="text-slate-400 text-[10px] leading-relaxed mt-0.5">{ch.desc}</p>
           </div>
         ))}
       </div>
-      <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2.5">Notify everywhere</h2>
-      <p className="text-slate-400 text-sm sm:text-base mb-6 max-w-sm leading-relaxed">
-        Send milestone messages via Email, Microsoft Teams, or Telegram — with automated zero-touch delivery.
-      </p>
-      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-medium">
-        <Sparkles size={12} />
-        <span>Omnichannel Enterprise Dispatch</span>
+
+      <div className="flex items-center gap-3 text-xs text-slate-300 font-medium">
+        <span className="flex items-center gap-1.5">
+          <CheckCircle2 size={13} className="text-emerald-400" />
+          T-30d, T-7d, T-1d Lead Alerts
+        </span>
+        <span className="text-slate-600">•</span>
+        <span className="text-sky-400 font-semibold">100% Scheduled Delivery</span>
       </div>
+
       {onSignIn && (
         <button onClick={onSignIn} className="mt-5 md:hidden btn-primary text-xs py-2 px-5 rounded-lg">
           Sign In
@@ -164,172 +227,90 @@ function Slide2({ onSignIn, onInteract }: { onSignIn?: () => void; onInteract?: 
 }
 
 function Slide3({ onSignIn, onInteract }: { onSignIn?: () => void; onInteract?: () => void }) {
-  const [activeLang, setActiveLang] = useState(0);
-  const [langPaused, setLangPaused] = useState(false);
-
-  const japacLangs = [
-    {
-      code: 'us',
-      locale: 'en',
-      key: 'EN',
-      name: 'English',
-      native: 'English',
-      greeting: 'Happy Birthday, Alex! Wishing you an inspiring and successful year ahead! 🎂',
-      accent: 'border-blue-500/60 bg-blue-500/15 text-blue-300 shadow-blue-500/20',
-    },
-    {
-      code: 'mm',
-      locale: 'mm',
-      key: 'MM',
-      name: 'Myanmar',
-      native: 'မြန်မာ',
-      greeting: 'မင်္ဂလာပါ Alex၊ မွေးနေ့မှာ ပျော်ရွှင်ချမ်းမြေ့ပြီး စိတ်ချမ်းသာပါစေကြောင်း ဆုမွန်ကောင်းတောင်းအပ်ပါသည်။ 🎂',
-      accent: 'border-amber-500/60 bg-amber-500/15 text-amber-300 shadow-amber-500/20',
-    },
-    {
-      code: 'jp',
-      locale: 'ja',
-      key: 'JA',
-      name: 'Japanese',
-      native: '日本語',
-      greeting: 'Alexさん、お誕生日おめでとうございます！実り多き素晴らしい一年になりますように！ 🌸',
-      accent: 'border-rose-500/60 bg-rose-500/15 text-rose-300 shadow-rose-500/20',
-    },
-    {
-      code: 'kr',
-      locale: 'ko',
-      key: 'KO',
-      name: 'Korean',
-      native: '한국어',
-      greeting: 'Alex 님, 생일을 진심으로 축하드립니다! 올 한 해도 행복과 성공이 가득하시길 바랍니다! 🎉',
-      accent: 'border-indigo-500/60 bg-indigo-500/15 text-indigo-300 shadow-indigo-500/20',
-    },
-    {
-      code: 'tw',
-      locale: 'zh',
-      key: 'ZH',
-      name: 'Traditional',
-      native: '繁體中文',
-      greeting: '祝 Alex 生日快樂！感謝您的付出與努力，願新的一年萬事順遂、再創佳績！ 🏆',
-      accent: 'border-emerald-500/60 bg-emerald-500/15 text-emerald-300 shadow-emerald-500/20',
-    },
-    {
-      code: 'hk',
-      locale: 'zh-HK',
-      key: 'HK',
-      name: 'Hong Kong',
-      native: '粵語',
-      greeting: '祝 Alex 生日快樂！祝你工作順遂，身體健康，日日都咁開心！ 🎈',
-      accent: 'border-cyan-500/60 bg-cyan-500/15 text-cyan-300 shadow-cyan-500/20',
-    },
-    {
-      code: 'vn',
-      locale: 'vn',
-      key: 'VN',
-      name: 'Vietnamese',
-      native: 'Tiếng Việt',
-      greeting: 'Chúc mừng sinh nhật Alex! Chúc bạn luôn mạnh khỏe, hạnh phúc và gặt hái nhiều thành công! 🌟',
-      accent: 'border-red-500/60 bg-red-500/15 text-red-300 shadow-red-500/20',
-    },
-  ];
-
-  // Auto-cycle through languages for an engaging, dynamic preview
-  useEffect(() => {
-    if (langPaused) return;
-    const timer = setInterval(() => {
-      setActiveLang((prev) => (prev + 1) % japacLangs.length);
-    }, 2800);
-    return () => clearInterval(timer);
-  }, [langPaused, japacLangs.length]);
-
-  const current = japacLangs[activeLang];
-
   return (
     <div className="flex flex-col items-center justify-center h-full px-6 sm:px-8 text-center max-w-lg mx-auto">
-      {/* Top Header Badge */}
-      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-medium mb-4 backdrop-blur-md">
-        <Globe size={13} className="text-purple-400" />
-        <span>7 JAPAC Locales • 100% Native Parity</span>
+      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-medium mb-3 backdrop-blur-md">
+        <Sparkles size={13} />
+        <span>Google Cloud & Vertex AI Native</span>
       </div>
 
-      {/* Flag / Locale Selector Pills */}
-      <div
-        className="flex flex-wrap items-center justify-center gap-1.5 mb-5"
-        onMouseEnter={() => {
-          setLangPaused(true);
-          onInteract?.();
-        }}
-        onMouseLeave={() => setLangPaused(false)}
-      >
-        {japacLangs.map((lang, idx) => (
-          <button
-            key={lang.key}
-            type="button"
-            onClick={() => {
-              setActiveLang(idx);
-              setLangPaused(true);
-              onInteract?.();
-            }}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border transition-all cursor-pointer ${
-              activeLang === idx
-                ? 'border-purple-400 bg-purple-500/20 text-white scale-105 shadow-md shadow-purple-500/20'
-                : 'border-slate-800 bg-slate-900/60 text-slate-400 hover:text-slate-200 hover:border-slate-700'
-            }`}
-          >
-            <img
-              src={`https://flagcdn.com/w20/${lang.code}.png`}
-              alt={lang.name}
-              className="w-3.5 h-2.5 object-cover rounded-xs"
-            />
-            <span>{lang.key}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* Dynamic Celebration Card Preview */}
-      <div
-        onMouseEnter={() => {
-          setLangPaused(true);
-          onInteract?.();
-        }}
-        onMouseLeave={() => setLangPaused(false)}
-        className="w-full max-w-sm p-4 sm:p-5 rounded-2xl bg-slate-900/80 border border-slate-800/80 backdrop-blur-xl shadow-2xl mb-5 text-left relative overflow-hidden group cursor-pointer"
-      >
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center text-sm shadow-md">
-              🎂
-            </div>
-            <div>
-              <p className="text-xs font-bold text-white">Alex Wong</p>
-              <p className="text-[10px] text-slate-400">Software Engineer • Singapore</p>
-            </div>
-          </div>
-          <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 font-semibold">
-            Today
-          </span>
-        </div>
-        <p className="text-xs sm:text-sm text-slate-200 leading-relaxed min-h-[44px] transition-all">
-          {current.greeting}
-        </p>
-        <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400">
-          <span>Generated by Google Gemini 2.5 Flash</span>
-          <span className="text-purple-400 font-semibold">{current.native}</span>
-        </div>
-      </div>
-
-      <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2.5">
-        Culture-aware AI greetings
+      <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+        Google Cloud & AI Architecture
       </h2>
-      <p className="text-slate-400 text-sm sm:text-base mb-6 max-w-sm leading-relaxed">
-        Google Gemini AI crafts warm, personalized celebrations in 7 JAPAC languages with native cultural etiquette.
+      <p className="text-slate-400 text-xs sm:text-sm mb-5 max-w-md leading-relaxed">
+        Production-grade ecosystem orchestrating Google frontier AI for enterprise productivity.
       </p>
 
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 w-full max-w-md mb-5 text-left">
+        {[
+          {
+            icon: Sparkles,
+            name: 'Gemini 2.5 Flash',
+            desc: 'Cultural tone reasoning & localized celebration copy across 14 JAPAC locales.',
+            color: 'text-amber-400',
+            border: 'border-amber-500/20',
+          },
+          {
+            icon: Bot,
+            name: 'Vertex AI Agent',
+            desc: 'Autonomous HR Copilot with tool-use reasoning and natural language queries.',
+            color: 'text-sky-400',
+            border: 'border-sky-500/20',
+          },
+          {
+            icon: Volume2,
+            name: 'Cloud STT & TTS',
+            desc: 'Voice query transcription & neural audio greeting synthesizer in native tongues.',
+            color: 'text-purple-400',
+            border: 'border-purple-500/20',
+          },
+          {
+            icon: Award,
+            name: 'Imagen on Vertex',
+            desc: 'Dynamic personalized milestone certificate graphics & badge art generator.',
+            color: 'text-rose-400',
+            border: 'border-rose-500/20',
+          },
+          {
+            icon: Cpu,
+            name: 'Cloud Run & Firestore',
+            desc: 'Serverless multi-tenant elastic compute with sub-second real-time state sync.',
+            color: 'text-emerald-400',
+            border: 'border-emerald-500/20',
+          },
+          {
+            icon: Database,
+            name: 'BigQuery Telemetry',
+            desc: 'Tenure retention risk cohorts, 12-month budget forecast & morale radar index.',
+            color: 'text-cyan-400',
+            border: 'border-cyan-500/20',
+          },
+        ].map((svc, idx) => {
+          const Icon = svc.icon;
+          return (
+            <div
+              key={idx}
+              onMouseEnter={() => onInteract?.()}
+              onClick={() => onInteract?.()}
+              className={`p-2.5 rounded-xl bg-slate-900/80 border ${svc.border} backdrop-blur-md hover:border-slate-600 transition-all cursor-pointer`}
+            >
+              <div className="flex items-center gap-1.5 mb-1">
+                <Icon size={14} className={svc.color} />
+                <h4 className="text-white font-semibold text-[11px] truncate">{svc.name}</h4>
+              </div>
+              <p className="text-slate-400 text-[10px] leading-tight line-clamp-3">{svc.desc}</p>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 border border-slate-700/80 text-slate-300 text-[11px] font-medium">
+        <Cpu size={12} className="text-sky-400" />
+        <span>100% Google Cloud Native Infrastructure</span>
+      </div>
+
       {onSignIn && (
-        <button
-          onClick={onSignIn}
-          className="mt-5 md:hidden btn-primary text-xs py-2 px-5 rounded-lg"
-        >
+        <button onClick={onSignIn} className="mt-4 md:hidden btn-primary text-xs py-2 px-5 rounded-lg">
           Sign In
         </button>
       )}
@@ -338,87 +319,71 @@ function Slide3({ onSignIn, onInteract }: { onSignIn?: () => void; onInteract?: 
 }
 
 function Slide4({ onSignIn, onInteract }: { onSignIn?: () => void; onInteract?: () => void }) {
-  const weekData = [
-    { day: 'Mon', count: 3, height: 56, icon: Cake, label: '3 Birthdays', color: 'from-amber-400 to-amber-500', shadow: 'shadow-amber-500/25', iconColor: 'text-amber-400' },
-    { day: 'Tue', count: 5, height: 84, icon: Trophy, label: '5 Anniversaries', color: 'from-blue-500 to-indigo-500', shadow: 'shadow-blue-500/25', iconColor: 'text-blue-400' },
-    { day: 'Wed', count: 2, height: 44, icon: Gift, label: '2 Rewards', color: 'from-emerald-400 to-teal-500', shadow: 'shadow-emerald-500/25', iconColor: 'text-emerald-400' },
-    { day: 'Thu', count: 6, height: 96, icon: PartyPopper, label: '6 Celebrations', color: 'from-purple-500 to-pink-500', shadow: 'shadow-purple-500/25', iconColor: 'text-purple-400' },
-    { day: 'Fri', count: 4, height: 72, icon: Award, label: '4 Jubilees', color: 'from-blue-400 to-cyan-500', shadow: 'shadow-cyan-500/25', iconColor: 'text-cyan-400' },
-    { day: 'Sat', count: 1, height: 28, icon: Star, label: '1 Spotlight', color: 'from-amber-300 to-orange-400', shadow: 'shadow-orange-500/25', iconColor: 'text-orange-400' },
-    { day: 'Sun', count: 2, height: 38, icon: Sparkles, label: '2 Kudos', color: 'from-rose-400 to-pink-500', shadow: 'shadow-rose-500/25', iconColor: 'text-rose-400' },
-  ];
-
   return (
     <div className="flex flex-col items-center justify-center h-full px-6 sm:px-8 text-center max-w-lg mx-auto">
-      {/* Velocity Badge */}
-      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-medium mb-6 backdrop-blur-md">
-        <BarChart3 size={13} className="text-blue-400" />
-        <span>7-Day Recognition Velocity</span>
-      </div>
-
-      {/* 7-Day Visual Activity Chart with Icons & Bars */}
-      <div className="w-full p-4 sm:p-5 rounded-2xl bg-slate-900/80 border border-slate-800/80 backdrop-blur-xl shadow-2xl mb-6">
-        <div className="flex items-end justify-between gap-2 sm:gap-3 h-36 pt-2 pb-1">
-          {weekData.map((item, i) => {
-            const Icon = item.icon;
-            return (
-              <div
-                key={i}
-                onMouseEnter={() => onInteract?.()}
-                onClick={() => onInteract?.()}
-                className="flex-1 flex flex-col items-center justify-end h-full group cursor-pointer"
-              >
-                {/* Milestone Icon above bar */}
-                <div className="mb-2 p-1.5 rounded-full bg-slate-800/90 border border-slate-700/70 group-hover:scale-115 group-hover:border-amber-400/60 transition-all shadow-sm">
-                  <Icon size={14} className={item.iconColor} />
-                </div>
-
-                {/* Bar Container with guaranteed pixel height */}
-                <div className="w-full flex items-end justify-center h-24">
-                  <div
-                    className={`w-7 sm:w-8 rounded-t-lg bg-gradient-to-t ${item.color} shadow-lg ${item.shadow} transition-all duration-300 group-hover:brightness-125 relative flex flex-col items-center justify-start pt-1`}
-                    style={{ height: `${item.height}%`, minHeight: '18px' }}
-                  >
-                    <span className="text-[10px] font-bold text-white drop-shadow-xs">
-                      {item.count}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Day Label with micro-indicator */}
-                <div className="mt-2 text-center">
-                  <span className="block text-xs font-semibold text-slate-300 group-hover:text-white transition-colors">
-                    {item.day}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium mb-4 backdrop-blur-md">
+        <ShieldCheck size={13} />
+        <span>Enterprise Security & Telemetry</span>
       </div>
 
       <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2.5">
-        Milestone insights at a glance
+        Governance, Privacy & BigQuery Radar
       </h2>
-      <p className="text-slate-400 text-sm sm:text-base mb-6 max-w-sm leading-relaxed">
-        7-day activity, headcount by department, upcoming events — all in one unified dashboard.
+      <p className="text-slate-400 text-sm mb-6 max-w-md leading-relaxed">
+        Bank-grade tenant isolation, granular RBAC, localized payment slip receipt OCR, and deep workforce morale analytics.
       </p>
 
-      {/* Quick stats pill */}
+      <div className="grid grid-cols-2 gap-3 w-full max-w-sm mb-6 text-left">
+        {[
+          {
+            title: 'Granular RBAC',
+            desc: 'Admin vs Standard User access control with zero cross-tenant data leakage.',
+            badge: 'ISO-Grade Security',
+            color: 'border-emerald-500/30',
+          },
+          {
+            title: 'Multimodal Receipt OCR',
+            desc: 'Gemini 3.6 Flash scans local wallet slips (KBZ, Wave, AYA) with zero data loss.',
+            badge: 'Local FinTech',
+            color: 'border-sky-500/30',
+          },
+          {
+            title: 'BigQuery Morale Radar',
+            desc: 'Continuous tracking of department recognition coverage and celebration velocity.',
+            badge: 'Live Analytics',
+            color: 'border-amber-500/30',
+          },
+          {
+            title: 'Immutable Audit Trail',
+            desc: 'Every milestone dispatch, tone modification, and plan upgrade logged transparently.',
+            badge: 'Full Compliance',
+            color: 'border-purple-500/30',
+          },
+        ].map((item, idx) => (
+          <div
+            key={idx}
+            onMouseEnter={() => onInteract?.()}
+            onClick={() => onInteract?.()}
+            className={`p-3 rounded-xl bg-slate-900/80 border ${item.color} backdrop-blur-md text-xs hover:border-slate-500 transition-colors cursor-pointer`}
+          >
+            <span className="text-[9px] font-bold tracking-wider text-slate-400 uppercase">{item.badge}</span>
+            <h4 className="text-white font-semibold text-xs mt-0.5">{item.title}</h4>
+            <p className="text-slate-400 text-[10px] leading-relaxed mt-1">{item.desc}</p>
+          </div>
+        ))}
+      </div>
+
       <div className="flex items-center gap-4 text-xs text-slate-400 font-medium">
         <span className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          23 Celebrations this week
+          100% On-Time Scheduled Delivery
         </span>
         <span className="text-slate-600">•</span>
-        <span>0 missed events</span>
+        <span className="text-emerald-400 font-semibold">Zero Cross-Tenant Leakage</span>
       </div>
 
       {onSignIn && (
-        <button
-          onClick={onSignIn}
-          className="mt-6 md:hidden btn-primary text-xs py-2 px-5 rounded-lg"
-        >
+        <button onClick={onSignIn} className="mt-5 md:hidden btn-primary text-xs py-2 px-5 rounded-lg">
           Sign In
         </button>
       )}
@@ -877,9 +842,9 @@ export default function Login() {
             </div>
             <div>
               <span className="text-2xl font-black tracking-tight text-white flex items-center gap-1.5">
-                Milestone
+                {t('HRChronicle AI')}
               </span>
-              <p className="text-[11px] text-slate-400 font-medium">JAPAC Recognition Intelligence</p>
+              <p className="text-[11px] text-slate-400 font-medium">{t('JAPAC Milestone Intelligence Network')}</p>
             </div>
           </div>
 

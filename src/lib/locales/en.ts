@@ -508,6 +508,53 @@ const translation = {
   'Render and download high-resolution 1200x630 PNG celebration graphic': 'Render and download high-resolution 1200x630 PNG celebration graphic',
   'Schedule celebration card for automatic dispatch': 'Schedule celebration card for automatic dispatch',
   'Dispatch celebration card immediately across employee channels': 'Dispatch celebration card immediately across employee channels',
+
+  // HRChronicle AI Brand & Subtitle
+  'HRChronicle AI': 'HRChronicle AI',
+  'Intelligent HR Annual Date Notifications & Multilingual Workforce Copilot': 'Intelligent HR Annual Date Notifications & Multilingual Workforce Copilot',
+  'JAPAC Milestone Intelligence Network': 'JAPAC Milestone Intelligence Network',
+  'JAPAC Recognition Intelligence': 'JAPAC Recognition Intelligence',
+
+  // Phase 4 - Tone & Milestone Generator
+  'Recent Achievements': 'Recent Achievements',
+  'Professional': 'Professional',
+  'Warm & Celebratory': 'Warm & Celebratory',
+  'Inspirational & Visionary': 'Inspirational & Visionary',
+  'Generate Milestone Message': 'Generate Milestone Message',
+  'Play Audio Greeting': 'Play Audio Greeting',
+  'Stop Audio': 'Stop Audio',
+  'Synthesizing speech via Cloud TTS...': 'Synthesizing speech via Cloud TTS...',
+  'Audio Greeting Ready': 'Audio Greeting Ready',
+  'Voice Input': 'Voice Input',
+  'Listening... Speak now': 'Listening... Speak now',
+
+  // Phase 4 - 30-Day BigQuery HR Annual Dates & Morale Radar
+  '30-Day Annual Dates & Morale Radar': '30-Day Annual Dates & Morale Radar',
+  'Department Recognition Coverage': 'Department Recognition Coverage',
+  'Morale Velocity Index': 'Morale Velocity Index',
+  'Projected Celebrations': 'Projected Celebrations',
+  'Upcoming Dates Distribution': 'Upcoming Dates Distribution',
+
+  // Phase 4 - Multi-Channel Dispatch
+  'Multi-Channel Dispatch': 'Multi-Channel Dispatch',
+  '1-Click Multi-Channel Dispatch': '1-Click Multi-Channel Dispatch',
+  'Email Notification': 'Email Notification',
+  'Google Chat Webhook': 'Google Chat Webhook',
+  'Milestone Certificate Badge': 'Milestone Certificate Badge',
+  'Dispatch to All Channels': 'Dispatch to All Channels',
+  'Dispatching...': 'Dispatching...',
+  'Dispatched Successfully!': 'Dispatched Successfully!',
+  'Ready to dispatch across multi-tier enterprise channels': 'Ready to dispatch across multi-tier enterprise channels',
+
+  // Phase 2 - 3D Globe Controls & Country Card
+  'JAPAC HR Milestone Country Card': 'JAPAC HR Milestone Country Card',
+  'Scroll or use buttons to navigate countries': 'Scroll or use buttons to navigate countries',
+  'Active Headcount': 'Active Headcount',
+  'Upcoming Anniversaries': 'Upcoming Anniversaries',
+  'Cultural Observance': 'Cultural Observance',
+  'Previous': 'Previous',
+  'Next': 'Next',
+  'Center Singapore Hub': 'Center Singapore Hub',
 };
 
 export default translation;

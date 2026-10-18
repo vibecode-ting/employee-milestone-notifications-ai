@@ -87,7 +87,7 @@ export interface SystemBroadcast {
 }
 
 // AI Card Generator Studio Types
-export type CardTone = 'warm' | 'executive' | 'fun' | 'cultural';
+export type CardTone = 'warm' | 'executive' | 'fun' | 'cultural' | 'professional' | 'celebratory' | 'visionary';
 export type CardTheme = 'sapphire' | 'emerald' | 'gold' | 'cyber';
 
 export interface GeneratedCard {

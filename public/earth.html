@@ -156,22 +156,23 @@
     /* Interactive hint */
     .scroll-hint {
       position: absolute;
-      bottom: 20px;
+      bottom: 24px;
       left: 24px;
       z-index: 10;
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 6px 14px;
+      padding: 7px 16px;
       border-radius: 9999px;
-      background: rgba(15, 23, 42, 0.82);
+      background: rgba(15, 23, 42, 0.85);
       border: 1px solid rgba(148, 163, 184, 0.25);
-      backdrop-filter: blur(8px);
-      color: rgba(226, 232, 240, 0.85);
+      backdrop-filter: blur(12px);
+      color: rgba(226, 232, 240, 0.88);
       font-size: 11px;
       letter-spacing: 0.03em;
       transition: opacity 0.35s ease;
       pointer-events: none;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     }
 
     .scroll-dot {
@@ -187,14 +188,300 @@
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.4; transform: scale(0.8); }
     }
+
+    /* Floating Pill Navigation Bar */
+    .nav-pills-bar {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      z-index: 15;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 5px 8px;
+      border-radius: 9999px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    .nav-pill-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: #94a3b8;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .nav-pill-btn:hover {
+      color: #ffffff;
+      background: rgba(56, 189, 248, 0.15);
+      border-color: rgba(56, 189, 248, 0.4);
+    }
+
+    .nav-pill-btn.is-hub {
+      color: #34d399;
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(52, 211, 153, 0.35);
+    }
+
+    .nav-pill-btn.is-hub:hover {
+      background: rgba(16, 185, 129, 0.25);
+      border-color: rgba(52, 211, 153, 0.6);
+      color: #ecfdf5;
+    }
+
+    .nav-pill-counter {
+      color: #38bdf8;
+      font-size: 10px;
+      font-weight: 700;
+      font-mono: monospace;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+    }
+
+    /* Interactive JAPAC HR Milestone Country Card Overlay */
+    .country-card-overlay {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      width: 320px;
+      max-width: calc(100vw - 48px);
+      z-index: 20;
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      backdrop-filter: blur(16px);
+      border-radius: 16px;
+      padding: 16px;
+      color: #f8fafc;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), 0 0 20px rgba(56, 189, 248, 0.12);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: auto;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+    }
+
+    .card-flag-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-flag {
+      width: 32px;
+      height: 22px;
+      object-fit: cover;
+      border-radius: 4px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .card-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.2;
+    }
+
+    .card-badge {
+      display: inline-block;
+      font-size: 10px;
+      color: #38bdf8;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .card-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 9px;
+      font-weight: 700;
+      color: #34d399;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      padding: 2px 7px;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+    }
+
+    .live-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #34d399;
+      box-shadow: 0 0 6px #34d399;
+      animation: pulse-dot 1.5s infinite;
+    }
+
+    .card-metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .metric-pill {
+      background: rgba(30, 41, 59, 0.65);
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      border-radius: 10px;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .metric-label {
+      font-size: 10px;
+      color: #94a3b8;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .metric-value {
+      font-size: 16px;
+      font-weight: 800;
+      color: #38bdf8;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    .card-section {
+      background: rgba(30, 41, 59, 0.4);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 12px;
+    }
+
+    .section-label {
+      font-size: 10px;
+      color: #cbd5e1;
+      font-weight: 600;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .section-text {
+      font-size: 11px;
+      color: #94a3b8;
+      line-height: 1.4;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 10px;
+      color: #64748b;
+    }
+
+    .badge-gemini {
+      color: #a78bfa;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    @media (max-width: 640px) {
+      .country-card-overlay {
+        top: 12px;
+        right: 12px;
+        left: 12px;
+        width: auto;
+        padding: 12px;
+      }
+      .scroll-hint {
+        display: none;
+      }
+      .nav-pills-bar {
+        bottom: 12px;
+        right: 12px;
+        left: 12px;
+        justify-content: center;
+      }
+    }
   </style>
 </head>
 <body>
   <div id="webgl-container"></div>
   <div id="labels-layer"></div>
+
+  <!-- JAPAC HR Milestone Country Card Overlay -->
+  <div id="country-card" class="country-card-overlay">
+    <div class="card-header">
+      <div class="card-flag-title">
+        <img id="card-flag" class="card-flag" src="https://flagcdn.com/w80/sg.png" alt="Flag" />
+        <div>
+          <h3 id="card-name" class="card-name">Singapore (Hub)</h3>
+          <span id="card-badge" class="card-badge">JAPAC HQ • UTC+8</span>
+        </div>
+      </div>
+      <div class="card-indicator">
+        <span class="live-dot"></span> LIVE
+      </div>
+    </div>
+
+    <div class="card-metrics">
+      <div class="metric-pill">
+        <span class="metric-label">Active Headcount</span>
+        <span id="card-headcount" class="metric-value">342</span>
+      </div>
+      <div class="metric-pill">
+        <span class="metric-label">30-Day Celebrations</span>
+        <span id="card-anniversaries" class="metric-value">8</span>
+      </div>
+    </div>
+
+    <div class="card-section">
+      <div class="section-label">Cultural Observance</div>
+      <p id="card-observance" class="section-text">Multicultural harmony • Lunar New Year & Deepavali recognition</p>
+    </div>
+
+    <div class="card-footer">
+      <span class="badge-gemini">✨ Gemini 2.5 Flash Synced</span>
+      <span id="card-step" class="card-step">Hub Overview</span>
+    </div>
+  </div>
+
+  <!-- On-Screen Pill Navigation Bar -->
+  <div class="nav-pills-bar">
+    <button type="button" class="nav-pill-btn" id="btn-prev" title="Previous Country">
+      <span>◀ Prev</span>
+    </button>
+    <button type="button" class="nav-pill-btn is-hub" id="btn-hub" title="Center Singapore Hub">
+      <span>🌐 Singapore Hub</span>
+    </button>
+    <button type="button" class="nav-pill-btn" id="btn-next" title="Next Country">
+      <span>Next ▶</span>
+    </button>
+    <span class="nav-pill-counter" id="pill-counter">0 / 14</span>
+  </div>
+
   <div class="scroll-hint" id="scroll-hint">
     <span class="scroll-dot"></span>
-    <span>Drag to rotate • Scroll to zoom • Click country to focus</span>
+    <span>Wheel: Step Country (+1 / -1) • Drag: Rotate • Click: Inspect</span>
   </div>
 
   <script type="importmap">
@@ -209,41 +496,23 @@
     import * as THREE from 'three';
 
     // =========================================================================
-    // 1. JAPAC COUNTRIES & COORDINATES (Accurate Geographic Mapping)
+    // 1. 14 JAPAC COUNTRIES & COORDINATES (Centered on Singapore Hub)
     // =========================================================================
     const JAPAC_COUNTRIES = [
-      // Primary Singapore Hub
-      { code: 'sg', iso3: 'SGP', name: 'Singapore (Hub)', lat: 1.3521, lon: 103.8198, isHub: true, isKeyPin: true },
-      // Southeast Asia
-      { code: 'my', iso3: 'MYS', name: 'Malaysia', lat: 4.2105, lon: 101.9758, isCompact: true },
-      { code: 'th', iso3: 'THA', name: 'Thailand', lat: 15.8700, lon: 100.9925, isCompact: true },
-      { code: 'vn', iso3: 'VNM', name: 'Vietnam', lat: 14.0583, lon: 108.2772, isCompact: true },
-      { code: 'ph', iso3: 'PHL', name: 'Philippines', lat: 12.8797, lon: 121.7740, isCompact: true },
-      { code: 'id', iso3: 'IDN', name: 'Indonesia', lat: -2.5489, lon: 118.0149, isCompact: true },
-      { code: 'mm', iso3: 'MMR', name: 'Myanmar', lat: 19.7633, lon: 96.0785, isKeyPin: true },
-      { code: 'kh', iso3: 'KHM', name: 'Cambodia', lat: 12.5657, lon: 104.9910, isCompact: true },
-      { code: 'la', iso3: 'LAO', name: 'Laos', lat: 19.8563, lon: 102.4955, isCompact: true },
-      { code: 'bn', iso3: 'BRN', name: 'Brunei', lat: 4.5353, lon: 114.7277, isCompact: true },
-      { code: 'tl', iso3: 'TLS', name: 'Timor-Leste', lat: -8.8742, lon: 125.7275, isCompact: true },
-      // East Asia (Upper-Right)
-      { code: 'jp', iso3: 'JPN', name: 'Japan', lat: 36.2048, lon: 138.2529, isKeyPin: true },
-      { code: 'kr', iso3: 'KOR', name: 'South Korea', lat: 35.9078, lon: 127.7669, isKeyPin: true },
-      { code: 'tw', iso3: 'TWN', name: 'Taiwan', lat: 23.6978, lon: 120.9605, isCompact: true },
-      { code: 'hk', iso3: 'HKG', name: 'Hong Kong', lat: 22.3193, lon: 114.1694, isCompact: true },
-      { code: 'cn', iso3: 'CHN', name: 'China', lat: 35.8617, lon: 104.1954, isKeyPin: true },
-      { code: 'mn', iso3: 'MNG', name: 'Mongolia', lat: 46.8625, lon: 103.8467, isCompact: true },
-      // South Asia (Upper-Left)
-      { code: 'in', iso3: 'IND', name: 'India', lat: 20.5937, lon: 78.9629, isKeyPin: true },
-      { code: 'bd', iso3: 'BGD', name: 'Bangladesh', lat: 23.6850, lon: 90.3563, isCompact: true },
-      { code: 'lk', iso3: 'LKA', name: 'Sri Lanka', lat: 7.8731, lon: 80.7718, isCompact: true },
-      { code: 'np', iso3: 'NPL', name: 'Nepal', lat: 28.3949, lon: 84.1240, isCompact: true },
-      { code: 'pk', iso3: 'PAK', name: 'Pakistan', lat: 30.3753, lon: 69.3451, isCompact: true },
-      // Oceania & Pacific (Bottom & East)
-      { code: 'au', iso3: 'AUS', name: 'Australia', lat: -25.2744, lon: 133.7751, isKeyPin: true },
-      { code: 'nz', iso3: 'NZL', name: 'New Zealand', lat: -40.9006, lon: 174.8860, isCompact: true },
-      { code: 'pg', iso3: 'PNG', name: 'Papua New Guinea', lat: -6.3150, lon: 143.9555, isCompact: true },
-      { code: 'fj', iso3: 'FJI', name: 'Fiji', lat: -17.7134, lon: 178.0650, isCompact: true },
-      { code: 'ki', iso3: 'KIR', name: 'Kiribati', lat: 1.8709, lon: -157.3626, isCompact: true }
+      { code: 'sg', iso3: 'SGP', name: 'Singapore (Hub)', lat: 1.3521, lon: 103.8198, isHub: true, isKeyPin: true, headcount: 342, anniversaries: 8, culturalObservance: 'Multicultural harmony • Lunar New Year & Deepavali recognition', tz: 'UTC+8' },
+      { code: 'my', iso3: 'MYS', name: 'Malaysia', lat: 4.2105, lon: 101.9758, isKeyPin: true, headcount: 184, anniversaries: 4, culturalObservance: 'Hari Raya Aidilfitri & Lunar New Year • Respectful gifting etiquette', tz: 'UTC+8' },
+      { code: 'th', iso3: 'THA', name: 'Thailand', lat: 15.8700, lon: 100.9925, isKeyPin: true, headcount: 126, anniversaries: 3, culturalObservance: 'Songkran Water Festival & Royal observances • Wai greeting culture', tz: 'UTC+7' },
+      { code: 'vn', iso3: 'VNM', name: 'Vietnam', lat: 14.0583, lon: 108.2772, isKeyPin: true, headcount: 215, anniversaries: 7, culturalObservance: 'Tết Nguyên Đán & Mid-Autumn Festival • Family-centric milestones', tz: 'UTC+7' },
+      { code: 'ph', iso3: 'PHL', name: 'Philippines', lat: 12.8797, lon: 121.7740, isKeyPin: true, headcount: 198, anniversaries: 5, culturalObservance: 'Paskong Pinoy (Extended Christmas) • Bayanihan peer appreciation', tz: 'UTC+8' },
+      { code: 'id', iso3: 'IDN', name: 'Indonesia', lat: -2.5489, lon: 118.0149, isKeyPin: true, headcount: 260, anniversaries: 6, culturalObservance: 'Idul Fitri & Gotong Royong • Communal celebration feasts', tz: 'UTC+7' },
+      { code: 'mm', iso3: 'MMR', name: 'Myanmar', lat: 19.7633, lon: 96.0785, isKeyPin: true, headcount: 95, anniversaries: 2, culturalObservance: 'Thingyan Water Festival & Thadingyut Lighting • Elder respect', tz: 'UTC+6:30' },
+      { code: 'jp', iso3: 'JPN', name: 'Japan', lat: 36.2048, lon: 138.2529, isKeyPin: true, headcount: 172, anniversaries: 4, culturalObservance: 'Golden Week & Obon • Formal Kansha (感謝) appreciation etiquette', tz: 'UTC+9' },
+      { code: 'kr', iso3: 'KOR', name: 'South Korea', lat: 35.9078, lon: 127.7669, isKeyPin: true, headcount: 140, anniversaries: 3, culturalObservance: 'Chuseok & Seollal • Tenure jubilee seniority etiquette', tz: 'UTC+9' },
+      { code: 'tw', iso3: 'TWN', name: 'Taiwan', lat: 23.6978, lon: 120.9605, isKeyPin: true, headcount: 110, anniversaries: 2, culturalObservance: 'Mid-Autumn & Dragon Boat • Warm peer recognition cards', tz: 'UTC+8' },
+      { code: 'hk', iso3: 'HKG', name: 'Hong Kong', lat: 22.3193, lon: 114.1694, isKeyPin: true, headcount: 88, anniversaries: 3, culturalObservance: 'Winter Solstice & Lunar New Year • Red packet digital bonuses', tz: 'UTC+8' },
+      { code: 'in', iso3: 'IND', name: 'India', lat: 20.5937, lon: 78.9629, isKeyPin: true, headcount: 420, anniversaries: 11, culturalObservance: 'Diwali & Holi • Festive tenure recognition & sweet boxes', tz: 'UTC+5:30' },
+      { code: 'au', iso3: 'AUS', name: 'Australia', lat: -25.2744, lon: 133.7751, isKeyPin: true, headcount: 165, anniversaries: 5, culturalObservance: 'ANZAC Day & Financial Year-End awards • Mate-ship camaraderie', tz: 'UTC+10' },
+      { code: 'nz', iso3: 'NZL', name: 'New Zealand', lat: -40.9006, lon: 174.8860, isKeyPin: true, headcount: 75, anniversaries: 2, culturalObservance: 'Matariki (Māori New Year) • Whānau (family) milestone honours', tz: 'UTC+12' }
     ];
 
     // =========================================================================
@@ -737,6 +1006,42 @@
       }
     }
 
+    function updateCountryCard(index) {
+      const cardFlag = document.getElementById('card-flag');
+      const cardName = document.getElementById('card-name');
+      const cardBadge = document.getElementById('card-badge');
+      const cardHeadcount = document.getElementById('card-headcount');
+      const cardAnniv = document.getElementById('card-anniversaries');
+      const cardObs = document.getElementById('card-observance');
+      const cardStep = document.getElementById('card-step');
+      const pillCounter = document.getElementById('pill-counter');
+
+      if (!cardName) return;
+
+      if (index === 0) {
+        const totalHeadcount = JAPAC_COUNTRIES.reduce((acc, c) => acc + (c.headcount || 0), 0);
+        const totalAnniv = JAPAC_COUNTRIES.reduce((acc, c) => acc + (c.anniversaries || 0), 0);
+        if (cardFlag) cardFlag.src = 'https://flagcdn.com/w80/sg.png';
+        cardName.textContent = 'JAPAC Regional Overview';
+        if (cardBadge) cardBadge.textContent = 'Singapore Central Hub • 14 Key Territories';
+        if (cardHeadcount) cardHeadcount.textContent = totalHeadcount.toLocaleString();
+        if (cardAnniv) cardAnniv.textContent = totalAnniv.toLocaleString();
+        if (cardObs) cardObs.textContent = 'Harmonized Pan-Asian Milestone Observance with Gemini AI Copilot orchestration.';
+        if (cardStep) cardStep.textContent = 'Hub Overview';
+        if (pillCounter) pillCounter.textContent = 'Hub / 14';
+      } else {
+        const country = JAPAC_COUNTRIES[index - 1];
+        if (cardFlag) cardFlag.src = `https://flagcdn.com/w80/${country.code}.png`;
+        cardName.textContent = country.name;
+        if (cardBadge) cardBadge.textContent = `${country.isHub ? 'Central Hub' : 'Regional Territory'} • ${country.tz || 'UTC+8'}`;
+        if (cardHeadcount) cardHeadcount.textContent = (country.headcount || 0).toLocaleString();
+        if (cardAnniv) cardAnniv.textContent = (country.anniversaries || 0).toLocaleString();
+        if (cardObs) cardObs.textContent = country.culturalObservance || 'Cultural observance synced with Gemini AI.';
+        if (cardStep) cardStep.textContent = `${index} / ${JAPAC_COUNTRIES.length}`;
+        if (pillCounter) pillCounter.textContent = `${index} / ${JAPAC_COUNTRIES.length}`;
+      }
+    }
+
     function applySlide(slideIndex) {
       currentSlideIndex = ((slideIndex % totalSlides) + totalSlides) % totalSlides;
 
@@ -767,6 +1072,18 @@
           vis.arcMat.opacity = isOverview ? 0.35 : (isCurrent ? 0.95 : 0.12);
         }
       });
+
+      updateCountryCard(currentSlideIndex);
+
+      try {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({
+            type: 'EARTH_SLIDE_CHANGED',
+            slideIndex: currentSlideIndex,
+            country: currentSlideIndex === 0 ? null : JAPAC_COUNTRIES[currentSlideIndex - 1]
+          }, '*');
+        }
+      } catch (err) {}
     }
 
     applySlide(0);
@@ -774,12 +1091,28 @@
     worldGroup.quaternion.copy(currentQuaternion);
     camera.position.set(0, 0, currentCameraZ);
 
+    // Pill Navigation Button Handlers
+    document.getElementById('btn-prev')?.addEventListener('click', () => {
+      notifyInteraction(true);
+      applySlide(currentSlideIndex - 1);
+    });
+    document.getElementById('btn-next')?.addEventListener('click', () => {
+      notifyInteraction(true);
+      applySlide(currentSlideIndex + 1);
+    });
+    document.getElementById('btn-hub')?.addEventListener('click', () => {
+      notifyInteraction(true);
+      applySlide(0);
+    });
+
     // Mouse drag interaction (Maintains North strictly UP, clamps pitch)
     let mouseStartX = null;
     let mouseStartY = null;
     let isMouseDown = false;
 
     window.addEventListener('mousedown', (e) => {
+      // Don't drag if clicking buttons or cards
+      if (e.target.closest('#country-card') || e.target.closest('.nav-pills-bar')) return;
       isMouseDown = true;
       mouseStartX = e.clientX;
       mouseStartY = e.clientY;
@@ -815,9 +1148,30 @@
       container.style.cursor = 'grab';
     });
 
-    // Mouse wheel: Smooth zoom control
+    // Mouse wheel: Step countries (+1 / -1) with smooth throttle
+    let wheelThrottleTimer = null;
+    let wheelAccumulator = 0;
     window.addEventListener('wheel', (e) => {
       e.preventDefault();
+      notifyInteraction(true);
+      wheelAccumulator += e.deltaY;
+
+      if (!wheelThrottleTimer) {
+        wheelThrottleTimer = setTimeout(() => {
+          if (Math.abs(wheelAccumulator) >= 15) {
+            if (wheelAccumulator > 0) {
+              // Scroll down -> Step to Next country (+1)
+              applySlide(currentSlideIndex + 1);
+            } else {
+              // Scroll up -> Step to Previous country (-1)
+              applySlide(currentSlideIndex - 1);
+            }
+          }
+          wheelAccumulator = 0;
+          wheelThrottleTimer = null;
+        }, 160);
+      }
+    }, { passive: false });
       notifyInteraction(true);
       const zoomDelta = e.deltaY * 0.025;
       targetCameraZ = Math.max(18, Math.min(48, targetCameraZ + zoomDelta));
