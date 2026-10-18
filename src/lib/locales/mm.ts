@@ -227,6 +227,53 @@ const translation = {
   '12-Month Milestone Event & Budget Forecast': '၁၂ လတာ မှတ်တိုင်ပွဲနှင့် ဘတ်ဂျက် ခန့်မှန်းချက်',
   'Tenure Retention Risk Cohorts': 'လုပ်သက်အလိုက် ထိန်းသိမ်းမှု စွန့်စားရမှု အုပ်စုများ',
   'JAPAC Localization & Language Telemetry': 'JAPAC ဒေသန္တရ ဘာသာစကား အသုံးပြုမှု အခြေအနေ',
+
+  // HRChronicle AI Brand & Subtitle
+  'HRChronicle AI': 'HRChronicle AI',
+  'Intelligent HR Annual Date Notifications & Multilingual Workforce Copilot': 'ဉာဏ်ရည်တု HR နှစ်ပတ်လည် သတိပေးချက်များနှင့် ဘာသာစကားစုံ လုပ်ငန်းခွင် လက်ထောက်',
+  'JAPAC Milestone Intelligence Network': 'JAPAC မှတ်တိုင် ဉာဏ်ရည်တု ကွန်ရက်',
+  'JAPAC Recognition Intelligence': 'JAPAC ဝန်ထမ်းဂုဏ်ပြုမှု ဉာဏ်ရည်တု စနစ်',
+
+  // Phase 4 - Tone & Milestone Generator
+  'Recent Achievements': 'လတ်တလော အောင်မြင်မှုများ',
+  'Professional': 'ကျွမ်းကျင်တရားဝင် ပုံစံ',
+  'Warm & Celebratory': 'နွေးထွေးလှိုက်လှဲသော ဂုဏ်ပြုပုံစံ',
+  'Inspirational & Visionary': 'စိတ်ဓာတ်ခွန်အားဖြစ်စေသော မျှော်မှန်းချက်ပုံစံ',
+  'Generate Milestone Message': 'မှတ်တိုင်ဂုဏ်ပြုစကား ရေးသားမည်',
+  'Play Audio Greeting': 'အသံဖြင့် နှုတ်ခွန်းဆက်စကား ဖွင့်မည်',
+  'Stop Audio': 'အသံ ရပ်တန့်မည်',
+  'Synthesizing speech via Cloud TTS...': 'Cloud TTS ဖြင့် အသံဖန်တီးနေပါသည်...',
+  'Audio Greeting Ready': 'နှုတ်ခွန်းဆက် အသံ အသင့်ဖြစ်ပါပြီ',
+  'Voice Input': 'အသံဖြင့် ထည့်သွင်းမည်',
+  'Listening... Speak now': 'နားထောင်နေပါသည်... စကားပြောပါ',
+
+  // Phase 4 - 30-Day BigQuery HR Annual Dates & Morale Radar
+  '30-Day Annual Dates & Morale Radar': 'ရက် ၃၀ နှစ်ပတ်လည်ရက်များနှင့် စိတ်ဓာတ်ခွန်အား ရေဒါ',
+  'Department Recognition Coverage': 'ဌာနအလိုက် ဂုဏ်ပြုမှု လွှမ်းခြုံမှု %',
+  'Morale Velocity Index': 'စိတ်ဓာတ်ခွန်အား မြှင့်တင်မှု အညွှန်းကိန်း',
+  'Projected Celebrations': 'ခန့်မှန်း ဂုဏ်ပြုပွဲများ',
+  'Upcoming Dates Distribution': 'လာမည့် ရက်များ ခွဲဝေမှု',
+
+  // Phase 4 - Multi-Channel Dispatch
+  'Multi-Channel Dispatch': 'ချန်နယ်ပေါင်းစုံ တစ်ပြိုင်နက် ပေးပို့ခြင်း',
+  '1-Click Multi-Channel Dispatch': 'တစ်ချက်နှိပ် ချန်နယ်စုံ ပေးပို့မှု',
+  'Email Notification': 'အီးမေးလ် သတိပေးချက်',
+  'Google Chat Webhook': 'Google Chat ဝက်ဘ်ဟွတ်ခ်',
+  'Milestone Certificate Badge': 'မှတ်တိုင် အသိအမှတ်ပြု တံဆိပ်',
+  'Dispatch to All Channels': 'ချန်နယ်အားလုံးသို့ ပေးပို့မည်',
+  'Dispatching...': 'ပေးပို့နေပါသည်...',
+  'Dispatched Successfully!': 'အောင်မြင်စွာ ပေးပို့ပြီးပါပြီ!',
+  'Ready to dispatch across multi-tier enterprise channels': 'လုပ်ငန်းသုံး ချန်နယ်အားလုံးသို့ ပေးပို့ရန် အသင့်ဖြစ်ပါသည်',
+
+  // Phase 2 - 3D Globe Controls & Country Card
+  'JAPAC HR Milestone Country Card': 'JAPAC HR မှတ်တိုင် နိုင်ငံအလိုက် အချက်အလက် ကတ်',
+  'Scroll or use buttons to navigate countries': 'နိုင်ငံများ ပြောင်းလဲကြည့်ရှုရန် မောက်စ်ဘီး သို့မဟုတ် ခလုတ်များကို အသုံးပြုပါ',
+  'Active Headcount': 'လက်ရှိ ဝန်ထမ်းဦးရေ',
+  'Upcoming Anniversaries': 'လာမည့် နှစ်ပတ်လည်များ',
+  'Cultural Observance': 'ဒေသန္တရ ယဉ်ကျေးမှု ထုံးတမ်း',
+  'Previous': 'ယခင်',
+  'Next': 'နောက်',
+  'Center Singapore Hub': 'စင်ကာပူ ဗဟိုသို့ ပြန်ညွှန်းမည်',
 };
 
 export default translation;

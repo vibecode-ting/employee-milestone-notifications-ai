@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   X, Send, Sparkles, Mic, MicOff, Volume2, Upload, AlertTriangle,
@@ -28,6 +29,7 @@ export function CopilotSidebar({
   employees,
   onOpenCardStudio: _onOpenCardStudio,
 }: CopilotSidebarProps) {
+  const { i18n } = useTranslation();
   const { appUser, isDemo } = useAuth();
   const [messages, setMessages] = useState<CopilotMessage[]>([
     {
@@ -79,7 +81,15 @@ export function CopilotSidebar({
       const recognition = new SpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = true;
-      recognition.lang = 'en-US';
+      const langMap: Record<string, string> = {
+        en: 'en-US',
+        mm: 'my-MM',
+        zh: 'zh-TW',
+        vn: 'vi-VN',
+        ja: 'ja-JP',
+        ko: 'ko-KR',
+      };
+      recognition.lang = langMap[i18n.language] || 'en-US';
 
       recognition.onstart = () => setIsListening(true);
       recognition.onend = () => setIsListening(false);

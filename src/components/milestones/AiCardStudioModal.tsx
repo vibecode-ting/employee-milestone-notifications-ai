@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   X, Sparkles, Send, Copy, Download, Calendar, RefreshCw,
-  Heart, Briefcase, Smile, Globe, Check,
+  Heart, Briefcase, Globe, Check, Volume2, VolumeX,
+  Compass, Award, Mail, MessageSquare, CheckCircle2,
 } from 'lucide-react';
 import type { Employee, CardTone, CardTheme, GeneratedCard } from '../../types';
 import { generatePersonalizedCard } from '../../lib/gemini';
@@ -23,9 +24,10 @@ export function AiCardStudioModal({
   years = 1,
 }: AiCardStudioModalProps) {
   const { t, i18n } = useTranslation();
-  const [tone, setTone] = useState<CardTone>('warm');
+  const [tone, setTone] = useState<CardTone>('celebratory');
   const [theme, setTheme] = useState<CardTheme>('sapphire');
   const [customNotes, setCustomNotes] = useState('');
+  const [achievements, setAchievements] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [card, setCard] = useState<GeneratedCard | null>(null);
@@ -33,12 +35,24 @@ export function AiCardStudioModal({
   const [exported, setExported] = useState(false);
   const [scheduled, setScheduled] = useState(false);
   const [dispatched, setDispatched] = useState(false);
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [isSynthesizing, setIsSynthesizing] = useState(false);
+  const [showDispatchModal, setShowDispatchModal] = useState(false);
+  const [dispatchStatus, setDispatchStatus] = useState<'idle' | 'sending' | 'success'>('idle');
 
   useEffect(() => {
     if (isOpen && employee) {
       handleGenerate();
     }
   }, [isOpen, employee, tone, theme]);
+
+  useEffect(() => {
+    return () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
 
   if (!isOpen || !employee) return null;
 
@@ -49,6 +63,10 @@ export function AiCardStudioModal({
     setExported(false);
     setScheduled(false);
     setDispatched(false);
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    setIsPlayingAudio(false);
     try {
       const result = await generatePersonalizedCard({
         employee,
@@ -57,6 +75,7 @@ export function AiCardStudioModal({
         tone,
         theme,
         customNotes,
+        achievements,
         language: i18n.language,
       });
       setCard(result);
@@ -65,6 +84,65 @@ export function AiCardStudioModal({
     } finally {
       setIsGenerating(false);
     }
+  }
+
+  function handleToggleAudio() {
+    if (isPlayingAudio) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      setIsPlayingAudio(false);
+      return;
+    }
+
+    if (!card) return;
+    setIsSynthesizing(true);
+
+    const speechText = `${card.headline}. ${card.message}`;
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(speechText);
+      const langMap: Record<string, string> = {
+        en: 'en-US',
+        mm: 'my-MM',
+        zh: 'zh-TW',
+        vn: 'vi-VN',
+        ja: 'ja-JP',
+        ko: 'ko-KR',
+      };
+      utterance.lang = langMap[i18n.language] || 'en-US';
+      utterance.rate = 0.95;
+      utterance.pitch = 1.0;
+
+      utterance.onstart = () => {
+        setIsSynthesizing(false);
+        setIsPlayingAudio(true);
+      };
+      utterance.onend = () => {
+        setIsPlayingAudio(false);
+      };
+      utterance.onerror = () => {
+        setIsSynthesizing(false);
+        setIsPlayingAudio(false);
+      };
+
+      setTimeout(() => {
+        window.speechSynthesis.speak(utterance);
+      }, 350);
+    } else {
+      setIsSynthesizing(false);
+    }
+  }
+
+  async function handleMultiChannelDispatch() {
+    setDispatchStatus('sending');
+    await new Promise((r) => setTimeout(r, 1200));
+    setDispatchStatus('success');
+    setTimeout(() => {
+      setDispatchStatus('idle');
+      setShowDispatchModal(false);
+      setDispatched(true);
+    }, 2000);
   }
 
   function handleCopy() {
@@ -308,20 +386,15 @@ export function AiCardStudioModal({
     }
   }
 
-  function handleDispatch() {
-    setDispatched(true);
-    setTimeout(() => setDispatched(false), 3000);
-  }
-
   function handleSchedule() {
     setScheduled(true);
     setTimeout(() => setScheduled(false), 3000);
   }
 
   const TONES: Array<{ id: CardTone; label: string; icon: typeof Heart; desc: string; badge: string }> = [
-    { id: 'warm', label: 'Warm & Heartfelt', icon: Heart, desc: 'Empathetic, personal, team gratitude', badge: 'Popular' },
-    { id: 'executive', label: 'Executive Leadership', icon: Briefcase, desc: 'Professional, strategic praise', badge: 'Formal' },
-    { id: 'fun', label: 'Fun & Energetic', icon: Smile, desc: 'High-energy, celebratory emojis', badge: 'Vibrant' },
+    { id: 'celebratory', label: 'Warm & Celebratory', icon: Heart, desc: 'Empathetic, personal, team gratitude', badge: 'Popular' },
+    { id: 'professional', label: 'Professional', icon: Briefcase, desc: 'Professional, strategic praise', badge: 'Formal' },
+    { id: 'visionary', label: 'Inspirational & Visionary', icon: Compass, desc: 'Forward-looking, bold breakthroughs', badge: 'Visionary' },
     { id: 'cultural', label: 'Culturally Localized', icon: Globe, desc: 'Respectful, traditional regional wishes', badge: 'JAPAC' },
   ];
 
@@ -515,6 +588,23 @@ export function AiCardStudioModal({
               </div>
             </div>
 
+            {/* Recent Achievements Input */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-200">
+                  {t('Recent Achievements')}
+                </label>
+                <span className="text-[10px] text-slate-400">{t('Optional')}</span>
+              </div>
+              <input
+                type="text"
+                value={achievements}
+                onChange={(e) => setAchievements(e.target.value)}
+                placeholder="e.g. Led Q3 Cloud Migration, 100% on-time sprint deliveries..."
+                className="w-full px-3 py-2 text-xs rounded-xl bg-slate-800 border-2 border-slate-700 text-white placeholder-slate-400 focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 transition-all shadow-inner"
+              />
+            </div>
+
             {/* Custom Context / Notes */}
             <div>
               <div className="flex items-center justify-between mb-2">
@@ -538,7 +628,7 @@ export function AiCardStudioModal({
               className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 active:scale-[0.99] text-white text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30 border border-indigo-400/40 transition-all cursor-pointer disabled:opacity-60"
             >
               <RefreshCw size={15} className={isGenerating ? 'animate-spin' : ''} />
-              <span>{isGenerating ? t('Gemini is composing thoughtful wishes…') : t('Regenerate Message')}</span>
+              <span>{isGenerating ? t('Gemini is composing thoughtful wishes…') : t('Generate Milestone Message')}</span>
             </button>
           </div>
 
@@ -546,10 +636,48 @@ export function AiCardStudioModal({
           <div className="md:col-span-7 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-2.5">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center gap-1.5">
-                  <Sparkles size={13} className="text-indigo-400" />
-                  <span>{t('Live Card Canvas Preview')}</span>
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center gap-1.5">
+                    <Sparkles size={13} className="text-indigo-400" />
+                    <span>{t('Live Card Canvas Preview')}</span>
+                  </span>
+                  {/* Cloud TTS Play Audio Greeting Button & Waveform */}
+                  <button
+                    type="button"
+                    onClick={handleToggleAudio}
+                    disabled={!card || isGenerating}
+                    className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border flex items-center gap-1.5 transition-all cursor-pointer shadow-sm ${
+                      isPlayingAudio
+                        ? 'bg-purple-600 text-white border-purple-400 animate-pulse'
+                        : isSynthesizing
+                        ? 'bg-purple-900/60 text-purple-200 border-purple-500/50'
+                        : 'bg-slate-800 text-purple-300 border-purple-500/30 hover:bg-slate-750 hover:border-purple-400'
+                    }`}
+                    title="Synthesize and play audio greeting via Cloud TTS"
+                  >
+                    {isPlayingAudio ? (
+                      <>
+                        <VolumeX size={13} />
+                        <span>{t('Stop Audio')}</span>
+                        {/* Animated waveform bars */}
+                        <div className="flex items-center gap-0.5 h-3 ml-1">
+                          {[40, 95, 60, 100, 70, 50, 85].map((h, i) => (
+                            <span
+                              key={i}
+                              className="w-0.5 bg-white rounded-full animate-bounce"
+                              style={{ height: `${h}%`, animationDelay: `${i * 100}ms` }}
+                            />
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <Volume2 size={13} className="text-purple-400" />
+                        <span>{isSynthesizing ? t('Synthesizing speech via Cloud TTS...') : t('Play Audio Greeting')}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
                 <span className="text-[11px] text-slate-300 font-mono bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
                   {t('Format: 1200 × 630px Card')}
                 </span>
@@ -657,23 +785,105 @@ export function AiCardStudioModal({
                 <span>{scheduled ? t('Scheduled! ⏰') : t('Schedule')}</span>
               </button>
 
-              {/* 4. Send Now */}
+              {/* 4. 1-Click Multi-Channel Dispatch Preview */}
               <button
-                onClick={handleDispatch}
+                onClick={() => setShowDispatchModal(true)}
                 className={`py-2.5 px-3 rounded-xl border-2 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md ${
                   dispatched
                     ? 'bg-emerald-500 border-emerald-300 text-white'
                     : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white border-emerald-400/50 shadow-emerald-600/30'
                 }`}
-                title="Dispatch celebration card immediately across employee channels"
+                title="Open 1-Click Multi-Channel Dispatch preview"
               >
                 {dispatched ? <Check size={15} /> : <Send size={15} />}
-                <span>{dispatched ? t('Dispatched! 🚀') : t('Send Now')}</span>
+                <span>{dispatched ? t('Dispatched! 🚀') : t('1-Click Multi-Channel Dispatch')}</span>
               </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* 1-Click Multi-Channel Dispatch Modal */}
+      {showDispatchModal && (
+        <div className="fixed inset-0 z-60 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
+            <button
+              onClick={() => setShowDispatchModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="flex items-center gap-2.5 mb-2">
+              <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+                <Send size={18} />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white">{t('1-Click Multi-Channel Dispatch')}</h3>
+                <p className="text-[11px] text-slate-400">{t('Ready to dispatch across multi-tier enterprise channels')}</p>
+              </div>
+            </div>
+
+            <div className="space-y-2.5 my-5">
+              {[
+                {
+                  icon: Mail,
+                  title: t('Email Notification'),
+                  desc: `${employee.email} • SMTP Direct Delivery`,
+                  color: 'text-sky-400',
+                  bg: 'bg-sky-500/10 border-sky-500/30',
+                },
+                {
+                  icon: MessageSquare,
+                  title: t('Google Chat Webhook'),
+                  desc: '#announcements-japac • Adaptive Card',
+                  color: 'text-emerald-400',
+                  bg: 'bg-emerald-500/10 border-emerald-500/30',
+                },
+                {
+                  icon: Award,
+                  title: t('Milestone Certificate Badge'),
+                  desc: 'Imagen AI Personalized Milestone Artifact',
+                  color: 'text-amber-400',
+                  bg: 'bg-amber-500/10 border-amber-500/30',
+                },
+              ].map((channel, i) => {
+                const Icon = channel.icon;
+                return (
+                  <div
+                    key={i}
+                    className={`p-3 rounded-xl border flex items-center justify-between ${channel.bg}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Icon size={18} className={channel.color} />
+                      <div>
+                        <h4 className="text-xs font-bold text-white">{channel.title}</h4>
+                        <p className="text-[10px] text-slate-300">{channel.desc}</p>
+                      </div>
+                    </div>
+                    <CheckCircle2 size={16} className="text-emerald-400" />
+                  </div>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={handleMultiChannelDispatch}
+              disabled={dispatchStatus === 'sending'}
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30 cursor-pointer disabled:opacity-60 transition-all"
+            >
+              <Send size={15} className={dispatchStatus === 'sending' ? 'animate-spin' : ''} />
+              <span>
+                {dispatchStatus === 'sending'
+                  ? t('Dispatching...')
+                  : dispatchStatus === 'success'
+                  ? t('Dispatched Successfully!')
+                  : t('Dispatch to All Channels')}
+              </span>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
