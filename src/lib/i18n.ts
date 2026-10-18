@@ -19,11 +19,19 @@ const resources = {
   'zh-HK': { translation: zhHK },
 };
 
+const savedLanguage = typeof window !== 'undefined' ? localStorage.getItem('app_language') : null;
+
 i18n.use(initReactI18next).init({
   resources,
-  lng: 'en',
+  lng: savedLanguage || 'en',
   fallbackLng: 'en',
   interpolation: { escapeValue: false },
+});
+
+i18n.on('languageChanged', (lng) => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('app_language', lng);
+  }
 });
 
 export const LOCALES = [

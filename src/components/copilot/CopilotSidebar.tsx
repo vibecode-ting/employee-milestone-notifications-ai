@@ -176,8 +176,8 @@ export function CopilotSidebar({
           id: `ocr-res-${Date.now()}`,
           role: 'assistant',
           content: result.isLiveApi
-            ? `🔍 **Gemini Multimodal Vision Extraction Complete**\n\nIdentified **${result.candidates.length} employee candidate(s)** from *${file.name}* using **${result.model}**:`
-            : `🔍 **OCR Extraction Preview**\n\nIdentified **${result.candidates.length} candidate(s)** from *${file.name}*:\n\n*${result.message || ''}*`,
+            ? `🔍 **${t('Gemini Multimodal Vision Extraction Complete')}**\n\n${t('Identified {{count}} employee candidate(s) from {{name}} using {{model}}:', { count: result.candidates.length, name: file.name, model: result.model })}`
+            : `🔍 **${t('OCR Extraction Preview')}**\n\n${t('Identified {{count}} candidate(s) from {{name}}:', { count: result.candidates.length, name: file.name })}\n\n*${result.message || ''}*`,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           ocrCandidates: result.candidates,
           model: result.model,
@@ -190,7 +190,7 @@ export function CopilotSidebar({
         const errorMsg: CopilotMessage = {
           id: `ocr-err-${Date.now()}`,
           role: 'assistant',
-          content: `⚠️ **Multimodal OCR encountered an issue**: ${cleanErr}\n\nPlease verify your Gemini API key (click **Key** in the top-right header) or try uploading another document photo.`,
+          content: `⚠️ **${t('Multimodal OCR encountered an issue')}**: ${cleanErr}\n\n${t('Please verify your Gemini API key (click Key in the top-right header) or try uploading another document photo.')}`,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         };
         setMessages((prev) => [...prev, errorMsg]);
@@ -276,7 +276,7 @@ export function CopilotSidebar({
     const userMsg: CopilotMessage = {
       id: `ocr-req-${Date.now()}`,
       role: 'user',
-      content: `📷 Processed sample employee badge document (David Tan & Thiri San)`,
+      content: `📷 ${t('Processed sample employee badge document (David Tan & Thiri San)')}`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       source: 'ocr',
       imageDataUrl: dataUrl,
@@ -292,8 +292,8 @@ export function CopilotSidebar({
           id: `ocr-res-${Date.now()}`,
           role: 'assistant',
           content: res.isLiveApi
-            ? `🔍 **Gemini Multimodal Vision Extraction Complete**\n\nIdentified **${res.candidates.length} employee candidate(s)** from *acme-japac-roster-badge.png* using **${res.model}**:`
-            : `🔍 **OCR Extraction Preview**\n\nIdentified **${res.candidates.length} candidate(s)** from sample badge:\n\n*${res.message || ''}*`,
+            ? `🔍 **${t('Gemini Multimodal Vision Extraction Complete')}**\n\n${t('Identified {{count}} employee candidate(s) from {{name}} using {{model}}:', { count: res.candidates.length, name: 'acme-japac-roster-badge.png', model: res.model })}`
+            : `🔍 **${t('OCR Extraction Preview')}**\n\n${t('Identified {{count}} candidate(s) from sample badge:', { count: res.candidates.length })}\n\n*${res.message || ''}*`,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           ocrCandidates: res.candidates,
           model: res.model,
@@ -329,7 +329,7 @@ export function CopilotSidebar({
         const assistantMsg: CopilotMessage = {
           id: `ocr-res-${Date.now()}`,
           role: 'assistant',
-          content: `🔍 **OCR Extraction (Sample Preview Mode)**\n\nIdentified **2 employee candidate(s)** from sample badge canvas *(Note: ${err?.message || 'Using local synthetic parser'}).* You can review and import them below:`,
+          content: `🔍 **${t('OCR Extraction (Sample Preview Mode)')}**\n\n${t('Identified 2 employee candidate(s) from sample badge canvas. You can review and import them below:')}`,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           ocrCandidates: fallbackCandidates,
           model: 'Sample Badge Heuristic',

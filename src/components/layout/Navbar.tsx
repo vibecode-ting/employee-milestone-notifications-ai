@@ -257,7 +257,7 @@ export default function Navbar({
               <div className="flex items-center justify-between flex-1 min-w-0">
                 <span className="whitespace-nowrap font-semibold text-slate-700 dark:text-zinc-200">{t('HR Copilot')}</span>
                 <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 uppercase">
-                  AI OCR
+                  {t('AI OCR')}
                 </span>
               </div>
             )}
@@ -412,7 +412,7 @@ export default function Navbar({
                   <div className="flex items-center gap-1.5 mt-0.5">
                     {appUser && <GeminiBadge role={appUser.role} size="sm" />}
                     <span className="text-[10px] text-slate-400 dark:text-zinc-500 truncate">
-                      {appUser?.role === 'admin' ? 'Superuser' : `${employeeCount}/${limitLabel}`}
+                      {appUser?.role === 'admin' ? t('Superuser') : `${employeeCount}/${limitLabel}`}
                     </span>
                   </div>
                 </div>
@@ -446,10 +446,10 @@ export default function Navbar({
                 <div className="flex items-center justify-between text-[11px] font-semibold text-purple-600 dark:text-purple-400 mb-2">
                   <span className="flex items-center gap-1.5">
                     <Sparkles size={12} />
-                    <span>Demo Sandbox</span>
+                    <span>{t('Demo Sandbox')}</span>
                   </span>
                   <span className="text-[9px] uppercase tracking-wider font-mono bg-purple-500/20 text-purple-600 dark:text-purple-300 px-1.5 py-0.5 rounded-full font-bold">
-                    Switch Tier
+                    {t('Switch Tier')}
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-1.5">
@@ -464,7 +464,7 @@ export default function Navbar({
                           : 'bg-white/60 dark:bg-zinc-800/60 text-purple-800 dark:text-purple-300 hover:bg-purple-500/20'
                       )}
                     >
-                      {r === 'pro_plus' ? 'Ultra' : r === 'user' ? 'Free' : r.toUpperCase()}
+                      {r === 'pro_plus' ? t('Ultra') : r === 'user' ? t('Free') : r === 'pro' ? t('Pro') : t('Admin')}
                     </button>
                   ))}
                 </div>
@@ -477,11 +477,13 @@ export default function Navbar({
                     const next = roles[(roles.indexOf(appUser?.role || 'user') + 1) % roles.length];
                     switchDemoPlan(next);
                   }}
-                  title={`Current Demo Tier: ${appUser?.role === 'pro_plus' ? 'Ultra (Pro+)' : appUser?.role?.toUpperCase()} — Click to cycle tier`}
+                  title={t('Current Demo Tier: {{tier}} — Click to cycle tier', {
+                    tier: appUser?.role === 'pro_plus' ? t('Ultra (Pro+)') : appUser?.role === 'user' ? t('Free') : appUser?.role === 'pro' ? t('Pro') : t('Admin'),
+                  })}
                   className="w-10 h-10 rounded-xl flex flex-col items-center justify-center bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/30 text-purple-600 dark:text-purple-300 transition-all cursor-pointer shadow-xs group"
                 >
                   <span className="text-[8px] font-mono font-bold uppercase tracking-tighter text-purple-500 dark:text-purple-400 leading-none">
-                    DEMO
+                    {t('DEMO')}
                   </span>
                   <span className="text-[10px] font-extrabold text-purple-700 dark:text-white mt-0.5 leading-none group-hover:scale-110 transition-transform">
                     {appUser?.role === 'pro_plus' ? 'PRO+' : appUser?.role === 'user' ? 'FREE' : appUser?.role?.toUpperCase()}
