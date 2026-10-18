@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import {
   Bar, AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
@@ -16,6 +17,7 @@ import {
 } from '../lib/bigquery';
 
 export default function Analytics() {
+  const { t } = useTranslation();
   const { appUser } = useAuth();
   const [employees] = useState<Employee[]>(() =>
     getDemoEmployees(appUser?.uid || 'demo_user_123')
@@ -42,20 +44,20 @@ export default function Analytics() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2.5">
-            <span>BigQuery HR Analytics & Forecasting</span>
+            <span>{t('BigQuery HR Analytics & Forecasting')}</span>
             <span className="text-[10px] font-mono uppercase px-2.5 py-0.5 rounded-full bg-cyan-500/15 text-cyan-500 dark:text-cyan-400 font-bold border border-cyan-500/30">
               Google Cloud BigQuery
             </span>
           </h1>
           <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">
-            Real-time milestone telemetry, 12-month budget projection, and JAPAC tenure retention risk analysis.
+            {t('Real-time milestone telemetry, 12-month budget projection, and JAPAC tenure retention risk analysis.')}
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Dataset: hr_analytics_japac (Streaming Live)</span>
+            <span>{t('Dataset: hr_analytics_japac (Streaming Live)')}</span>
           </div>
         </div>
       </div>
@@ -65,7 +67,7 @@ export default function Analytics() {
         <div className="glass-panel p-5 border-l-4 border-l-indigo-500 flex items-center justify-between">
           <div>
             <div className="text-xs font-medium text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
-              12-Month Projected Budget
+              {t('12-Month Projected Budget')}
             </div>
             <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-1 tabular">
               ${totalAnnualBudget.toLocaleString()} USD
@@ -83,7 +85,7 @@ export default function Analytics() {
         <div className="glass-panel p-5 border-l-4 border-l-cyan-500 flex items-center justify-between">
           <div>
             <div className="text-xs font-medium text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
-              Projected Milestone Events
+              {t('Projected Milestone Events')}
             </div>
             <div className="text-2xl font-bold text-cyan-600 dark:text-cyan-400 mt-1 tabular">
               {totalEvents} Celebrations
@@ -100,7 +102,7 @@ export default function Analytics() {
         <div className="glass-panel p-5 border-l-4 border-l-emerald-500 flex items-center justify-between">
           <div>
             <div className="text-xs font-medium text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
-              Recognition Retention Velocity
+              {t('Recognition Velocity')}
             </div>
             <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 tabular">
               96.8%
@@ -118,7 +120,7 @@ export default function Analytics() {
         <div className="glass-panel p-5 border-l-4 border-l-amber-500 flex items-center justify-between">
           <div>
             <div className="text-xs font-medium text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
-              High-Tenure Core Roster
+              {t('High-Tenure Retention Cohort')}
             </div>
             <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1 tabular">
               88.4%
@@ -138,7 +140,7 @@ export default function Analytics() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
           <div>
             <h2 className="text-base font-bold text-slate-800 dark:text-white">
-              12-Month Milestone Events & Gift Budget Projection
+              {t('12-Month Milestone Event & Budget Forecast')}
             </h2>
             <p className="text-xs text-slate-500 dark:text-zinc-400">
               Query synthesized from BigQuery table `milestone_predictions_2026`
@@ -147,11 +149,11 @@ export default function Analytics() {
           <div className="flex items-center gap-4 text-xs font-medium">
             <div className="flex items-center gap-1.5">
               <span className="w-3 h-3 rounded-full bg-indigo-500" />
-              <span className="text-slate-600 dark:text-zinc-300">Birthdays</span>
+              <span className="text-slate-600 dark:text-zinc-300">{t('Birthdays')}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="w-3 h-3 rounded-full bg-cyan-400" />
-              <span className="text-slate-600 dark:text-zinc-300">Anniversaries</span>
+              <span className="text-slate-600 dark:text-zinc-300">{t('Anniversaries')}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="w-3 h-3 rounded-full bg-amber-400" />
@@ -177,8 +179,8 @@ export default function Analytics() {
             <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} />
             <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} unit="$" />
             <Tooltip contentStyle={tooltipStyle} />
-            <Area yAxisId="left" type="monotone" dataKey="birthdays" stroke="#6366f1" strokeWidth={2} fill="url(#colorBday)" name="Birthdays" />
-            <Area yAxisId="left" type="monotone" dataKey="anniversaries" stroke="#06b6d4" strokeWidth={2} fill="url(#colorAnniv)" name="Anniversaries" />
+            <Area yAxisId="left" type="monotone" dataKey="birthdays" stroke="#6366f1" strokeWidth={2} fill="url(#colorBday)" name={t('Birthdays')} />
+            <Area yAxisId="left" type="monotone" dataKey="anniversaries" stroke="#06b6d4" strokeWidth={2} fill="url(#colorAnniv)" name={t('Anniversaries')} />
             <Bar yAxisId="right" dataKey="estimatedGiftBudgetUsd" fill="#fbbf24" opacity={0.3} radius={[4, 4, 0, 0]} name="Gift Budget ($)" />
           </AreaChart>
         </ResponsiveContainer>
@@ -191,7 +193,7 @@ export default function Analytics() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
               <ShieldAlert size={18} className="text-amber-500" />
-              <span>Tenure Cohort Retention Risk Matrix</span>
+              <span>{t('Tenure Retention Risk Cohorts')}</span>
             </h2>
             <span className="text-[11px] text-slate-400 font-mono">Cohorts Model</span>
           </div>
@@ -230,7 +232,7 @@ export default function Analytics() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
               <Sparkles size={18} className="text-indigo-500" />
-              <span>JAPAC Cross-Cultural Language Telemetry</span>
+              <span>{t('JAPAC Localization & Language Telemetry')}</span>
             </h2>
             <span className="text-[11px] text-slate-400 font-mono">7 Supported Locales</span>
           </div>
