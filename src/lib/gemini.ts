@@ -474,7 +474,6 @@ export async function extractEmployeesFromDocument({
     } catch (backendErr) {
       console.warn('Backend Cloud Function OCR not reachable, falling back to sample preview:', backendErr);
     }
-
     return {
       candidates: [
         {
