@@ -4,7 +4,7 @@ import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import {
   LayoutDashboard, Users, Settings, Shield, Zap, Moon, Sun, LogOut, Pin, PinOff,
-  Bell, MessageSquare, BarChart2, Sparkles,
+  Bell, MessageSquare, BarChart2, Bot, Radio, Sparkles,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
@@ -14,6 +14,8 @@ import { PLAN_LIMITS, type Role, type SystemBroadcast } from '../../types';
 import { GeminiBadge, GeminiAvatarRing } from '../common/GeminiBadge';
 import { FeedbackModal } from './FeedbackModal';
 import { NotificationsFlyout } from './NotificationsFlyout';
+import { FeedbackReviewModal } from '../admin/FeedbackReviewModal';
+import { SentNotificationsModal } from '../admin/SentNotificationsModal';
 
 function cycleLocale() {
   const codes = LOCALES.map((l) => l.code);
@@ -25,7 +27,13 @@ function currentFlag() {
   return LOCALES.find((l) => l.code === i18n.language)?.flag ?? '🇺🇸';
 }
 
-export default function Navbar({ employeeCount }: { employeeCount: number }) {
+export default function Navbar({
+  employeeCount,
+  onOpenCopilot,
+}: {
+  employeeCount: number;
+  onOpenCopilot?: () => void;
+}) {
   const { t } = useTranslation();
   const { appUser, signOut, isDemo, switchDemoPlan } = useAuth();
   const navigate = useNavigate();
@@ -53,6 +61,10 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
 
   const [showFeedback, setShowFeedback] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showFeedbackReview, setShowFeedbackReview] = useState(false);
+  const [showSentNotifications, setShowSentNotifications] = useState(false);
+  const [feedbackCount, setFeedbackCount] = useState(0);
+
   const [broadcasts, setBroadcasts] = useState<SystemBroadcast[]>(() => {
     try {
       const list: SystemBroadcast[] = JSON.parse(localStorage.getItem('system_broadcasts_list') || '[]');
@@ -78,6 +90,21 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
       return [];
     }
   });
+
+  useEffect(() => {
+    if (appUser?.role !== 'admin') return;
+    try {
+      const unsub = onSnapshot(collection(db, 'feedback'), (snapshot) => {
+        setFeedbackCount(snapshot.docs.length);
+      }, () => {
+        try {
+          const list = JSON.parse(localStorage.getItem('app_feedbacks_list') || '[]');
+          setFeedbackCount(list.length);
+        } catch {}
+      });
+      return unsub;
+    } catch {}
+  }, [appUser?.role]);
 
   useEffect(() => {
     try {
@@ -210,69 +237,152 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
             </NavLink>
           ))}
 
-          {/* System Notifications */}
-          <div className="relative pt-1">
-            <button
-              type="button"
-              onClick={() => setShowNotifications(!showNotifications)}
-              title={t('Notifications')}
-              aria-label={t('Notifications')}
-              className={cn(
-                'rounded-xl transition-all text-sm font-medium cursor-pointer flex items-center',
-                open
-                  ? 'gap-3 w-full px-3 py-2.5'
-                  : 'w-10 h-10 justify-center p-0 mx-auto',
-                showNotifications
-                  ? 'bg-corp-blue/10 text-corp-blue dark:bg-cobalt-500/15 dark:text-cobalt-400 font-bold'
-                  : 'text-slate-600 hover:bg-slate-500/10 dark:text-zinc-400 dark:hover:bg-zinc-800/50'
-              )}
-            >
-              <div className="relative shrink-0">
-                <Bell size={20} />
-                {unreadBroadcastsCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-pulse shadow-xs">
-                    {unreadBroadcastsCount > 9 ? '9+' : unreadBroadcastsCount}
-                  </span>
-                )}
-              </div>
-              {open && (
-                <div className="flex items-center justify-between flex-1 min-w-0">
-                  <span className="whitespace-nowrap">{t('Notifications')}</span>
-                  {unreadBroadcastsCount > 0 && (
-                    <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-red-500 text-white font-mono">
-                      {unreadBroadcastsCount}
-                    </span>
-                  )}
-                </div>
-              )}
-            </button>
-
-            <NotificationsFlyout
-              isOpen={showNotifications}
-              onClose={() => setShowNotifications(false)}
-              broadcasts={broadcasts}
-              readIds={readBroadcastIds}
-              onMarkRead={handleMarkBroadcastRead}
-              onMarkAllRead={handleMarkAllBroadcastsRead}
-            />
-          </div>
-
-          {/* Feedback Button */}
+          {/* Universal HR Copilot (All Roles: user, pro, pro_plus, admin) */}
           <button
             type="button"
-            onClick={() => setShowFeedback(true)}
-            title={t('Feedback')}
-            aria-label={t('Feedback')}
+            onClick={onOpenCopilot}
+            title="HR Copilot"
+            aria-label="HR Copilot"
             className={cn(
-              'rounded-xl text-slate-600 hover:bg-slate-500/10 dark:text-zinc-400 dark:hover:bg-zinc-800/50 transition-all text-sm font-medium cursor-pointer flex items-center',
+              'rounded-xl text-slate-600 hover:bg-slate-500/10 dark:text-zinc-400 dark:hover:bg-zinc-800/50 transition-all text-sm font-medium cursor-pointer flex items-center group',
               open
                 ? 'gap-3 w-full px-3 py-2.5'
                 : 'w-10 h-10 justify-center p-0 mx-auto'
             )}
           >
-            <MessageSquare size={20} className="shrink-0 text-amber-500 dark:text-amber-400" />
-            {open && <span className="whitespace-nowrap">{t('Feedback')}</span>}
+            <div className="p-1 rounded-lg bg-gradient-to-tr from-cyan-500/20 to-indigo-500/20 text-cyan-600 dark:text-cyan-400 shrink-0 group-hover:scale-110 transition-transform">
+              <Bot size={18} />
+            </div>
+            {open && (
+              <div className="flex items-center justify-between flex-1 min-w-0">
+                <span className="whitespace-nowrap font-semibold text-slate-700 dark:text-zinc-200">HR Copilot</span>
+                <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 uppercase">
+                  AI OCR
+                </span>
+              </div>
+            )}
           </button>
+
+          {/* RBAC Modules: Admin vs Non-Admin */}
+          {appUser?.role === 'admin' ? (
+            <>
+              {/* Admin: Sent Notifications (System Announcement Banner) */}
+              <button
+                type="button"
+                onClick={() => setShowSentNotifications(true)}
+                title={t('Sent Notifications')}
+                aria-label={t('Sent Notifications')}
+                className={cn(
+                  'rounded-xl text-slate-600 hover:bg-slate-500/10 dark:text-zinc-400 dark:hover:bg-zinc-800/50 transition-all text-sm font-medium cursor-pointer flex items-center',
+                  open
+                    ? 'gap-3 w-full px-3 py-2.5'
+                    : 'w-10 h-10 justify-center p-0 mx-auto'
+                )}
+              >
+                <Radio size={20} className="shrink-0 text-corp-blue dark:text-gold-400" />
+                {open && (
+                  <div className="flex items-center justify-between flex-1 min-w-0">
+                    <span className="whitespace-nowrap">{t('Sent Notifications')}</span>
+                    <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-corp-blue/15 text-corp-blue dark:bg-gold-500/15 dark:text-gold-400 font-mono">
+                      {broadcasts.filter((b) => b.active !== false).length}
+                    </span>
+                  </div>
+                )}
+              </button>
+
+              {/* Admin: Feedback Review */}
+              <button
+                type="button"
+                onClick={() => setShowFeedbackReview(true)}
+                title={t('Feedback Review')}
+                aria-label={t('Feedback Review')}
+                className={cn(
+                  'rounded-xl text-slate-600 hover:bg-slate-500/10 dark:text-zinc-400 dark:hover:bg-zinc-800/50 transition-all text-sm font-medium cursor-pointer flex items-center',
+                  open
+                    ? 'gap-3 w-full px-3 py-2.5'
+                    : 'w-10 h-10 justify-center p-0 mx-auto'
+                )}
+              >
+                <MessageSquare size={20} className="shrink-0 text-purple-500 dark:text-purple-400" />
+                {open && (
+                  <div className="flex items-center justify-between flex-1 min-w-0">
+                    <span className="whitespace-nowrap">{t('Feedback Review')}</span>
+                    {feedbackCount > 0 && (
+                      <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-purple-500/15 text-purple-600 dark:text-purple-400 font-mono">
+                        {feedbackCount}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </button>
+            </>
+          ) : (
+            <>
+              {/* Non-Admin: System Notifications */}
+              <div className="relative pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  title={t('Notifications')}
+                  aria-label={t('Notifications')}
+                  className={cn(
+                    'rounded-xl transition-all text-sm font-medium cursor-pointer flex items-center',
+                    open
+                      ? 'gap-3 w-full px-3 py-2.5'
+                      : 'w-10 h-10 justify-center p-0 mx-auto',
+                    showNotifications
+                      ? 'bg-corp-blue/10 text-corp-blue dark:bg-cobalt-500/15 dark:text-cobalt-400 font-bold'
+                      : 'text-slate-600 hover:bg-slate-500/10 dark:text-zinc-400 dark:hover:bg-zinc-800/50'
+                  )}
+                >
+                  <div className="relative shrink-0">
+                    <Bell size={20} />
+                    {unreadBroadcastsCount > 0 && (
+                      <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-pulse shadow-xs">
+                        {unreadBroadcastsCount > 9 ? '9+' : unreadBroadcastsCount}
+                      </span>
+                    )}
+                  </div>
+                  {open && (
+                    <div className="flex items-center justify-between flex-1 min-w-0">
+                      <span className="whitespace-nowrap">{t('Notifications')}</span>
+                      {unreadBroadcastsCount > 0 && (
+                        <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-red-500 text-white font-mono">
+                          {unreadBroadcastsCount}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </button>
+
+                <NotificationsFlyout
+                  isOpen={showNotifications}
+                  onClose={() => setShowNotifications(false)}
+                  broadcasts={broadcasts}
+                  readIds={readBroadcastIds}
+                  onMarkRead={handleMarkBroadcastRead}
+                  onMarkAllRead={handleMarkAllBroadcastsRead}
+                />
+              </div>
+
+              {/* Non-Admin: Feedback Button */}
+              <button
+                type="button"
+                onClick={() => setShowFeedback(true)}
+                title={t('Feedback')}
+                aria-label={t('Feedback')}
+                className={cn(
+                  'rounded-xl text-slate-600 hover:bg-slate-500/10 dark:text-zinc-400 dark:hover:bg-zinc-800/50 transition-all text-sm font-medium cursor-pointer flex items-center',
+                  open
+                    ? 'gap-3 w-full px-3 py-2.5'
+                    : 'w-10 h-10 justify-center p-0 mx-auto'
+                )}
+              >
+                <MessageSquare size={20} className="shrink-0 text-amber-500 dark:text-amber-400" />
+                {open && <span className="whitespace-nowrap">{t('Feedback')}</span>}
+              </button>
+            </>
+          )}
         </nav>
 
         {/* Bottom section */}
@@ -381,11 +491,11 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
             )
           )}
 
-          {/* Dark mode */}
+          {/* Dark mode — showing current condition */}
           <button
             onClick={toggleDark}
-            title={dark ? t('Light Mode') : t('Dark Mode')}
-            aria-label={dark ? t('Light Mode') : t('Dark Mode')}
+            title={dark ? t('Dark Mode') : t('Light Mode')}
+            aria-label={dark ? t('Dark Mode') : t('Light Mode')}
             className={cn(
               'rounded-xl text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-all text-sm cursor-pointer flex items-center',
               open
@@ -393,8 +503,8 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
                 : 'w-10 h-10 justify-center p-0 mx-auto'
             )}
           >
-            {dark ? <Sun size={20} className="shrink-0 text-amber-500" /> : <Moon size={20} className="shrink-0" />}
-            {open && <span>{dark ? t('Light Mode') : t('Dark Mode')}</span>}
+            {dark ? <Moon size={20} className="shrink-0 text-indigo-400" /> : <Sun size={20} className="shrink-0 text-amber-500" />}
+            {open && <span>{dark ? t('Dark Mode') : t('Light Mode')}</span>}
           </button>
 
           {/* Language */}
@@ -470,8 +580,18 @@ export default function Navbar({ employeeCount }: { employeeCount: number }) {
         }}
       />
 
-      {/* Feedback Modal */}
+      {/* Feedback Modal (Non-admin) */}
       <FeedbackModal isOpen={showFeedback} onClose={() => setShowFeedback(false)} />
+
+      {/* Admin Operations Modals */}
+      <FeedbackReviewModal
+        isOpen={showFeedbackReview}
+        onClose={() => setShowFeedbackReview(false)}
+      />
+      <SentNotificationsModal
+        isOpen={showSentNotifications}
+        onClose={() => setShowSentNotifications(false)}
+      />
     </>
   );
 }

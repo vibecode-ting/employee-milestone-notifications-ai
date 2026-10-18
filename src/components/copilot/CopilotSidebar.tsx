@@ -78,7 +78,7 @@ export function CopilotSidebar({
     try {
       const recognition = new SpeechRecognition();
       recognition.continuous = false;
-      recognition.interimResults = false;
+      recognition.interimResults = true;
       recognition.lang = 'en-US';
 
       recognition.onstart = () => setIsListening(true);
@@ -86,9 +86,20 @@ export function CopilotSidebar({
       recognition.onerror = () => setIsListening(false);
 
       recognition.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        setInput(transcript);
-        handleSendQuery(transcript, 'voice');
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript;
+          } else {
+            setInput(event.results[i][0].transcript);
+          }
+        }
+        if (finalTranscript) {
+          setInput(finalTranscript);
+          handleSendQuery(finalTranscript, 'voice');
+          recognition.stop();
+          setIsListening(false);
+        }
       };
 
       recognitionRef.current = recognition;
@@ -115,19 +126,21 @@ export function CopilotSidebar({
     if (!file) return;
 
     setOcrScanning(true);
-    const userMsg: CopilotMessage = {
-      id: `ocr-req-${Date.now()}`,
-      role: 'user',
-      content: `📷 Uploaded roster document: ${file.name}`,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      source: 'ocr',
-    };
-    setMessages((prev) => [...prev, userMsg]);
 
     const reader = new FileReader();
     reader.onload = async () => {
       try {
         const dataUrl = reader.result as string;
+        const userMsg: CopilotMessage = {
+          id: `ocr-req-${Date.now()}`,
+          role: 'user',
+          content: `📷 Uploaded roster document: ${file.name}`,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          source: 'ocr',
+          imageDataUrl: dataUrl,
+        };
+        setMessages((prev) => [...prev, userMsg]);
+
         const base64Data = dataUrl.split(',')[1];
         const mimeType = file.type || 'image/jpeg';
 
@@ -586,6 +599,25 @@ export function CopilotSidebar({
                     : 'bg-slate-800/90 border border-slate-700/60 text-slate-200 rounded-bl-none'
                 }`}
               >
+                {/* Voice prompt indicator */}
+                {m.source === 'voice' && (
+                  <div className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-white/20 text-white mb-2 font-medium">
+                    <Mic size={10} />
+                    <span>Voice Prompt</span>
+                  </div>
+                )}
+
+                {/* Uploaded OCR image preview */}
+                {m.imageDataUrl && (
+                  <div className="mb-2.5 rounded-xl overflow-hidden border border-white/20 bg-black/40 max-h-48 shadow-inner">
+                    <img
+                      src={m.imageDataUrl}
+                      alt="Uploaded roster document"
+                      className="w-full h-auto object-cover max-h-48"
+                    />
+                  </div>
+                )}
+
                 <div className="whitespace-pre-wrap">{m.content}</div>
 
                 {/* OCR Candidates Interactive Preview Card */}
@@ -738,6 +770,23 @@ export function CopilotSidebar({
           <div className="flex items-center gap-2 p-3 rounded-2xl bg-indigo-950/60 border border-indigo-700/60 text-indigo-300 text-xs w-fit">
             <FileText size={14} className="animate-bounce" />
             <span>Scanning image with Gemini 2.0 Flash Multimodal Vision…</span>
+          </div>
+        )}
+
+        {isListening && (
+          <div className="flex items-center justify-between p-3 rounded-2xl bg-red-950/70 border border-red-500/50 text-red-200 text-xs animate-pulse">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" />
+              <span>Listening to voice prompt... {input ? `"${input}"` : 'Speak now'}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleSendQuery(input, 'voice')}
+              disabled={!input.trim()}
+              className="px-2.5 py-1 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold text-[11px] disabled:opacity-40 cursor-pointer"
+            >
+              Send Voice
+            </button>
           </div>
         )}
 
