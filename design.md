@@ -14,7 +14,7 @@
 
 ## 1. Design Philosophy & UX Golden Rules (Instructions for AI Coding Agents)
 
-When building the frontend components (`src/client/`), AI coding agents (Cursor, Windsurf, Claude Code, Copilot) must strictly enforce these **5 UX Golden Rules**:
+When building the frontend components (`src/client/`), AI coding agents (Cursor, Windsurf, Gemini, Copilot) must strictly enforce these **5 UX Golden Rules**:
 
 1. **The "1-Click Everything" Principle:**
    * Switching between **English, Burmese, Chinese, Vietnamese, and Hindi** must happen in **1 single click** via a visible segmented pill bar in the top navigation bar—**never** hidden inside a dropdown or settings page.
@@ -300,7 +300,7 @@ A split-screen visual studio where users can preview, customize, and send Birthd
 
 ### 4.6 Screen 6: Omniscient High-Intel AI Chat Copilot (`AiCopilotChat.tsx`)
 
-Designed to feel like an elite executive AI assistant (Claude / Gemini Canvas style) that knows **every employee row, every custom column, and every app setting**:
+Designed to feel like an elite executive AI assistant (Gemini Canvas style) that knows **every employee row, every custom column, and every app setting**:
 
 * **Quick-Start Prompt Chips (Localized in all 5 languages!):**
   * `🎂 "Who has a birthday or work anniversary in the next 30 days?"`

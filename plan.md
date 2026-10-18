@@ -7,7 +7,7 @@
 
 ## 1. Executive Summary & Core Design Philosophy
 
-**Instructions for AI Coding Agents (Cursor / Windsurf / Claude Code / GitHub Copilot / Devin):**
+**Instructions for AI Coding Agents (Cursor / Windsurf / Gemini / GitHub Copilot / Devin):**
 You are tasked with upgrading the `annual_notifications` repository into a full-stack, production-ready web application. Every architectural and UI decision must strictly follow **Three Core Pillars**:
 
 1. **Radical Simplicity ("Zero-Headache Setup"):** A non-technical HR manager or startup founder must be able to configure automatic emails, toggle employee opt-ins, add employees manually, upload a messy CSV, or connect an external database (Metabase-style) in under 2 minutes.
