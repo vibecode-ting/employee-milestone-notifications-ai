@@ -27,15 +27,16 @@ let cachedDiscoveredModels: string[] | null = null;
 let cachedKeyForDiscovery: string = '';
 
 export const PREFERRED_GEMINI_MODELS = [
+  'gemini-3.6-flash',
+  'gemini-3.8-flash',
+  'gemini-3.5-flash',
+  'gemini-3.1-flash-lite',
+  'gemini-flash-lite-latest',
+  'gemini-flash-latest',
   'gemini-2.0-flash',
   'gemini-2.0-flash-exp',
   'gemini-1.5-flash-latest',
-  'gemini-1.5-flash-002',
-  'gemini-1.5-flash-001',
   'gemini-1.5-flash',
-  'gemini-2.0-flash-lite',
-  'gemini-1.5-pro-latest',
-  'gemini-1.5-pro',
 ];
 
 export async function getAvailableGeminiModels(apiKey: string): Promise<string[]> {
@@ -215,43 +216,49 @@ Return ONLY a valid JSON object matching this schema (no markdown, no backticks)
 `;
 
     const models = await getAvailableGeminiModels(apiKey);
-    const activeModel = models[0] || 'gemini-2.0-flash';
+    const candidateModels = models.slice(0, 3);
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${activeModel}:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 350,
-            responseMimeType: 'application/json',
-          },
-        }),
+    for (const activeModel of candidateModels) {
+      try {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${activeModel}:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: 350,
+                responseMimeType: 'application/json',
+              },
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          continue;
+        }
+
+        const data = await response.json();
+        const rawJson = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (rawJson) {
+          const parsed = JSON.parse(rawJson);
+          return {
+            id: `gen-card-${Date.now()}`,
+            employeeName: employee.name,
+            milestoneType,
+            years,
+            tone,
+            theme,
+            headline: parsed.headline || fallback.headline,
+            message: parsed.message || fallback.message,
+            quote: parsed.quote || fallback.quote,
+          };
+        }
+      } catch (e) {
+        console.warn(`Card generation attempt with ${activeModel} failed, trying next model...`);
       }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Gemini API error ${response.status}`);
-    }
-
-    const data = await response.json();
-    const rawJson = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (rawJson) {
-      const parsed = JSON.parse(rawJson);
-      return {
-        id: `gen-card-${Date.now()}`,
-        employeeName: employee.name,
-        milestoneType,
-        years,
-        tone,
-        theme,
-        headline: parsed.headline || fallback.headline,
-        message: parsed.message || fallback.message,
-        quote: parsed.quote || fallback.quote,
-      };
     }
   } catch (err) {
     console.warn('Gemini live call failed, using tone-aware local fallback:', err);
@@ -447,9 +454,26 @@ export async function extractEmployeesFromDocument({
 }): Promise<OcrExtractionResult> {
   const apiKey = getGeminiApiKey();
 
-  // If no Gemini API key is configured, provide graceful realistic fallback
-  // with a clear hint so judges/users know they can enter a key for live vision.
+  // If no client-side Gemini API key is configured, first attempt to call the secure
+  // backend Cloud Function `extractDocumentOcr` (which uses backend GEMINI_API_KEY).
+  // If backend is unavailable (e.g. offline demo mode), provide realistic sample fallback.
   if (!apiKey) {
+    try {
+      const { httpsCallable } = await import('firebase/functions');
+      const { fns } = await import('./firebase');
+      if (fns) {
+        const extractFn = httpsCallable<{ fileBase64: string; mimeType: string }, OcrExtractionResult>(
+          fns,
+          'extractDocumentOcr'
+        );
+        const res = await extractFn({ fileBase64, mimeType });
+        if (res.data && Array.isArray(res.data.candidates) && res.data.candidates.length > 0) {
+          return res.data;
+        }
+      }
+    } catch (backendErr) {
+      console.warn('Backend Cloud Function OCR not reachable, falling back to sample preview:', backendErr);
+    }
     return {
       candidates: [
         {
@@ -524,12 +548,12 @@ Return ONLY a valid JSON array of employee objects matching this schema (no mark
 If the image does not contain any employee data, return an empty array [].`;
 
   const candidateModels = await getAvailableGeminiModels(apiKey);
-  // Test top candidate models
-  const modelsToTry = candidateModels.slice(0, 4);
+  // Test top candidate models (prioritizing operational flash models)
+  const modelsToTry = candidateModels.slice(0, 6);
   let lastError: any = null;
 
   for (const model of modelsToTry) {
-    // Try v1beta first, then fallback to v1 if 404 occurs
+    // Try v1beta first, then fallback to v1 if needed
     const apiVersions = ['v1beta', 'v1'];
     for (const apiVersion of apiVersions) {
       try {
@@ -569,13 +593,13 @@ If the image does not contain any employee data, return an empty array [].`;
             parsedMsg = errObj?.error?.message || rawErr;
           } catch {}
 
-          // If 404 (model not found on this version/tier), record and try next
-          if (response.status === 404) {
+          // If 404 (model retired/unsupported), 503 (high demand spike), or 429 (tier quota limit), try next candidate model
+          if (response.status === 404 || response.status === 503 || response.status === 429) {
             lastError = new Error(`Model ${model} (${apiVersion}): ${parsedMsg}`);
             continue;
           }
 
-          // If API key is invalid (400) or quota exceeded (429), stop early with descriptive error
+          // If API key is invalid (400), stop early with clear diagnostic error
           throw new Error(`Gemini Vision API error (${response.status}): ${parsedMsg}`);
         }
 

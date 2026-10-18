@@ -83,3 +83,14 @@ body {
 .table-row-hover {
   @apply hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors;
 }
+
+/* ── Custom Scrollbar Utilities ── */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+

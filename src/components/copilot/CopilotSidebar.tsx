@@ -126,7 +126,6 @@ export function CopilotSidebar({
     if (!file) return;
 
     setOcrScanning(true);
-
     const reader = new FileReader();
     reader.onload = async () => {
       try {
@@ -257,9 +256,9 @@ export function CopilotSidebar({
       content: `📷 Processed sample employee badge document (David Tan & Thiri San)`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       source: 'ocr',
+      imageDataUrl: dataUrl,
     };
     setMessages((prev) => [...prev, userMsg]);
-
     extractEmployeesFromDocument({
       fileBase64: base64Data,
       mimeType: 'image/png',
@@ -494,7 +493,7 @@ export function CopilotSidebar({
           <button
             type="button"
             onClick={() => setShowKeyModal(true)}
-            title={hasApiKey ? 'Gemini 2.0 Flash API Connected' : 'Configure Gemini API Key'}
+            title={hasApiKey ? 'Gemini Flash API Connected' : 'Configure Gemini API Key'}
             className={`px-2.5 py-1 rounded-xl text-[10px] font-bold flex items-center gap-1.5 transition-all cursor-pointer border ${
               hasApiKey
                 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20'
@@ -502,7 +501,7 @@ export function CopilotSidebar({
             }`}
           >
             <Key size={12} />
-            <span>{hasApiKey ? 'Gemini 2.0 Flash' : 'Set API Key'}</span>
+            <span>{hasApiKey ? 'Gemini Connected' : 'Set API Key'}</span>
           </button>
 
           <button
@@ -533,18 +532,18 @@ export function CopilotSidebar({
             </div>
 
             <p className="text-xs text-slate-300 leading-relaxed">
-              Enter your Google AI Studio API key to run live <strong>Gemini 2.0 Flash Multimodal Vision</strong> and personalized AI milestone greetings in local.
+              Enter your Google AI Studio API key to run live <strong>Gemini Multimodal Vision</strong> and personalized AI milestone greetings in local.
             </p>
 
             <div>
               <label className="block text-[11px] font-semibold text-slate-400 mb-1">
-                Gemini API Key (AIzaSy...)
+                Gemini API Key
               </label>
               <input
                 type="password"
                 value={apiKeyInput}
                 onChange={(e) => setApiKeyInput(e.target.value)}
-                placeholder="Paste AIzaSy key here..."
+                placeholder="Paste your Gemini API key here..."
                 className="w-full text-xs py-2 px-3 rounded-xl bg-slate-950 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-400 font-mono"
               />
             </div>
@@ -769,7 +768,7 @@ export function CopilotSidebar({
         {ocrScanning && (
           <div className="flex items-center gap-2 p-3 rounded-2xl bg-indigo-950/60 border border-indigo-700/60 text-indigo-300 text-xs w-fit">
             <FileText size={14} className="animate-bounce" />
-            <span>Scanning image with Gemini 2.0 Flash Multimodal Vision…</span>
+            <span>Scanning image with Gemini Flash Multimodal Vision…</span>
           </div>
         )}
 
@@ -793,37 +792,54 @@ export function CopilotSidebar({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Suggested Quick Action Chips */}
-      <div className="px-4 py-2 border-t border-slate-800 bg-slate-950/40 flex items-center gap-2 overflow-x-auto text-[11px]">
-        <button
-          onClick={() => handleSendQuery('Who has an upcoming milestone this month?')}
-          className="px-2.5 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 whitespace-nowrap transition-colors cursor-pointer"
+      {/* Suggested Quick Action Chips Carousel / Slider */}
+      <div className="relative border-t border-slate-800/80 bg-slate-950/60 group">
+        {/* Subtle Edge Fade Gradients */}
+        <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-3 bg-gradient-to-r from-slate-950/80 to-transparent z-10" />
+        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-3 bg-gradient-to-l from-slate-950/80 to-transparent z-10" />
+
+        <div
+          onWheel={(e) => {
+            if (e.deltaY !== 0) {
+              e.currentTarget.scrollLeft += e.deltaY;
+            }
+          }}
+          className="px-3.5 py-2 flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth text-[11px] select-none"
         >
-          🎂 Upcoming Milestones
-        </button>
-        <button
-          onClick={() => handleSendQuery('Show all engineers in Singapore')}
-          className="px-2.5 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 whitespace-nowrap transition-colors cursor-pointer"
-        >
-          🇸🇬 Singapore Engineers
-        </button>
-        <button
-          type="button"
-          onClick={handleTestSampleDocument}
-          className="px-2.5 py-1 rounded-full bg-cyan-950/60 hover:bg-cyan-900 text-cyan-300 border border-cyan-700/60 whitespace-nowrap transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
-          title="Generate multi-lingual roster canvas and run live Multimodal Vision OCR"
-        >
-          <Sparkles size={11} />
-          <span>🖼️ Try Sample Badge OCR</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          className="px-2.5 py-1 rounded-full bg-indigo-950/60 hover:bg-indigo-900 text-indigo-300 border border-indigo-700/60 whitespace-nowrap transition-colors cursor-pointer flex items-center gap-1"
-        >
-          <Upload size={11} />
-          <span>Upload Image / PDF</span>
-        </button>
+          <button
+            type="button"
+            onClick={() => handleSendQuery('Who has an upcoming milestone this month?')}
+            className="px-3 py-1 rounded-full bg-slate-800/90 hover:bg-slate-700 hover:text-white text-slate-300 border border-slate-700/80 whitespace-nowrap transition-all duration-150 cursor-pointer shadow-xs active:scale-95 flex items-center gap-1.5"
+          >
+            <span>🎂</span>
+            <span>Upcoming Milestones</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleSendQuery('Show all engineers in Singapore')}
+            className="px-3 py-1 rounded-full bg-slate-800/90 hover:bg-slate-700 hover:text-white text-slate-300 border border-slate-700/80 whitespace-nowrap transition-all duration-150 cursor-pointer shadow-xs active:scale-95 flex items-center gap-1.5"
+          >
+            <span>🇸🇬</span>
+            <span>Singapore Engineers</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleTestSampleDocument}
+            className="px-3 py-1 rounded-full bg-cyan-950/70 hover:bg-cyan-900/90 text-cyan-300 border border-cyan-700/70 whitespace-nowrap transition-all duration-150 cursor-pointer flex items-center gap-1.5 shadow-sm active:scale-95 hover:border-cyan-500/80"
+            title="Generate multi-lingual roster canvas and run live Multimodal Vision OCR"
+          >
+            <Sparkles size={12} className="text-cyan-400" />
+            <span>Try Sample Badge OCR</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="px-3 py-1 rounded-full bg-indigo-950/70 hover:bg-indigo-900/90 text-indigo-300 border border-indigo-700/70 whitespace-nowrap transition-all duration-150 cursor-pointer flex items-center gap-1.5 shadow-sm active:scale-95 hover:border-indigo-500/80"
+          >
+            <Upload size={12} className="text-indigo-400" />
+            <span>Upload Image / PDF</span>
+          </button>
+        </div>
       </div>
 
       {/* Input Bar */}
