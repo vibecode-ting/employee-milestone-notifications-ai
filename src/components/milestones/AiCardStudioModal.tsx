@@ -22,7 +22,7 @@ export function AiCardStudioModal({
   milestoneType = 'BIRTHDAY',
   years = 1,
 }: AiCardStudioModalProps) {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [tone, setTone] = useState<CardTone>('warm');
   const [theme, setTheme] = useState<CardTheme>('sapphire');
   const [customNotes, setCustomNotes] = useState('');
@@ -391,13 +391,13 @@ export function AiCardStudioModal({
             </div>
             <div>
               <h2 className="text-base font-bold text-white flex items-center gap-2.5">
-                <span>Gen AI Milestone Card Studio</span>
+                <span>{t('Gen AI Milestone Card Studio')}</span>
                 <span className="text-[10px] font-mono uppercase px-2.5 py-0.5 rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 text-white font-bold tracking-wider shadow-xs">
                   Gemini 2.5 Flash
                 </span>
               </h2>
               <p className="text-xs text-slate-300 mt-0.5">
-                Personalized for <span className="text-white font-semibold">{employee.name}</span> • {employee.department}
+                {t('Personalized for')} <span className="text-white font-semibold">{employee.name}</span> • {employee.department}
               </p>
             </div>
           </div>
@@ -418,18 +418,18 @@ export function AiCardStudioModal({
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-200">
-                  Recognition Tone
+                  {t('Recognition Tone')}
                 </label>
-                <span className="text-[10px] text-slate-400 font-medium">Select Tone</span>
+                <span className="text-[10px] text-slate-400 font-medium">{t('Select Tone')}</span>
               </div>
               <div className="grid grid-cols-1 gap-2">
-                {TONES.map((t) => {
-                  const Icon = t.icon;
-                  const isSelected = tone === t.id;
+                {TONES.map((tItem) => {
+                  const Icon = tItem.icon;
+                  const isSelected = tone === tItem.id;
                   return (
                     <button
-                      key={t.id}
-                      onClick={() => setTone(t.id)}
+                      key={tItem.id}
+                      onClick={() => setTone(tItem.id)}
                       className={`w-full flex items-center justify-between p-3 rounded-xl border-2 text-left transition-all cursor-pointer ${
                         isSelected
                           ? 'bg-indigo-950/80 border-indigo-400 text-white shadow-lg shadow-indigo-500/20 ring-1 ring-indigo-400/50'
@@ -448,7 +448,7 @@ export function AiCardStudioModal({
                         </div>
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-white tracking-wide">{t.label}</span>
+                            <span className="text-xs font-bold text-white tracking-wide">{t(tItem.label)}</span>
                             <span
                               className={`text-[9px] font-semibold uppercase px-1.5 py-0.5 rounded ${
                                 isSelected
@@ -456,11 +456,11 @@ export function AiCardStudioModal({
                                   : 'bg-slate-700 text-slate-300'
                               }`}
                             >
-                              {t.badge}
+                              {t(tItem.badge)}
                             </span>
                           </div>
                           <p className={`text-[11px] mt-0.5 ${isSelected ? 'text-indigo-200' : 'text-slate-300'}`}>
-                            {t.desc}
+                            {t(tItem.desc)}
                           </p>
                         </div>
                       </div>
@@ -481,9 +481,9 @@ export function AiCardStudioModal({
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-200">
-                  Visual Aesthetic
+                  {t('Visual Aesthetic')}
                 </label>
-                <span className="text-[10px] text-slate-400 font-medium">Palette</span>
+                <span className="text-[10px] text-slate-400 font-medium">{t('Palette')}</span>
               </div>
               <div className="grid grid-cols-2 gap-2.5">
                 {THEMES.map((th) => {
@@ -504,7 +504,7 @@ export function AiCardStudioModal({
                             isSelected ? 'ring-2 ring-white/80' : ''
                           }`}
                         />
-                        <span className="text-xs truncate">{th.label}</span>
+                        <span className="text-xs truncate">{t(th.label)}</span>
                       </div>
                       {isSelected && (
                         <Check size={14} className="text-cyan-400 shrink-0 ml-1" strokeWidth={3} />
@@ -519,14 +519,14 @@ export function AiCardStudioModal({
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-200">
-                  Add Custom Memory or Goal
+                  {t('Add Custom Memory or Goal')}
                 </label>
-                <span className="text-[10px] text-slate-400">Optional</span>
+                <span className="text-[10px] text-slate-400">{t('Optional')}</span>
               </div>
               <textarea
                 value={customNotes}
                 onChange={(e) => setCustomNotes(e.target.value)}
-                placeholder="e.g. Led the Q3 Cloud Migration, great ping-pong player, always mentors newcomers..."
+                placeholder={t('Custom memory placeholder')}
                 className="w-full h-18 p-3 text-xs rounded-xl bg-slate-800 border-2 border-slate-700 text-white placeholder-slate-400 focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 resize-none transition-all shadow-inner"
               />
             </div>
@@ -538,7 +538,7 @@ export function AiCardStudioModal({
               className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 active:scale-[0.99] text-white text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30 border border-indigo-400/40 transition-all cursor-pointer disabled:opacity-60"
             >
               <RefreshCw size={15} className={isGenerating ? 'animate-spin' : ''} />
-              <span>{isGenerating ? 'Gemini is composing thoughtful wishes…' : 'Regenerate Message'}</span>
+              <span>{isGenerating ? t('Gemini is composing thoughtful wishes…') : t('Regenerate Message')}</span>
             </button>
           </div>
 
@@ -548,10 +548,10 @@ export function AiCardStudioModal({
               <div className="flex items-center justify-between mb-2.5">
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center gap-1.5">
                   <Sparkles size={13} className="text-indigo-400" />
-                  <span>Live Card Canvas Preview</span>
+                  <span>{t('Live Card Canvas Preview')}</span>
                 </span>
                 <span className="text-[11px] text-slate-300 font-mono bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
-                  Format: 1200 × 630px Card
+                  {t('Format: 1200 × 630px Card')}
                 </span>
               </div>
 
@@ -588,17 +588,17 @@ export function AiCardStudioModal({
                 {/* Middle of Card: Generated Content */}
                 <div className="relative z-10 my-4 space-y-2.5">
                   <h4 className={`text-lg sm:text-xl font-extrabold ${activeThemeObj.textClass} tracking-tight drop-shadow-sm`}>
-                    {card ? card.headline : 'Composing thoughtful wishes…'}
+                    {card ? card.headline : t('Composing thoughtful wishes…')}
                   </h4>
                   <p className="text-xs sm:text-sm text-slate-100 leading-relaxed font-normal">
-                    {card ? card.message : 'Generating personalized message using Gemini 2.5 Flash…'}
+                    {card ? card.message : t('Generating personalized message using Gemini 2.5 Flash…')}
                   </p>
                 </div>
 
                 {/* Bottom of Card: Quote & Branding */}
                 <div className="relative z-10 pt-3 border-t border-white/20 flex items-center justify-between text-[11px] text-slate-200">
                   <span className="italic opacity-90 truncate max-w-[70%]">
-                    {card?.quote || '“Dedicated to human recognition at scale.”'}
+                    {card?.quote || t('Dedicated to human recognition at scale.')}
                   </span>
                   <div className="flex items-center gap-1.5 opacity-95 shrink-0 font-medium text-[10px] text-white">
                     <Sparkles size={12} className={activeThemeObj.textClass} />
@@ -621,7 +621,7 @@ export function AiCardStudioModal({
                 title="Copy greeting and quote text to clipboard"
               >
                 {copied ? <Check size={15} className="text-emerald-400" /> : <Copy size={15} />}
-                <span>{copied ? 'Copied Text! ✓' : 'Copy Text'}</span>
+                <span>{copied ? t('Copied Text! ✓') : t('Copy Text')}</span>
               </button>
 
               {/* 2. Export Card as PNG Image (Real Canvas Graphic Download) */}
@@ -640,7 +640,7 @@ export function AiCardStudioModal({
                 ) : (
                   <Download size={15} className={isExporting ? 'animate-bounce' : ''} />
                 )}
-                <span>{exported ? 'Downloaded PNG! 🎨' : isExporting ? 'Rendering…' : 'Export PNG Card'}</span>
+                <span>{exported ? t('Downloaded PNG! 🎨') : isExporting ? t('Rendering…') : t('Export PNG Card')}</span>
               </button>
 
               {/* 3. Schedule Delivery */}
@@ -654,7 +654,7 @@ export function AiCardStudioModal({
                 title="Schedule celebration card for automatic dispatch"
               >
                 {scheduled ? <Check size={15} className="text-amber-400" /> : <Calendar size={15} />}
-                <span>{scheduled ? 'Scheduled! ⏰' : 'Schedule'}</span>
+                <span>{scheduled ? t('Scheduled! ⏰') : t('Schedule')}</span>
               </button>
 
               {/* 4. Send Now */}
@@ -668,7 +668,7 @@ export function AiCardStudioModal({
                 title="Dispatch celebration card immediately across employee channels"
               >
                 {dispatched ? <Check size={15} /> : <Send size={15} />}
-                <span>{dispatched ? 'Dispatched! 🚀' : 'Send Now'}</span>
+                <span>{dispatched ? t('Dispatched! 🚀') : t('Send Now')}</span>
               </button>
             </div>
           </div>
