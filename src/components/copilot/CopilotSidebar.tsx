@@ -744,37 +744,54 @@ export function CopilotSidebar({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Suggested Quick Action Chips */}
-      <div className="px-4 py-2 border-t border-slate-800 bg-slate-950/40 flex items-center gap-2 overflow-x-auto text-[11px]">
-        <button
-          onClick={() => handleSendQuery('Who has an upcoming milestone this month?')}
-          className="px-2.5 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 whitespace-nowrap transition-colors cursor-pointer"
+      {/* Suggested Quick Action Chips Carousel / Slider */}
+      <div className="relative border-t border-slate-800/80 bg-slate-950/60 group">
+        {/* Subtle Edge Fade Gradients */}
+        <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-3 bg-gradient-to-r from-slate-950/80 to-transparent z-10" />
+        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-3 bg-gradient-to-l from-slate-950/80 to-transparent z-10" />
+
+        <div
+          onWheel={(e) => {
+            if (e.deltaY !== 0) {
+              e.currentTarget.scrollLeft += e.deltaY;
+            }
+          }}
+          className="px-3.5 py-2 flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth text-[11px] select-none"
         >
-          🎂 Upcoming Milestones
-        </button>
-        <button
-          onClick={() => handleSendQuery('Show all engineers in Singapore')}
-          className="px-2.5 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 whitespace-nowrap transition-colors cursor-pointer"
-        >
-          🇸🇬 Singapore Engineers
-        </button>
-        <button
-          type="button"
-          onClick={handleTestSampleDocument}
-          className="px-2.5 py-1 rounded-full bg-cyan-950/60 hover:bg-cyan-900 text-cyan-300 border border-cyan-700/60 whitespace-nowrap transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
-          title="Generate multi-lingual roster canvas and run live Multimodal Vision OCR"
-        >
-          <Sparkles size={11} />
-          <span>🖼️ Try Sample Badge OCR</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          className="px-2.5 py-1 rounded-full bg-indigo-950/60 hover:bg-indigo-900 text-indigo-300 border border-indigo-700/60 whitespace-nowrap transition-colors cursor-pointer flex items-center gap-1"
-        >
-          <Upload size={11} />
-          <span>Upload Image / PDF</span>
-        </button>
+          <button
+            type="button"
+            onClick={() => handleSendQuery('Who has an upcoming milestone this month?')}
+            className="px-3 py-1 rounded-full bg-slate-800/90 hover:bg-slate-700 hover:text-white text-slate-300 border border-slate-700/80 whitespace-nowrap transition-all duration-150 cursor-pointer shadow-xs active:scale-95 flex items-center gap-1.5"
+          >
+            <span>🎂</span>
+            <span>Upcoming Milestones</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleSendQuery('Show all engineers in Singapore')}
+            className="px-3 py-1 rounded-full bg-slate-800/90 hover:bg-slate-700 hover:text-white text-slate-300 border border-slate-700/80 whitespace-nowrap transition-all duration-150 cursor-pointer shadow-xs active:scale-95 flex items-center gap-1.5"
+          >
+            <span>🇸🇬</span>
+            <span>Singapore Engineers</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleTestSampleDocument}
+            className="px-3 py-1 rounded-full bg-cyan-950/70 hover:bg-cyan-900/90 text-cyan-300 border border-cyan-700/70 whitespace-nowrap transition-all duration-150 cursor-pointer flex items-center gap-1.5 shadow-sm active:scale-95 hover:border-cyan-500/80"
+            title="Generate multi-lingual roster canvas and run live Multimodal Vision OCR"
+          >
+            <Sparkles size={12} className="text-cyan-400" />
+            <span>Try Sample Badge OCR</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="px-3 py-1 rounded-full bg-indigo-950/70 hover:bg-indigo-900/90 text-indigo-300 border border-indigo-700/70 whitespace-nowrap transition-all duration-150 cursor-pointer flex items-center gap-1.5 shadow-sm active:scale-95 hover:border-indigo-500/80"
+          >
+            <Upload size={12} className="text-indigo-400" />
+            <span>Upload Image / PDF</span>
+          </button>
+        </div>
       </div>
 
       {/* Input Bar */}
