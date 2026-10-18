@@ -64,7 +64,30 @@ export default function AdminUsers() {
               createdAt: null,
               lastActive: 'Active now',
             };
-            setUsers([baseUser]);
+            const sampleUsers: AppUser[] = [
+              baseUser,
+              {
+                uid: 'demo_user_sarah',
+                email: 'sarah.jenkins@company.com',
+                role: (localStorage.getItem('admin_role_override_demo_user_sarah') as Role) || 'user',
+                status: 'active',
+                employeeCount: 42,
+                photoURL: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&auto=format&fit=crop&q=80',
+                createdAt: null,
+                lastActive: '2 hours ago',
+              },
+              {
+                uid: 'demo_user_kenji',
+                email: 'kenji.sato@company.com',
+                role: (localStorage.getItem('admin_role_override_demo_user_kenji') as Role) || 'pro',
+                status: 'active',
+                employeeCount: 180,
+                photoURL: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80',
+                createdAt: null,
+                lastActive: 'Yesterday',
+              },
+            ];
+            setUsers(sampleUsers);
           }
         },
         () => {
@@ -78,7 +101,30 @@ export default function AdminUsers() {
             createdAt: null,
             lastActive: 'Active now',
           };
-          setUsers([baseUser]);
+          const sampleUsers: AppUser[] = [
+            baseUser,
+            {
+              uid: 'demo_user_sarah',
+              email: 'sarah.jenkins@company.com',
+              role: (localStorage.getItem('admin_role_override_demo_user_sarah') as Role) || 'user',
+              status: 'active',
+              employeeCount: 42,
+              photoURL: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&auto=format&fit=crop&q=80',
+              createdAt: null,
+              lastActive: '2 hours ago',
+            },
+            {
+              uid: 'demo_user_kenji',
+              email: 'kenji.sato@company.com',
+              role: (localStorage.getItem('admin_role_override_demo_user_kenji') as Role) || 'pro',
+              status: 'active',
+              employeeCount: 180,
+              photoURL: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80',
+              createdAt: null,
+              lastActive: 'Yesterday',
+            },
+          ];
+          setUsers(sampleUsers);
         }
       );
       return unsub;
@@ -93,7 +139,30 @@ export default function AdminUsers() {
         createdAt: null,
         lastActive: 'Active now',
       };
-      setUsers([baseUser]);
+      const sampleUsers: AppUser[] = [
+        baseUser,
+        {
+          uid: 'demo_user_sarah',
+          email: 'sarah.jenkins@company.com',
+          role: (localStorage.getItem('admin_role_override_demo_user_sarah') as Role) || 'user',
+          status: 'active',
+          employeeCount: 42,
+          photoURL: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&auto=format&fit=crop&q=80',
+          createdAt: null,
+          lastActive: '2 hours ago',
+        },
+        {
+          uid: 'demo_user_kenji',
+          email: 'kenji.sato@company.com',
+          role: (localStorage.getItem('admin_role_override_demo_user_kenji') as Role) || 'pro',
+          status: 'active',
+          employeeCount: 180,
+          photoURL: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80',
+          createdAt: null,
+          lastActive: 'Yesterday',
+        },
+      ];
+      setUsers(sampleUsers);
     }
   }, [appUser]);
 
