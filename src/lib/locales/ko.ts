@@ -509,6 +509,53 @@ const translation = {
   'Schedule celebration card for automatic dispatch': '축하 카드가 자동으로 발송되도록 예약',
   'Dispatch celebration card immediately across employee channels': '직원 채널 전체에 축하 카드를 즉시 발송',
 
+  // HRChronicle AI Brand & Subtitle
+  'HRChronicle AI': 'HRChronicle AI',
+  'Intelligent HR Annual Date Notifications & Multilingual Workforce Copilot': '지능형 HR 연례 기념일 알림 및 다국어 인재 AI 코파일럿',
+  'JAPAC Milestone Intelligence Network': 'JAPAC 마일스톤 인텔리전스 네트워크',
+  'JAPAC Recognition Intelligence': 'JAPAC 임직원 포상 및 축하 인텔리전스',
+
+  // Phase 4 - Tone & Milestone Generator
+  'Recent Achievements': '최근 주요 성과',
+  'Professional': '격식 있고 전문적인 톤',
+  'Warm & Celebratory': '따뜻하고 축하하는 톤',
+  'Inspirational & Visionary': '영감을 주고 비전을 제시하는 톤',
+  'Generate Milestone Message': '마일스톤 축하 메시지 생성',
+  'Play Audio Greeting': '음성 축하 메시지 재생',
+  'Stop Audio': '재생 중지',
+  'Synthesizing speech via Cloud TTS...': 'Cloud TTS로 음성 합성 중...',
+  'Audio Greeting Ready': '음성 축하 메시지 준비 완료',
+  'Voice Input': '음성 입력',
+  'Listening... Speak now': '음성 인식 중... 말씀해 주세요',
+
+  // Phase 4 - 30-Day BigQuery HR Annual Dates & Morale Radar
+  '30-Day Annual Dates & Morale Radar': '30일 연례 주요 일정 및 사기 레이더',
+  'Department Recognition Coverage': '부서별 기념 포상 커버리지 %',
+  'Morale Velocity Index': '팀 사기 활력 지수',
+  'Projected Celebrations': '예상 축하 건수',
+  'Upcoming Dates Distribution': '다가오는 주요 일정 분포',
+
+  // Phase 4 - Multi-Channel Dispatch
+  'Multi-Channel Dispatch': '멀티채널 동시 발송',
+  '1-Click Multi-Channel Dispatch': '원클릭 전 채널 즉시 발송',
+  'Email Notification': '이메일 알림',
+  'Google Chat Webhook': 'Google Chat 웹훅',
+  'Milestone Certificate Badge': '마일스톤 인증 배지',
+  'Dispatch to All Channels': '모든 채널로 발송',
+  'Dispatching...': '발송 중...',
+  'Dispatched Successfully!': '모든 채널로 성공적으로 발송되었습니다!',
+  'Ready to dispatch across multi-tier enterprise channels': '엔터프라이즈 멀티 티어 채널로 발송 준비 완료',
+
+  // Phase 2 - 3D Globe Controls & Country Card
+  'JAPAC HR Milestone Country Card': 'JAPAC HR 마일스톤 국가별 카드',
+  'Scroll or use buttons to navigate countries': '스크롤 또는 버튼을 사용하여 국가 탐색',
+  'Active Headcount': '재직 임직원 수',
+  'Upcoming Anniversaries': '다가오는 입사 기념일',
+  'Cultural Observance': '현지 문화 관습 및 유의사항',
+  'Previous': '이전',
+  'Next': '다음',
+  'Center Singapore Hub': '싱가포르 허브로 이동',
+
   // Localized: Feedback, Notifications, Navbar & Copilot
   'Feedback': '피드백',
   'Notifications': '알림',
