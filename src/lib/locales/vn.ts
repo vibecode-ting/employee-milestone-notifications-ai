@@ -227,6 +227,53 @@ const translation = {
   '12-Month Milestone Event & Budget Forecast': 'Dự báo sự kiện & ngân sách 12 tháng',
   'Tenure Retention Risk Cohorts': 'Các nhóm nguy cơ giữ chân theo thâm niên',
   'JAPAC Localization & Language Telemetry': 'Dữ liệu đo lường bản địa hóa & ngôn ngữ JAPAC',
+
+  // HRChronicle AI Brand & Subtitle
+  'HRChronicle AI': 'HRChronicle AI',
+  'Intelligent HR Annual Date Notifications & Multilingual Workforce Copilot': 'Thông báo ngày kỷ niệm nhân sự thông minh & Trợ lý ảo AI đa ngôn ngữ cho lực lượng lao động',
+  'JAPAC Milestone Intelligence Network': 'Mạng lưới thông minh về cột mốc nhân sự JAPAC',
+  'JAPAC Recognition Intelligence': 'Trí tuệ ghi nhận & vinh danh JAPAC',
+
+  // Phase 4 - Tone & Milestone Generator
+  'Recent Achievements': 'Thành tích nổi bật gần đây',
+  'Professional': 'Chuyên nghiệp & trang trọng',
+  'Warm & Celebratory': 'Ấm áp & hân hoan',
+  'Inspirational & Visionary': 'Truyền cảm hứng & tầm nhìn',
+  'Generate Milestone Message': 'Tạo lời chúc kỷ niệm',
+  'Play Audio Greeting': 'Phát lời chúc âm thanh',
+  'Stop Audio': 'Dừng phát',
+  'Synthesizing speech via Cloud TTS...': 'Đang tạo giọng nói qua Cloud TTS...',
+  'Audio Greeting Ready': 'Lời chúc âm thanh đã sẵn sàng',
+  'Voice Input': 'Nhập liệu bằng giọng nói',
+  'Listening... Speak now': 'Đang lắng nghe... Vui lòng nói',
+
+  // Phase 4 - 30-Day BigQuery HR Annual Dates & Morale Radar
+  '30-Day Annual Dates & Morale Radar': 'Radar ngày kỷ niệm 30 ngày & tinh thần nhân sự',
+  'Department Recognition Coverage': 'Độ bao phủ vinh danh theo phòng ban %',
+  'Morale Velocity Index': 'Chỉ số vận tốc tinh thần',
+  'Projected Celebrations': 'Sự kiện kỷ niệm dự kiến',
+  'Upcoming Dates Distribution': 'Phân bổ các mốc ngày sắp tới',
+
+  // Phase 4 - Multi-Channel Dispatch
+  'Multi-Channel Dispatch': 'Gửi qua nhiều kênh cùng lúc',
+  '1-Click Multi-Channel Dispatch': '1 nhấp gửi đa kênh',
+  'Email Notification': 'Thông báo Email',
+  'Google Chat Webhook': 'Webhook Google Chat',
+  'Milestone Certificate Badge': 'Huy hiệu chứng nhận cột mốc',
+  'Dispatch to All Channels': 'Gửi đến tất cả các kênh',
+  'Dispatching...': 'Đang gửi...',
+  'Dispatched Successfully!': 'Đã gửi thành công qua các kênh!',
+  'Ready to dispatch across multi-tier enterprise channels': 'Sẵn sàng gửi qua các kênh cộng tác doanh nghiệp đa tầng',
+
+  // Phase 2 - 3D Globe Controls & Country Card
+  'JAPAC HR Milestone Country Card': 'Thẻ thông tin cột mốc quốc gia JAPAC',
+  'Scroll or use buttons to navigate countries': 'Cuộn chuột hoặc dùng nút để khám phá các quốc gia',
+  'Active Headcount': 'Nhân sự đang hoạt động',
+  'Upcoming Anniversaries': 'Kỷ niệm sắp tới',
+  'Cultural Observance': 'Phong tục & lưu ý văn hóa',
+  'Previous': 'Trước',
+  'Next': 'Tiếp theo',
+  'Center Singapore Hub': 'Trở về trung tâm Singapore',
 };
 
 export default translation;

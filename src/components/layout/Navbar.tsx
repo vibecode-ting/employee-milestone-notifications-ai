@@ -191,8 +191,8 @@ export default function Navbar({
         {/* Logo & Pin Header */}
         <div className="flex items-center justify-between px-4 py-5 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
-            <img src="/logo.svg" alt="Milestone" className={cn('transition-all duration-300', open ? 'w-10' : 'w-8')} />
-            {open && <span className="font-bold text-lg text-corp-blue dark:text-cobalt-400 whitespace-nowrap">Milestone</span>}
+            <img src="/logo.svg" alt="HRChronicle AI" className={cn('transition-all duration-300', open ? 'w-10' : 'w-8')} />
+            {open && <span className="font-bold text-lg text-corp-blue dark:text-cobalt-400 whitespace-nowrap">HRChronicle AI</span>}
           </div>
           {open && (
             <button

@@ -227,6 +227,53 @@ const translation = {
   '12-Month Milestone Event & Budget Forecast': '12個月里程碑活動與預算預測',
   'Tenure Retention Risk Cohorts': '各年資留任風險群組',
   'JAPAC Localization & Language Telemetry': 'JAPAC 在地化語言遙測數據',
+
+  // HRChronicle AI Brand & Subtitle
+  'HRChronicle AI': 'HRChronicle AI',
+  'Intelligent HR Annual Date Notifications & Multilingual Workforce Copilot': '智慧 HR 年度關鍵日期通知與多語言跨國團隊 AI 副駕駛',
+  'JAPAC Milestone Intelligence Network': 'JAPAC 里程碑智慧感知網絡',
+  'JAPAC Recognition Intelligence': 'JAPAC 團隊關懷與慶祝智慧平台',
+
+  // Phase 4 - Tone & Milestone Generator
+  'Recent Achievements': '近期重大成就',
+  'Professional': '專業得體',
+  'Warm & Celebratory': '溫馨慶祝',
+  'Inspirational & Visionary': '鼓舞人心與願景展望',
+  'Generate Milestone Message': '生成專屬里程碑祝福',
+  'Play Audio Greeting': '播放語音祝福',
+  'Stop Audio': '停止播放',
+  'Synthesizing speech via Cloud TTS...': '正在透過 Cloud TTS 合成語音...',
+  'Audio Greeting Ready': '語音祝福已生成',
+  'Voice Input': '語音輸入',
+  'Listening... Speak now': '正在聆聽... 請說話',
+
+  // Phase 4 - 30-Day BigQuery HR Annual Dates & Morale Radar
+  '30-Day Annual Dates & Morale Radar': '30天年度關鍵日期與團隊士氣雷達圖',
+  'Department Recognition Coverage': '部門關懷覆蓋率 %',
+  'Morale Velocity Index': '團隊士氣活力指數',
+  'Projected Celebrations': '預測慶祝次數',
+  'Upcoming Dates Distribution': '近期重大日期分佈',
+
+  // Phase 4 - Multi-Channel Dispatch
+  'Multi-Channel Dispatch': '多通路協同發送',
+  '1-Click Multi-Channel Dispatch': '一鍵全渠道即時分發',
+  'Email Notification': '電子郵件通知',
+  'Google Chat Webhook': 'Google Chat 機器人 Webhook',
+  'Milestone Certificate Badge': '專屬里程碑成就徽章',
+  'Dispatch to All Channels': '一鍵發送至所有渠道',
+  'Dispatching...': '正在發送中...',
+  'Dispatched Successfully!': '所有渠道分發成功！',
+  'Ready to dispatch across multi-tier enterprise channels': '已準備好發送至企業級多層協同渠道',
+
+  // Phase 2 - 3D Globe Controls & Country Card
+  'JAPAC HR Milestone Country Card': 'JAPAC HR 里程碑國家詳情卡',
+  'Scroll or use buttons to navigate countries': '滑動滾輪或點擊按鈕探索各國團隊',
+  'Active Headcount': '在職員工人數',
+  'Upcoming Anniversaries': '即將到來的週年紀念',
+  'Cultural Observance': '在地文化習俗與偏好',
+  'Previous': '上一個',
+  'Next': '下一個',
+  'Center Singapore Hub': '重置至新加坡總部',
 };
 
 export default translation;
