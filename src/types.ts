@@ -182,5 +182,3 @@ export interface FeedbackItem {
   githubDispatched?: boolean;
 }
 
-
-
