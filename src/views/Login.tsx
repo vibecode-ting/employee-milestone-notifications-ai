@@ -29,6 +29,9 @@ import {
   BarChart3,
   ChevronLeft,
   ChevronRight,
+  Eye,
+  EyeOff,
+  Zap,
 } from 'lucide-react';
 
 // ---------- Slide components ----------
@@ -45,17 +48,27 @@ function Slide0({ iframeRef }: { iframeRef?: React.RefObject<HTMLIFrameElement |
       />
       {/* Soft radial vignette overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/70 pointer-events-none" />
+
+      {/* Top Left Hub Badge */}
       <div className="absolute top-5 left-5 z-10 pointer-events-none flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-slate-900/80 border border-slate-700/60 backdrop-blur-md text-slate-200 text-xs font-medium shadow-lg">
         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
         <span>JAPAC Milestone Intelligence Network</span>
       </div>
-      <div className="absolute inset-0 flex flex-col items-center justify-end pb-16 z-10 pointer-events-none">
-        <div className="text-center px-6 max-w-md">
-          <h1 className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">
+
+      {/* Cinematic left-panel bottom overlay */}
+      <div className="absolute inset-x-0 bottom-16 sm:bottom-20 z-10 pointer-events-none flex flex-col items-center text-center px-6">
+        <div className="max-w-lg space-y-2.5">
+          {/* Official award sub-tag pill */}
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-400/40 backdrop-blur-md text-amber-300 text-[11px] font-semibold tracking-wide uppercase shadow-sm">
+            <Trophy size={13} className="text-amber-400" />
+            <span>A 2026 AI BUILDERS CUP ENTRY • BORN IN JAPAC, BUILT FOR THE WORLD</span>
+          </div>
+
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight drop-shadow-xl bg-clip-text text-transparent bg-gradient-to-r from-white via-sky-100 to-sky-300">
             Milestone Intelligence
           </h1>
-          <p className="mt-2 text-slate-300 text-xs sm:text-sm drop-shadow leading-relaxed">
-            Real-time workforce recognition & automated celebration delivery across Asia Pacific
+          <p className="text-slate-300 text-xs sm:text-sm drop-shadow leading-relaxed max-w-md mx-auto">
+            Real-time workforce recognition & automated celebration delivery across Asia Pacific.
           </p>
         </div>
       </div>
@@ -239,82 +252,84 @@ function Slide3({ onSignIn, onInteract }: { onSignIn?: () => void; onInteract?: 
         <span>7 JAPAC Locales • 100% Native Parity</span>
       </div>
 
-      {/* Interactive 7 Language Selector Badges */}
-      <div className="flex flex-wrap justify-center gap-2 mb-5 max-w-md">
-        {japacLangs.map((item, idx) => {
-          const isSelected = activeLang === idx;
-          return (
-            <button
-              key={item.key}
-              type="button"
-              onClick={() => {
-                setActiveLang(idx);
-                setLangPaused(true);
-                i18n.changeLanguage(item.locale);
-                onInteract?.();
-              }}
-              onMouseEnter={() => {
-                setActiveLang(idx);
-                onInteract?.();
-              }}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs transition-all duration-300 cursor-pointer ${
-                isSelected
-                  ? `${item.accent} scale-105 shadow-lg font-semibold`
-                  : 'bg-slate-900/70 border-slate-800/80 text-slate-400 hover:text-slate-200 hover:border-slate-700 hover:bg-slate-800/60'
-              }`}
-            >
-              <img
-                src={`https://flagcdn.com/w40/${item.code}.png`}
-                alt={item.name}
-                className="w-4 h-3 object-cover rounded-xs shadow-xs"
-                onError={(e) => {
-                  (e.target as HTMLElement).style.display = 'none';
-                }}
-              />
-              <span className="font-mono text-[11px] font-bold">{item.key}</span>
-              <span className="text-[11px] font-medium hidden sm:inline">{item.native}</span>
-            </button>
-          );
-        })}
+      {/* Flag / Locale Selector Pills */}
+      <div
+        className="flex flex-wrap items-center justify-center gap-1.5 mb-5"
+        onMouseEnter={() => {
+          setLangPaused(true);
+          onInteract?.();
+        }}
+        onMouseLeave={() => setLangPaused(false)}
+      >
+        {japacLangs.map((lang, idx) => (
+          <button
+            key={lang.key}
+            type="button"
+            onClick={() => {
+              setActiveLang(idx);
+              setLangPaused(true);
+              onInteract?.();
+            }}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border transition-all cursor-pointer ${
+              activeLang === idx
+                ? 'border-purple-400 bg-purple-500/20 text-white scale-105 shadow-md shadow-purple-500/20'
+                : 'border-slate-800 bg-slate-900/60 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+            }`}
+          >
+            <img
+              src={`https://flagcdn.com/w20/${lang.code}.png`}
+              alt={lang.name}
+              className="w-3.5 h-2.5 object-cover rounded-xs"
+            />
+            <span>{lang.key}</span>
+          </button>
+        ))}
       </div>
 
-      {/* Live AI Personalized Milestone Preview Card */}
+      {/* Dynamic Celebration Card Preview */}
       <div
         onMouseEnter={() => {
           setLangPaused(true);
           onInteract?.();
         }}
-        className="w-full max-w-sm p-4 rounded-2xl bg-slate-900/90 border border-slate-800/90 backdrop-blur-xl shadow-2xl mb-5 text-left relative overflow-hidden group"
+        onMouseLeave={() => setLangPaused(false)}
+        className="w-full max-w-sm p-4 sm:p-5 rounded-2xl bg-slate-900/80 border border-slate-800/80 backdrop-blur-xl shadow-2xl mb-5 text-left relative overflow-hidden group cursor-pointer"
       >
-        <div className="absolute top-0 right-0 w-28 h-28 bg-purple-500/10 rounded-full blur-2xl pointer-events-none" />
-
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <img
-              src={`https://flagcdn.com/w40/${current.code}.png`}
-              alt={current.name}
-              className="w-4 h-3 object-cover rounded-xs"
-            />
-            <span className="text-xs font-bold text-white">{current.name}</span>
-            <span className="text-[11px] text-purple-400 font-medium">({current.native})</span>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center text-sm shadow-md">
+              🎂
+            </div>
+            <div>
+              <p className="text-xs font-bold text-white">Alex Wong</p>
+              <p className="text-[10px] text-slate-400">Software Engineer • Singapore</p>
+            </div>
           </div>
-          <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-semibold border border-purple-500/30">
-            <Sparkles size={10} /> Gemini AI
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 font-semibold">
+            Today
           </span>
         </div>
-
-        <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800 text-xs text-slate-200 leading-relaxed font-sans min-h-[58px] flex items-center">
-          <p className="line-clamp-2">"{current.greeting}"</p>
+        <p className="text-xs sm:text-sm text-slate-200 leading-relaxed min-h-[44px] transition-all">
+          {current.greeting}
+        </p>
+        <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400">
+          <span>Generated by Google Gemini 2.5 Flash</span>
+          <span className="text-purple-400 font-semibold">{current.native}</span>
         </div>
       </div>
 
-      <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Built for JAPAC teams</h2>
-      <p className="text-slate-400 text-sm mb-4 max-w-sm leading-relaxed">
-        Native internationalization across 7 Asian and global business languages with 100% translation parity.
+      <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2.5">
+        Culture-aware AI greetings
+      </h2>
+      <p className="text-slate-400 text-sm sm:text-base mb-6 max-w-sm leading-relaxed">
+        Google Gemini AI crafts warm, personalized celebrations in 7 JAPAC languages with native cultural etiquette.
       </p>
 
       {onSignIn && (
-        <button onClick={onSignIn} className="mt-2 md:hidden btn-primary text-xs py-2 px-5 rounded-lg">
+        <button
+          onClick={onSignIn}
+          className="mt-5 md:hidden btn-primary text-xs py-2 px-5 rounded-lg"
+        >
           Sign In
         </button>
       )}
@@ -420,6 +435,7 @@ export default function Login() {
   const [authMode, setAuthMode] = useState<'password' | 'magic-link'>('password');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [loading, setLoading] = useState(false);
@@ -651,11 +667,11 @@ export default function Login() {
 
   if (verifyingLink) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="glass-panel w-full max-w-sm p-8 text-center space-y-4">
-          <div className="w-10 h-10 border-4 border-corp-blue dark:border-gold-500 border-t-transparent rounded-full animate-spin mx-auto" />
-          <h2 className="text-base font-semibold text-slate-800 dark:text-zinc-100">Verifying Magic Link…</h2>
-          <p className="text-xs text-slate-500 dark:text-zinc-400">Signing you in securely without a password.</p>
+      <div className="min-h-screen flex items-center justify-center px-4 bg-slate-950">
+        <div className="glass-panel w-full max-w-sm p-8 text-center space-y-4 rounded-2xl bg-slate-900/60 border border-white/10 backdrop-blur-xl">
+          <div className="w-10 h-10 border-4 border-sky-400 border-t-transparent rounded-full animate-spin mx-auto" />
+          <h2 className="text-base font-semibold text-white">Verifying Magic Link…</h2>
+          <p className="text-xs text-slate-400">Signing you in securely without a password.</p>
         </div>
       </div>
     );
@@ -670,10 +686,12 @@ export default function Login() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row w-full bg-slate-950 relative selection:bg-corp-blue selection:text-white overflow-x-hidden">
-      {/* Left: Slideshow Hero (60% desktop wide landscape, top on mobile/portrait) */}
+    <div className="min-h-screen flex flex-col md:flex-row w-full bg-slate-950 relative selection:bg-sky-500 selection:text-white overflow-x-hidden">
+      {/* =========================================================================
+          LEFT PANEL: Cinematic 3D JAPAC Network Globe (WebGL) - Exactly 50%
+          ========================================================================= */}
       <div
-        className="w-full md:w-[60%] h-[380px] sm:h-[460px] md:h-screen md:min-h-screen relative overflow-hidden bg-slate-950 shrink-0 block"
+        className="w-full md:w-1/2 h-[420px] sm:h-[480px] md:h-screen md:min-h-screen relative overflow-hidden bg-slate-950 shrink-0 block"
         onMouseEnter={() => {
           setIsPaused(true);
           markInteracting(12000);
@@ -690,13 +708,15 @@ export default function Login() {
         {slides.map((slide, i) => (
           <div
             key={i}
-            className={`absolute inset-0 transition-opacity duration-700 ${slideIndex === i ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+            className={`absolute inset-0 transition-opacity duration-700 ${
+              slideIndex === i ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            }`}
           >
             {slide}
           </div>
         ))}
 
-        {/* Previous / Next Arrows on Desktop */}
+        {/* Desktop Prev / Next Navigation Floating Side Arrows */}
         <button
           type="button"
           onClick={() => {
@@ -720,25 +740,56 @@ export default function Login() {
           <ChevronRight size={16} />
         </button>
 
-        {/* Progress dots & Pause/Play Indicator */}
-        <div className="absolute bottom-5 left-0 right-0 flex items-center justify-between px-6 z-20 pointer-events-none">
-          <div className="w-24 hidden sm:block" />
-          <div className="flex items-center gap-2 pointer-events-auto mx-auto sm:mx-0">
-            {slides.map((_, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => {
-                  setSlideIndex(i);
-                  markInteracting(15000);
-                }}
-                aria-label={`Go to slide ${i + 1}`}
-                className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                  slideIndex === i ? 'w-6 bg-amber-400' : 'w-2 bg-white/30 hover:bg-white/50'
-                }`}
-              />
-            ))}
+        {/* Interactive Bottom Control Bar */}
+        <div className="absolute bottom-4 inset-x-0 flex items-center justify-between px-5 z-20 pointer-events-none">
+          {/* Helper caption */}
+          <div className="hidden sm:flex items-center gap-2 text-[11px] text-slate-400 font-medium backdrop-blur-md bg-slate-900/70 px-3 py-1 rounded-full border border-slate-700/50 shadow-sm">
+            <span>Drag to rotate • Scroll to zoom</span>
           </div>
+
+          {/* Carousel slider dots with inline prev/next controls */}
+          <div className="flex items-center gap-2 pointer-events-auto mx-auto sm:mx-0 bg-slate-900/70 backdrop-blur-md px-3 py-1 rounded-full border border-slate-700/50 shadow-md">
+            <button
+              type="button"
+              onClick={() => {
+                setSlideIndex((prev) => (prev - 1 + 5) % 5);
+                markInteracting(15000);
+              }}
+              aria-label="Previous slide"
+              className="text-slate-400 hover:text-white transition-colors cursor-pointer p-0.5"
+            >
+              <ChevronLeft size={14} />
+            </button>
+            <div className="flex items-center gap-1.5 px-1">
+              {slides.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => {
+                    setSlideIndex(i);
+                    markInteracting(15000);
+                  }}
+                  aria-label={`Go to slide ${i + 1}`}
+                  className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                    slideIndex === i ? 'w-5 bg-amber-400' : 'w-1.5 bg-white/30 hover:bg-white/60'
+                  }`}
+                />
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setSlideIndex((prev) => (prev + 1) % 5);
+                markInteracting(15000);
+              }}
+              aria-label="Next slide"
+              className="text-slate-400 hover:text-white transition-colors cursor-pointer p-0.5"
+            >
+              <ChevronRight size={14} />
+            </button>
+          </div>
+
+          {/* Play / Pause indicator */}
           <button
             type="button"
             onClick={() => {
@@ -772,206 +823,239 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Right: Login panel (40% desktop wide landscape, bottom stack on mobile/portrait) */}
-      <div className="w-full md:w-[40%] flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 shrink-0 bg-slate-50 dark:bg-zinc-950 md:border-l md:border-slate-200 dark:md:border-zinc-800 shadow-2xl z-10 min-h-screen">
-        {/* Language and Theme Switch ABOVE login panel */}
-        <div className="glass-panel w-full max-w-sm px-3.5 py-2 mb-3 flex items-center justify-between gap-2.5 shadow-sm">
+      {/* =========================================================================
+          RIGHT PANEL: Premium Authentication & Info Card (Tailwind) - Exactly 50%
+          ========================================================================= */}
+      <div className="w-full md:w-1/2 flex flex-col justify-between p-5 sm:p-8 lg:p-10 shrink-0 bg-slate-950/95 text-slate-100 relative min-h-screen border-t md:border-t-0 md:border-l border-white/10">
+        {/* Top-Right Utility Row: Language Selector & Orbital Sunrise/Sunset Toggle */}
+        <div className="w-full flex items-center justify-end gap-2.5 mb-4 z-20">
           {/* Language Selector */}
-          <div className="flex-1 min-w-0 flex items-center gap-2">
-            <Globe size={15} className="text-slate-400 shrink-0" />
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900/60 border border-white/10 backdrop-blur-md text-xs font-medium text-slate-300 hover:border-white/20 transition-colors">
+            <Globe size={13} className="text-slate-400 shrink-0" />
             <select
               value={i18n.language}
               onChange={(e) => handleLanguageChange(e.target.value)}
               aria-label={t('Language')}
-              className="w-full text-xs py-1.5 px-2 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 text-slate-700 dark:text-zinc-300 font-medium shadow-xs focus:outline-none focus:ring-1 focus:ring-corp-blue cursor-pointer truncate"
+              className="bg-transparent text-xs text-slate-200 font-medium focus:outline-none cursor-pointer pr-1"
             >
               {LOCALES.map((l) => (
-                <option key={l.code} value={l.code}>
+                <option key={l.code} value={l.code} className="bg-slate-900 text-slate-200">
                   {l.flag} {l.name}
                 </option>
               ))}
             </select>
           </div>
 
-          {/* Theme Toggle Button — showing current condition */}
+          {/* Sunrise / Sunset Toggle Button */}
           <button
             onClick={toggleDark}
             type="button"
-            aria-label={dark ? t('Dark Mode') : t('Light Mode')}
-            className="py-1.5 px-3 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/80 text-slate-600 dark:text-zinc-300 shadow-xs hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors flex items-center gap-1.5 text-xs font-medium shrink-0 cursor-pointer"
+            aria-label={dark ? 'Sunrise Daylight Mode' : 'Sunset Night Mode'}
+            className="px-3 py-1.5 rounded-lg bg-slate-900/60 border border-white/10 backdrop-blur-md text-slate-300 hover:text-white hover:border-white/20 hover:bg-slate-800/80 transition-all flex items-center gap-1.5 text-xs font-medium cursor-pointer shadow-sm"
+            title={dark ? 'Toggle Sunrise (Light Mode)' : 'Toggle Sunset (Dark Mode)'}
           >
-            {dark ? <Moon size={14} className="text-indigo-400" /> : <Sun size={14} className="text-amber-500" />}
-            <span>{dark ? t('Dark Mode') : t('Light Mode')}</span>
+            {dark ? (
+              <>
+                <Sun size={14} className="text-amber-400 animate-pulse" />
+                <span className="hidden sm:inline">Sunrise</span>
+              </>
+            ) : (
+              <>
+                <Moon size={14} className="text-indigo-400" />
+                <span className="hidden sm:inline">Sunset</span>
+              </>
+            )}
           </button>
         </div>
 
-        {/* Main Login Card */}
-        <div className="glass-panel w-full max-w-sm p-6 sm:p-8 min-h-[560px] flex flex-col justify-between shadow-lg">
-          <div>
-            {/* Brand Logo & Name */}
-            <div className="flex items-center gap-3 mb-6">
-              <img src="/logo.svg" alt="Milestone" className="w-10 h-10 text-corp-blue" />
-              <span className="text-xl font-bold text-corp-blue dark:text-gold-500">Milestone</span>
+        {/* Center Single Auth Card */}
+        <div className="w-full max-w-md mx-auto my-auto p-6 sm:p-8 rounded-2xl backdrop-blur-xl bg-slate-900/40 border border-white/10 shadow-2xl relative overflow-hidden">
+          {/* Brand Header with Glowing Gold Cake Icon */}
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-400/20 to-orange-500/20 border border-amber-400/40 flex items-center justify-center text-amber-400 shadow-lg shadow-amber-500/20">
+              <Cake size={24} className="text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
+            </div>
+            <div>
+              <span className="text-2xl font-black tracking-tight text-white flex items-center gap-1.5">
+                Milestone
+              </span>
+              <p className="text-[11px] text-slate-400 font-medium">JAPAC Recognition Intelligence</p>
+            </div>
+          </div>
+
+          {/* Dual Tabs: Password vs Magic Link */}
+          <div className="flex rounded-xl bg-slate-950/60 border border-white/10 p-1 mb-6 text-xs font-semibold">
+            <button
+              type="button"
+              onClick={() => {
+                setAuthMode('password');
+                setError('');
+                setSuccessMsg('');
+              }}
+              className={`flex-1 py-2 rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                authMode === 'password'
+                  ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-md shadow-blue-500/25 font-bold'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Lock size={13} />
+              <span>{t('Password')}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setAuthMode('magic-link');
+                setError('');
+                setSuccessMsg('');
+              }}
+              className={`flex-1 py-2 rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                authMode === 'magic-link'
+                  ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-md shadow-blue-500/25 font-bold'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Mail size={13} />
+              <span>{t('Magic Link')}</span>
+            </button>
+          </div>
+
+          {/* Auto Sign-Up 5-Second Countdown Alert */}
+          {newAccountCountdown !== null && (
+            <div className="mb-5 p-3.5 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-200 text-xs space-y-2 backdrop-blur-md animate-in zoom-in-95 duration-200">
+              <div className="flex items-center justify-between font-bold">
+                <span className="flex items-center gap-1.5">
+                  <Sparkles size={14} className="text-emerald-400" />
+                  {t('New account created')} <span className="font-mono text-sm underline">{newAccountCountdown}s</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => navigate('/')}
+                  className="px-2 py-0.5 rounded bg-emerald-400 text-slate-950 font-bold hover:opacity-90 transition-opacity flex items-center gap-1 cursor-pointer text-[11px]"
+                >
+                  {t('Skip')} <ArrowRight size={11} />
+                </button>
+              </div>
+              <p className="text-[11px] leading-relaxed opacity-90">
+                {t('Redirecting to dashboard')}
+              </p>
+            </div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+                {t('Email')}
+              </label>
+              <input
+                type="email"
+                required
+                autoComplete="email"
+                value={email}
+                disabled={loading || newAccountCountdown !== null}
+                onChange={(e) => setEmail(e.target.value)}
+                onFocus={() => markInteracting(30000)}
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/70 border border-white/15 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400 transition-all"
+                placeholder="you@company.com"
+              />
             </div>
 
-            {/* Tab Mode Toggle */}
-            <div className="flex rounded-lg bg-slate-100 dark:bg-zinc-800 p-1 mb-5 text-xs font-medium">
-              <button
-                type="button"
-                onClick={() => {
-                  setAuthMode('password');
-                  setError('');
-                  setSuccessMsg('');
-                }}
-                className={`flex-1 py-1.5 rounded-md flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                  authMode === 'password'
-                    ? 'bg-white dark:bg-zinc-900 text-slate-900 dark:text-white shadow-xs font-semibold'
-                    : 'text-slate-500 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-white'
-                }`}
-              >
-                <Lock size={13} />
-                {t('Password')}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setAuthMode('magic-link');
-                  setError('');
-                  setSuccessMsg('');
-                }}
-                className={`flex-1 py-1.5 rounded-md flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                  authMode === 'magic-link'
-                    ? 'bg-white dark:bg-zinc-900 text-slate-900 dark:text-white shadow-xs font-semibold'
-                    : 'text-slate-500 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-white'
-                }`}
-              >
-                <Mail size={13} />
-                {t('Magic Link')}
-              </button>
-            </div>
-
-            {/* Auto Sign-Up 5-Second Countdown Warning Box */}
-            {newAccountCountdown !== null && (
-              <div className="mb-4 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-xs space-y-2 animate-in zoom-in-95 duration-200">
-                <div className="flex items-center justify-between font-semibold">
-                  <span className="flex items-center gap-1.5">
-                    <Sparkles size={14} className="text-emerald-600 dark:text-emerald-400" />
-                    {t('New account created')} <span className="font-mono text-sm underline">{newAccountCountdown}s</span>
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => navigate('/')}
-                    className="px-2 py-0.5 rounded bg-emerald-200 dark:bg-emerald-900 text-emerald-900 dark:text-emerald-100 hover:opacity-80 transition-opacity font-bold flex items-center gap-1 cursor-pointer"
-                  >
-                    {t('Skip')} <ArrowRight size={11} />
-                  </button>
-                </div>
-                <p className="text-[11px] leading-relaxed opacity-90">
-                  {t('Redirecting to dashboard')}
-                </p>
-              </div>
-            )}
-
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-zinc-300 mb-1">
-                  {t('Email')}
-                </label>
-                <input
-                  type="email"
-                  required
-                  autoComplete="email"
-                  value={email}
-                  disabled={loading || newAccountCountdown !== null}
-                  onChange={(e) => setEmail(e.target.value)}
-                  onFocus={() => markInteracting(30000)}
-                  className="glass-input"
-                  placeholder="you@company.com"
-                />
-              </div>
-
-              {authMode === 'password' ? (
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-zinc-300 mb-1">
-                      {t('Password')}
-                    </label>
+            {authMode === 'password' ? (
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+                    {t('Password')}
+                  </label>
+                  <div className="relative">
                     <input
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       required
                       autoComplete="current-password"
                       value={password}
                       disabled={loading || newAccountCountdown !== null}
                       onChange={(e) => setPassword(e.target.value)}
                       onFocus={() => markInteracting(30000)}
-                      className="glass-input"
+                      className="w-full px-3.5 py-2.5 pr-10 rounded-xl bg-slate-950/70 border border-white/15 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400 transition-all"
                       placeholder="••••••••"
                     />
-                  </div>
-
-                  {/* Beta notice for Password TAB */}
-                  <div className="flex items-start gap-2 p-2.5 rounded-lg bg-amber-50/70 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300 text-xs border border-amber-200/60 dark:border-amber-900/40">
-                    <Info size={15} className="shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
-                    <span className="leading-snug">{t('Beta notice')}</span>
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
                   </div>
                 </div>
+
+                {/* Informative Blue/Indigo Beta Notice */}
+                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-blue-950/40 border border-blue-500/30 text-blue-200 text-xs leading-relaxed">
+                  <Info size={15} className="shrink-0 mt-0.5 text-sky-400" />
+                  <span>Beta notice: Instant activation enabled. No email verification code needed.</span>
+                </div>
+              </div>
+            ) : (
+              <div>
+                {/* Magic Link Notice */}
+                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-blue-950/40 border border-blue-500/30 text-blue-200 text-xs leading-relaxed">
+                  <Info size={15} className="shrink-0 mt-0.5 text-sky-400" />
+                  <span>{t('Magic Link info')}</span>
+                </div>
+              </div>
+            )}
+
+            {error && (
+              <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs">
+                {error}
+              </div>
+            )}
+
+            {successMsg && (
+              <div className="flex items-start gap-2 p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/40 text-emerald-300 text-xs">
+                <CheckCircle2 size={16} className="shrink-0 mt-0.5 text-emerald-400" />
+                <span>{successMsg}</span>
+              </div>
+            )}
+
+            {/* High-visibility electric blue Sign In CTA */}
+            <button
+              type="submit"
+              disabled={loading || newAccountCountdown !== null}
+              className="w-full py-3 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 active:scale-[0.99] transition-all cursor-pointer disabled:opacity-50"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>{authMode === 'magic-link' ? 'Sending Magic Link…' : 'Signing In…'}</span>
+                </span>
+              ) : authMode === 'magic-link' ? (
+                t('Send Magic Link')
               ) : (
-                <div>
-                  {/* Magic Link Note */}
-                  <div className="flex items-start gap-2 p-2.5 rounded-lg bg-blue-50/70 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 text-xs border border-blue-200/60 dark:border-blue-900/40">
-                    <Info size={15} className="shrink-0 mt-0.5 text-blue-500" />
-                    <span className="leading-snug">{t('Magic Link info')}</span>
-                  </div>
-                </div>
+                t('Sign In')
               )}
+            </button>
+          </form>
 
-              {error && <p className="text-red-500 text-xs">{error}</p>}
-
-              {successMsg && (
-                <div className="flex items-start gap-2 p-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs border border-emerald-200 dark:border-emerald-800">
-                  <CheckCircle2 size={16} className="shrink-0 mt-0.5 text-emerald-600 dark:text-emerald-400" />
-                  <span>{successMsg}</span>
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={loading || newAccountCountdown !== null}
-                className="btn-primary w-full py-2.5 disabled:opacity-60 text-sm cursor-pointer"
-              >
-                {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    {authMode === 'magic-link' ? 'Sending Magic Link…' : 'Signing In…'}
-                  </span>
-                ) : authMode === 'magic-link' ? (
-                  t('Send Magic Link')
-                ) : (
-                  t('Sign In')
-                )}
-              </button>
-            </form>
+          {/* Clean Separator: or continue with */}
+          <div className="relative my-5">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-white/10" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-slate-900/90 px-3 text-slate-400 font-medium rounded-full">
+                {t('or continue with')}
+              </span>
+            </div>
           </div>
 
-          {/* Bottom Social / Demo section */}
-          <div>
-            <div className="relative my-4">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-300 dark:border-zinc-700" />
-              </div>
-              <div className="relative flex justify-center text-xs">
-                <span className="bg-white dark:bg-zinc-900 px-2 text-slate-400">
-                  {t('or continue with')}
-                </span>
-              </div>
-            </div>
-
+          {/* Social & Neon-Bordered Demo Mode */}
+          <div className="space-y-2.5">
             <button
               onClick={handleGoogleLogin}
               disabled={googleLoading || newAccountCountdown !== null}
               type="button"
-              className="w-full btn-secondary py-2.5 text-xs font-semibold flex items-center justify-center gap-2 mb-2.5 disabled:opacity-60 cursor-pointer"
+              className="w-full py-2.5 px-4 rounded-xl border border-white/15 bg-slate-950/60 hover:bg-slate-800/80 text-white text-xs font-semibold flex items-center justify-center gap-2.5 transition-all shadow-sm cursor-pointer disabled:opacity-50"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24">
                 <path
@@ -991,18 +1075,50 @@ export default function Login() {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
                 />
               </svg>
-              {googleLoading ? 'Signing in with Google…' : t('Sign in with Google')}
+              <span>{googleLoading ? 'Signing in with Google…' : t('Sign in with Google')}</span>
             </button>
 
             <button
               onClick={handleDemoLogin}
               disabled={newAccountCountdown !== null}
               type="button"
-              className="w-full btn-secondary py-2.5 text-xs font-semibold flex items-center justify-center gap-2 bg-gradient-to-r hover:from-purple-500/10 hover:to-indigo-500/10 cursor-pointer"
+              className="w-full py-2.5 px-4 rounded-xl border border-purple-500/50 bg-gradient-to-r from-purple-500/15 via-indigo-500/15 to-purple-500/15 hover:border-purple-400 hover:from-purple-500/25 hover:to-indigo-500/25 text-purple-200 text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:shadow-[0_0_20px_rgba(168,85,247,0.35)] cursor-pointer"
             >
-              <Sparkles size={14} className="text-purple-500" />
-              {t('Demo Mode')}
+              <Zap size={14} className="text-amber-400 fill-amber-400" />
+              <span>⚡ Demo Mode</span>
             </button>
+          </div>
+        </div>
+
+        {/* Quotes & High-Value Footer */}
+        <div className="w-full max-w-md mx-auto mt-6 pt-5 border-t border-white/10 space-y-3 z-10 text-center sm:text-left">
+          {/* Title & Quote */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-slate-400">
+            <div className="flex items-center justify-center sm:justify-start gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-amber-400/90">
+              <Trophy size={13} className="text-amber-400" />
+              <span>AI BUILDER CUP 2026</span>
+            </div>
+            <div className="text-xs italic text-slate-300 font-serif text-center sm:text-right">
+              "Build in JAPAC, Build for the World"
+            </div>
+          </div>
+
+          {/* Base Line Credit Links */}
+          <div className="flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 pt-1 gap-2">
+            <span>Milestone v1.4 | Powered by JAPAC AI | © 2026</span>
+            <div className="flex items-center gap-3 text-slate-400">
+              <a href="#privacy" onClick={(e) => e.preventDefault()} className="hover:text-slate-200 transition-colors">
+                Privacy
+              </a>
+              <span>•</span>
+              <a href="#terms" onClick={(e) => e.preventDefault()} className="hover:text-slate-200 transition-colors">
+                Terms
+              </a>
+              <span>•</span>
+              <a href="#status" onClick={(e) => e.preventDefault()} className="hover:text-slate-200 transition-colors">
+                Status
+              </a>
+            </div>
           </div>
         </div>
       </div>
