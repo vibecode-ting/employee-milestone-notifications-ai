@@ -746,7 +746,7 @@ export function AiCardStudioModal({
                     ? 'bg-emerald-950/90 border-emerald-400 text-emerald-300'
                     : 'bg-slate-800 hover:bg-slate-700 border-slate-600 hover:border-slate-400 text-white'
                 }`}
-                title="Copy greeting and quote text to clipboard"
+                title={t('Copy greeting and quote text to clipboard')}
               >
                 {copied ? <Check size={15} className="text-emerald-400" /> : <Copy size={15} />}
                 <span>{copied ? t('Copied Text! ✓') : t('Copy Text')}</span>
@@ -761,7 +761,7 @@ export function AiCardStudioModal({
                     ? 'bg-emerald-600 border-emerald-400 text-white'
                     : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white border-blue-400/50 shadow-indigo-600/30'
                 }`}
-                title="Render and download high-resolution 1200x630 PNG celebration graphic"
+                title={t('Render and download high-resolution 1200x630 PNG celebration graphic')}
               >
                 {exported ? (
                   <Check size={15} />
@@ -779,7 +779,7 @@ export function AiCardStudioModal({
                     ? 'bg-amber-950/90 border-amber-400 text-amber-300'
                     : 'bg-slate-800 hover:bg-slate-700 border-slate-600 hover:border-slate-400 text-white'
                 }`}
-                title="Schedule celebration card for automatic dispatch"
+                title={t('Schedule celebration card for automatic dispatch')}
               >
                 {scheduled ? <Check size={15} className="text-amber-400" /> : <Calendar size={15} />}
                 <span>{scheduled ? t('Scheduled! ⏰') : t('Schedule')}</span>
@@ -793,7 +793,7 @@ export function AiCardStudioModal({
                     ? 'bg-emerald-500 border-emerald-300 text-white'
                     : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white border-emerald-400/50 shadow-emerald-600/30'
                 }`}
-                title="Open 1-Click Multi-Channel Dispatch preview"
+                title={t('Ready to dispatch across multi-tier enterprise channels')}
               >
                 {dispatched ? <Check size={15} /> : <Send size={15} />}
                 <span>{dispatched ? t('Dispatched! 🚀') : t('1-Click Multi-Channel Dispatch')}</span>

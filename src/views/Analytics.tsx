@@ -74,7 +74,7 @@ export default function Analytics() {
             </div>
             <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1 mt-1">
               <TrendingUp size={12} />
-              <span>Calibrated across 34 JAPAC nodes</span>
+              <span>{t('Calibrated across 34 JAPAC nodes')}</span>
             </div>
           </div>
           <div className="p-3 rounded-xl bg-indigo-500/10 text-indigo-500">
@@ -88,10 +88,10 @@ export default function Analytics() {
               {t('Projected Milestone Events')}
             </div>
             <div className="text-2xl font-bold text-cyan-600 dark:text-cyan-400 mt-1 tabular">
-              {totalEvents} Celebrations
+              {totalEvents} {t('Celebrations')}
             </div>
             <div className="text-[11px] text-slate-500 dark:text-zinc-400 mt-1">
-              Birthdays + Work Anniversaries
+              {t('Birthdays + Work Anniversaries')}
             </div>
           </div>
           <div className="p-3 rounded-xl bg-cyan-500/10 text-cyan-500">
@@ -109,7 +109,7 @@ export default function Analytics() {
             </div>
             <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1 mt-1">
               <ArrowUpRight size={12} />
-              <span>+4.2% YoY employee satisfaction</span>
+              <span>{t('+4.2% YoY employee satisfaction')}</span>
             </div>
           </div>
           <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-500">
@@ -126,7 +126,7 @@ export default function Analytics() {
               88.4%
             </div>
             <div className="text-[11px] text-slate-500 dark:text-zinc-400 mt-1">
-              3+ years sustained service
+              {t('3+ years sustained service')}
             </div>
           </div>
           <div className="p-3 rounded-xl bg-amber-500/10 text-amber-500">
@@ -195,7 +195,7 @@ export default function Analytics() {
               <ShieldAlert size={18} className="text-amber-500" />
               <span>{t('Tenure Retention Risk Cohorts')}</span>
             </h2>
-            <span className="text-[11px] text-slate-400 font-mono">Cohorts Model</span>
+            <span className="text-[11px] text-slate-400 font-mono">{t('Cohorts Model')}</span>
           </div>
 
           <div className="space-y-3.5">
@@ -214,12 +214,12 @@ export default function Analytics() {
                       {cohort.cohort}
                     </div>
                     <div className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5">
-                      {cohort.count} members • Engagement Score: {cohort.avgEngagement}%
+                      {cohort.count} {t('members')} • {t('Engagement Score:')} {cohort.avgEngagement}%
                     </div>
                   </div>
 
                   <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${riskColor}`}>
-                    {cohort.retentionRisk} Risk
+                    {t(cohort.retentionRisk)} {t('Risk')}
                   </span>
                 </div>
               );
@@ -234,7 +234,7 @@ export default function Analytics() {
               <Sparkles size={18} className="text-indigo-500" />
               <span>{t('JAPAC Localization & Language Telemetry')}</span>
             </h2>
-            <span className="text-[11px] text-slate-400 font-mono">7 Supported Locales</span>
+            <span className="text-[11px] text-slate-400 font-mono">{t('7 Supported Locales')}</span>
           </div>
 
           <div className="space-y-3.5">
@@ -246,7 +246,7 @@ export default function Analytics() {
                     <span>{loc.language}</span>
                   </span>
                   <span className="font-mono text-slate-500 dark:text-zinc-400">
-                    {loc.percentage}% ({loc.count} employees)
+                    {loc.percentage}% ({loc.count} {t('employees')})
                   </span>
                 </div>
                 <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden">

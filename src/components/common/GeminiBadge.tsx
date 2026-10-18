@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Sparkles, Shield, Zap } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import type { Role } from '../../types';
@@ -11,6 +12,8 @@ interface GeminiBadgeProps {
 }
 
 export function GeminiBadge({ role, size = 'sm', className, showIcon = true }: GeminiBadgeProps) {
+  const { t } = useTranslation();
+
   if (role === 'pro_plus') {
     return (
       <span
@@ -31,7 +34,7 @@ export function GeminiBadge({ role, size = 'sm', className, showIcon = true }: G
           />
         )}
         <span className="font-extrabold tracking-wide dark:text-white bg-gradient-to-r from-[#1a73e8] via-[#6366f1] to-[#9333ea] dark:from-white dark:to-white bg-clip-text text-transparent">
-          Ultra
+          {t('Ultra')}
         </span>
       </span>
     );
@@ -51,7 +54,7 @@ export function GeminiBadge({ role, size = 'sm', className, showIcon = true }: G
         )}
       >
         {showIcon && <Zap size={size === 'sm' ? 10 : 12} className="text-blue-500 dark:text-blue-400 shrink-0" />}
-        <span className="font-bold tracking-wide">Pro</span>
+        <span className="font-bold tracking-wide">{t('Pro')}</span>
       </span>
     );
   }
@@ -68,7 +71,7 @@ export function GeminiBadge({ role, size = 'sm', className, showIcon = true }: G
         )}
       >
         {showIcon && <Shield size={size === 'sm' ? 10 : 12} className="text-emerald-500 shrink-0" />}
-        <span className="font-bold">Admin</span>
+        <span className="font-bold">{t('Admin')}</span>
       </span>
     );
   }
@@ -84,7 +87,7 @@ export function GeminiBadge({ role, size = 'sm', className, showIcon = true }: G
         className
       )}
     >
-      <span>Free</span>
+      <span>{t('Free')}</span>
     </span>
   );
 }

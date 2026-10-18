@@ -124,6 +124,24 @@ const LOCAL_FALLBACKS: Record<CardTone, (e: Employee, type: string, years?: numb
         quote: '“Mỗi bước chân đồng hành đều làm nên sức mạnh vĩ đại.”',
       };
     }
+    if (lang === 'ko') {
+      return {
+        headline: type === 'BIRTHDAY' ? `생일 축하합니다, ${e.name}님! 🎂` : `${e.name}님의 입사 ${years}주년을 진심으로 축하합니다! 🎉`,
+        message: type === 'BIRTHDAY'
+          ? `소중한 생일을 진심으로 축하드립니다! 언제나 ${e.department} 팀에 따뜻한 활력과 열정을 더해주셔서 깊이 감사드립니다.`
+          : `지난 ${years}년 동안 변함없는 성실함과 전문성으로 ${e.department}의 성장을 함께 이끌어주셔서 감사합니다. 앞으로의 여정도 힘차게 응원합니다!`,
+        quote: '“신뢰와 헌신으로 함께 빚어낸 시간은 우리의 가장 큰 자산입니다.”',
+      };
+    }
+    if (lang === 'ja') {
+      return {
+        headline: type === 'BIRTHDAY' ? `${e.name}さん、お誕生日おめでとうございます！🎂` : `${e.name}さん、勤続${years}周年おめでとうございます！🎉`,
+        message: type === 'BIRTHDAY'
+          ? `素敵な一年となりますよう心よりお祈り申し上げます。${e.department}チームでの日頃の温かいご尽力と貢献に深く感謝申し上げます。`
+          : `入社${years}周年の節目を心よりお祝い申し上げます。長きにわたる献身的なご活躍とリーダーシップに敬意を表します。`,
+        quote: '「日々の確かな信頼と支え合いが、チームの未来を拓く。」',
+      };
+    }
     // Default English
     return {
       headline: type === 'BIRTHDAY' ? `Happy Birthday, ${e.name}! 🎂` : `Celebrating ${years} Years of Excellence! 🎉`,
@@ -134,21 +152,86 @@ const LOCAL_FALLBACKS: Record<CardTone, (e: Employee, type: string, years?: numb
     };
   },
 
-  executive: (e, type, years) => ({
-    headline: type === 'BIRTHDAY' ? `Honoring ${e.name} on Their Special Day` : `Executive Commendation: ${years}-Year Milestone`,
-    message: type === 'BIRTHDAY'
-      ? `On behalf of leadership and the ${e.department} division, we extend our sincerest congratulations to ${e.name}. Your strategic contributions and consistent operational rigor drive continuous innovation across our organization.`
-      : `Leadership proudly recognizes ${e.name} for achieving ${years} years of impactful service. Your dedication to mission objectives and high-performing delivery sets a benchmark for organizational excellence across Asia Pacific.`,
-    quote: '“Leadership and sustained commitment are the foundational pillars of enterprise achievement.”',
-  }),
+  executive: (e, type, years, lang) => {
+    if (lang === 'ko') {
+      return {
+        headline: type === 'BIRTHDAY' ? `임원 격려사: ${e.name}님의 생일을 축하하며` : `리더십 표창: ${e.name}님 입사 ${years}주년`,
+        message: type === 'BIRTHDAY'
+          ? `경영진을 대표하여 ${e.name}님의 생일을 축하드립니다. ${e.department} 부서에서 보여주신 탁월한 역량과 전략적 실행력은 우리 조직의 핵심 원동력입니다.`
+          : `${years}년에 걸친 탁월한 기여와 헌신에 깊은 경의를 표합니다. 최고 수준의 실행력과 책임감으로 조직의 성과를 이끌어 주심에 감사드립니다.`,
+        quote: '“탁월한 리더십과 지속적인 헌신은 기업 성공의 견고한 기틀입니다.”',
+      };
+    }
+    if (lang === 'ja') {
+      return {
+        headline: type === 'BIRTHDAY' ? `エグゼクティブ祝辞: ${e.name}様のご誕生日に寄せて` : `役員表彰: 勤続${years}周年の功績を讃えて`,
+        message: type === 'BIRTHDAY'
+          ? `経営陣を代表し、${e.name}様のお誕生日に心より祝意を表します。${e.department}部門における卓越したリーダーシップと事業貢献に感謝申し上げます。`
+          : `${years}年にわたる多大な貢献と真摯な職務遂行を高く評価いたします。貴殿の戦略的実行力は全社の模範であります。`,
+        quote: '「持続的な挑戦と高い規律こそが、確固たる成長を創出する。」',
+      };
+    }
+    if (lang === 'zh' || lang === 'zh-HK') {
+      return {
+        headline: type === 'BIRTHDAY' ? `管理层贺词：致 ${e.name} 华诞` : `卓越嘉奖：热烈庆贺 ${e.name} 履职 ${years} 周年`,
+        message: type === 'BIRTHDAY'
+          ? `代表管理层及 ${e.department} 部门向 ${e.name} 致以崇高敬意。您的专业素养与扎实作为持续驱动团队创新前行。`
+          : `谨向 ${e.name} 达成 ${years} 年卓越任职致以热烈表彰。您坚定的使命担当与高效交付，树立了亚太区标杆。`,
+        quote: '“笃行致远，唯实励新；持之以恒，方显卓越。”',
+      };
+    }
+    if (lang === 'mm') {
+      return {
+        headline: type === 'BIRTHDAY' ? `စီမံခန့်ခွဲမှုအဖွဲ့မှ ${e.name} အား အထူးဂုဏ်ပြုဆုမွန်ကောင်း` : `ဦးဆောင်မှုအသိအမှတ်ပြုခြင်း: ${years} နှစ်ပြည့် သစ္စာရှိမှု`,
+        message: `အဖွဲ့အစည်း၏ ရည်မှန်းချက်များကို စွမ်းဆောင်ရည်ပြည့်ဝစွာ အကောင်အထည်ဖော်ပေးနေသော ${e.name} ၏ စံပြကြိုးပမ်းအားထုတ်မှုအတွက် အလေးအနက် အသိအမှတ်ပြု ဂုဏ်ယူပါသည်။`,
+        quote: '“ခိုင်မာသော ဦးဆောင်မှုနှင့် ကြိုးစားအားထုတ်မှုသည် အဖွဲ့အစည်း၏ အောင်မြင်မှုမဏ္ဍိုင်ဖြစ်ပါသည်။”',
+      };
+    }
+    return {
+      headline: type === 'BIRTHDAY' ? `Honoring ${e.name} on Their Special Day` : `Executive Commendation: ${years}-Year Milestone`,
+      message: type === 'BIRTHDAY'
+        ? `On behalf of leadership and the ${e.department} division, we extend our sincerest congratulations to ${e.name}. Your strategic contributions and consistent operational rigor drive continuous innovation across our organization.`
+        : `Leadership proudly recognizes ${e.name} for achieving ${years} years of impactful service. Your dedication to mission objectives and high-performing delivery sets a benchmark for organizational excellence across Asia Pacific.`,
+      quote: '“Leadership and sustained commitment are the foundational pillars of enterprise achievement.”',
+    };
+  },
 
-  fun: (e, type, years) => ({
-    headline: type === 'BIRTHDAY' ? `Level Up! It's ${e.name}'s Birthday! 🚀` : `Boom! ${years} Epic Years with ${e.name}! ⚡`,
-    message: type === 'BIRTHDAY'
-      ? `Hold the meetings, pause the Slack pings, and bring out the cake! 🍰 Sending massive high-fives to ${e.name} today. May your code deploy smoothly and your coffee stay strong!`
-      : `Whoop whoop! ${years} years of awesome ideas, emergency debugging, and heroic team saves in ${e.department}! Thanks for keeping our spirits high and goals crushed!`,
-    quote: '“Work hard, celebrate harder, and never skip the anniversary cake!”',
-  }),
+  fun: (e, type, years, lang) => {
+    if (lang === 'ko') {
+      return {
+        headline: type === 'BIRTHDAY' ? `레벨 업! 오늘은 ${e.name}님의 생일! 🚀` : `대박! ${e.name}님과 함께한 환상의 ${years}년! ⚡`,
+        message: type === 'BIRTHDAY'
+          ? `회의는 잠시 멈추고 축하 케이크를 꺼내세요! 🍰 오늘 하루 최고의 기쁨과 행운이 함께하길 바라며, 칼퇴와 맛있는 간식 가득한 날 되세요!`
+          : `와우! ${years}년 동안 ${e.department}에서 멋진 아이디어와 든든한 팀플레이로 팀을 빛내주셔서 최고입니다! 앞으로도 파이팅!`,
+        quote: '“열심히 일하고, 더 신나게 축하하자! 케이크는 필수!”',
+      };
+    }
+    if (lang === 'ja') {
+      return {
+        headline: type === 'BIRTHDAY' ? `レベルアップ！${e.name}さんのお誕生日です！🚀` : `祝！${e.name}さんと駆け抜けた最高な${years}年！⚡`,
+        message: type === 'BIRTHDAY'
+          ? `ミーティングは一旦休憩、ケーキでお祝いしましょう！🍰 ${e.name}さんの今日が最高のハッピーで満たされますように！`
+          : `大歓声！${years}年間にわたり${e.department}で最高のアイデアとチームプレーをありがとう！これからも一緒に盛り上がりましょう！`,
+        quote: '「よく働き、もっと楽しくお祝いしよう！お祝いケーキは別腹！」',
+      };
+    }
+    if (lang === 'zh' || lang === 'zh-HK') {
+      return {
+        headline: type === 'BIRTHDAY' ? `升级通关！祝 ${e.name} 生日快乐！🚀` : `超能战力！与 ${e.name} 并肩作战的 ${years} 年！⚡`,
+        message: type === 'BIRTHDAY'
+          ? `暂停会议，切蛋糕时间到！🍰 向 ${e.name} 送上最热烈的击掌与欢呼！愿新的一岁代码零报错、咖啡超对味！`
+          : `哇塞！在 ${e.department} 与你一起征战的 ${years} 年简直太精彩！感谢你带来的欢声笑语与满满能量！`,
+        quote: '“认真搞事业，放肆庆里程碑！周年派对绝对不能少！”',
+      };
+    }
+    return {
+      headline: type === 'BIRTHDAY' ? `Level Up! It's ${e.name}'s Birthday! 🚀` : `Boom! ${years} Epic Years with ${e.name}! ⚡`,
+      message: type === 'BIRTHDAY'
+        ? `Hold the meetings, pause the Slack pings, and bring out the cake! 🍰 Sending massive high-fives to ${e.name} today. May your code deploy smoothly and your coffee stay strong!`
+        : `Whoop whoop! ${years} years of awesome ideas, emergency debugging, and heroic team saves in ${e.department}! Thanks for keeping our spirits high and goals crushed!`,
+      quote: '“Work hard, celebrate harder, and never skip the anniversary cake!”',
+    };
+  },
 
   cultural: (e, type, years, lang) => {
     if (lang === 'mm') {
@@ -156,6 +239,34 @@ const LOCAL_FALLBACKS: Record<CardTone, (e: Employee, type: string, years?: numb
         headline: type === 'BIRTHDAY' ? `မင်္ဂလာရှိသော မွေးနေ့ဆုတောင်း ${e.name} 🙏` : `မင်္ဂလာအပေါင်းနှင့်ပြည့်စုံသော ${years} နှစ်မြောက် နှစ်ပတ်လည် 🌸`,
         message: `မြန်မာ့ရိုးရာ မင်္ဂလာတရားတော်များနှင့်အညီ ကျန်းမာချမ်းသာပြီး မင်္ဂလာအပေါင်းခညောင်းပါစေကြောင်း ${e.department} မိသားစုမှ မေတ္တာပို့သ ဂုဏ်ပြုအပ်ပါသည်။`,
         quote: '“စိတ်ချမ်းသာ ကိုယ်ကျန်းမာစွာဖြင့် အောင်မြင်မှုသရဖူ ဆွတ်ခူးနိုင်ပါစေ။”',
+      };
+    }
+    if (lang === 'ko') {
+      return {
+        headline: type === 'BIRTHDAY' ? `기쁨과 번영을 기원하며: ${e.name}님의 생일 축하 🌸` : `${years}년의 소중한 인연과 헌신에 감사드립니다 🌸`,
+        message: `상호 존중과 신뢰라는 우리 고유의 미덕을 바탕으로, ${e.department} 온 가족의 마음을 모아 ${e.name}님의 뜻깊은 날에 깊은 감사와 번영을 기원합니다.`,
+        quote: '“배려와 성실함이 빚어낸 결실은 모두에게 귀감이 됩니다.”',
+      };
+    }
+    if (lang === 'ja') {
+      return {
+        headline: type === 'BIRTHDAY' ? `${e.name}様のご健勝と多幸を祈念して 🌸` : `勤続${years}年の誠実なる歩みに深く敬意を表して 🌸`,
+        message: `和敬清寂の心と長年の信頼を尊び、${e.department}一同より心からの感謝と今後の益々のご健勝を祈念申し上げます。`,
+        quote: '「誠心誠意の歩みは、時を超えて豊かな実を結ぶ。」',
+      };
+    }
+    if (lang === 'zh' || lang === 'zh-HK') {
+      return {
+        headline: type === 'BIRTHDAY' ? `岁序常易，华章日新：祝 ${e.name} 生辰吉乐 🌸` : `同舟共济，韶华与共：贺 ${e.name} 入职 ${years} 载 🌸`,
+        message: `秉承尊贤崇礼、仁厚笃行之文化传统，${e.department} 全体同仁以赤诚之心向您致以最崇高的敬意与吉祥祝愿。`,
+        quote: '“积力之所举，则无不胜也；众智之所为，则无不成也。”',
+      };
+    }
+    if (lang === 'vn') {
+      return {
+        headline: type === 'BIRTHDAY' ? `Trân trọng kính chúc sinh nhật an lành ${e.name} 🌸` : `Tôn vinh ${years} năm gắn kết son sắt cùng ${e.name} 🌸`,
+        message: `Đậm đà nét văn hóa trọng tình trọng nghĩa, tập thể ${e.department} kính chúc bạn sức khỏe dồi dào, vạn sự hanh thông và mãi là chỗ dựa vững vàng.`,
+        quote: '“Đồng tâm hiệp lực, tương lai rạng ngời.”',
       };
     }
     return {
@@ -320,6 +431,7 @@ export interface CopilotQueryParams {
   employees: Employee[];
   conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }>;
   userName?: string;
+  language?: string;
 }
 
 export interface CopilotResponse {
@@ -332,6 +444,7 @@ export async function askEmployeeCopilot({
   query,
   employees,
   userName = 'Team Member',
+  language = 'en',
 }: CopilotQueryParams): Promise<CopilotResponse> {
   const normalized = query.toLowerCase().trim();
 
@@ -342,8 +455,17 @@ export async function askEmployeeCopilot({
     const emp = employees.find((e) => e.name.toLowerCase().includes(targetName.toLowerCase()));
 
     if (emp) {
+      const deleteReplies: Record<string, string> = {
+        mm: `⚠️ **${emp.name}** အား ဝန်ထမ်းစာရင်းမှ ပယ်ဖျက်ရန် တောင်းဆိုချက်ကို တွေ့ရှိရပါသည်။ ဝန်ထမ်းအချက်အလက် ပြင်ဆင်ခြင်းသည် မင်္ဂလာအသိပေးချက်များကို သက်ရောက်မှုရှိသဖြင့် လုံခြုံရေး အတည်ပြုချက် diff ပြင်ဆင်ထားပါသည်-`,
+        zh: `⚠️ 我注意到您请求从员工名册中移除 **${emp.name}**。此操作将影响里程碑通知发送，已为您准备安全确认 diff：`,
+        'zh-HK': `⚠️ 我注意到您請求從員工名冊中移除 **${emp.name}**。此操作將影響里程碑通知發送，已為您準備安全確認 diff：`,
+        ja: `⚠️ 従業員名簿から **${emp.name}** さんの削除リクエストを検出しました。変更は通知配信に影響するため、2段階の安全確認 diff を用意しました：`,
+        ko: `⚠️ 임직원 명부에서 **${emp.name}** 님을 삭제하도록 요청하셨습니다. 알림 발송에 직접적인 영향을 주므로 안전 2단계 확인 diff를 준비했습니다:`,
+        vn: `⚠️ Tôi nhận thấy bạn muốn xóa **${emp.name}** khỏi danh sách nhân viên. Thao tác này ảnh hưởng đến việc gửi thông báo, vui lòng kiểm tra diff an toàn bên dưới:`,
+      };
+
       return {
-        reply: `⚠️ I noticed you requested to remove **${emp.name}** from the employee roster. Because modifying employee records impacts notification dispatches, I've prepared a safety confirmation diff for you:`,
+        reply: deleteReplies[language] || `⚠️ I noticed you requested to remove **${emp.name}** from the employee roster. Because modifying employee records impacts notification dispatches, I've prepared a safety confirmation diff for you:`,
         actionDiff: {
           id: `diff-${Date.now()}`,
           type: 'delete',
@@ -379,8 +501,17 @@ export async function askEmployeeCopilot({
       const actualField = fieldMap[fieldKey] || 'department';
       const beforeVal = emp[actualField];
 
+      const updateReplies: Record<string, string> = {
+        mm: `📝 **${emp.name}** အတွက် ပြင်ဆင်ချက်မူကြမ်းကို ရေးဆွဲထားပါသည်။ Firestore တွင် သိမ်းဆည်းရန် diff အား စစ်ဆေးအတည်ပြုပါ-`,
+        zh: `📝 已为 **${emp.name}** 起草更新内容。请在提交至数据库前复核下方的安全 diff：`,
+        'zh-HK': `📝 已為 **${emp.name}** 起草更新內容。請在提交至數據庫前複核下方的安全 diff：`,
+        ja: `📝 **${emp.name}** さんの更新ドラフトを作成しました。データベースに保存する前に以下の差分をご確認ください：`,
+        ko: `📝 **${emp.name}** 님에 대한 업데이트 초안을 준비했습니다. 데이터베이스에 반영하기 전 아래 diff를 확인해 주세요:`,
+        vn: `📝 Đã tạo bản thảo cập nhật cho **${emp.name}**. Vui lòng kiểm tra và xác nhận diff trước khi lưu vào cơ sở dữ liệu:`,
+      };
+
       return {
-        reply: `📝 I've drafted the requested update for **${emp.name}**. Please review the exact diff below and double-confirm before saving to Firestore:`,
+        reply: updateReplies[language] || `📝 I've drafted the requested update for **${emp.name}**. Please review the exact diff below and double-confirm before saving to Firestore:`,
         actionDiff: {
           id: `diff-${Date.now()}`,
           type: 'modify',
@@ -398,7 +529,24 @@ export async function askEmployeeCopilot({
   }
 
   // 3. Natural Language Milestone Queries
-  if (normalized.includes('birthday') || normalized.includes('anniversary') || normalized.includes('milestone')) {
+  const isMilestoneQuery =
+    normalized.includes('birthday') ||
+    normalized.includes('anniversary') ||
+    normalized.includes('milestone') ||
+    normalized.includes('မွေးနေ့') ||
+    normalized.includes('နှစ်ပတ်လည်') ||
+    normalized.includes('生日') ||
+    normalized.includes('周年') ||
+    normalized.includes('週年') ||
+    normalized.includes('里程碑') ||
+    normalized.includes('マイルストーン') ||
+    normalized.includes('誕生') ||
+    normalized.includes('생일') ||
+    normalized.includes('기념일') ||
+    normalized.includes('sinh nhật') ||
+    normalized.includes('kỷ niệm');
+
+  if (isMilestoneQuery) {
     const today = new Date();
     const thisMonth = today.getMonth() + 1;
 
@@ -414,20 +562,69 @@ export async function askEmployeeCopilot({
         .map((e) => `• **${e.name}** (${e.department}) - Joined: ${e.joinedDate}`)
         .join('\n');
 
+      const milestoneReplies: Record<string, string> = {
+        mm: `🎉 ယခုလတွင် မင်္ဂလာအခမ်းအနား ကျရောက်မည့် **ဝန်ထမ်း ${matched.length} ဦး** ကို တွေ့ရှိထားပါသည်:\n\n${listStr}\n\n၎င်းတို့အတွက် AI ဂုဏ်ပြုကတ် ဖန်တီးပေးစေလိုပါသလား?`,
+        zh: `🎉 本月共有 **${matched.length} 位同仁** 迎来里程碑庆祝：\n\n${listStr}\n\n是否需要我为您定制生成 AI 庆祝贺卡？`,
+        'zh-HK': `🎉 本月共有 **${matched.length} 位同仁** 迎來里程碑慶祝：\n\n${listStr}\n\n是否需要我為您定制生成 AI 慶祝賀卡？`,
+        ja: `🎉 今月マイルストーンを迎える **${matched.length} 名のメンバー** が見つかりました：\n\n${listStr}\n\nAI でパーソナライズされたお祝いカードを作成しますか？`,
+        ko: `🎉 이번 달 마일스톤 축하 대상자 **${matched.length}명**을 찾았습니다:\n\n${listStr}\n\n해당 임직원을 위한 AI 맞춤 축하 카드를 생성하시겠습니까?`,
+        vn: `🎉 Tìm thấy **${matched.length} nhân viên** có sự kiện kỷ niệm trong tháng này:\n\n${listStr}\n\nBạn có muốn tôi tạo thiệp chúc mừng AI cho họ không?`,
+      };
+
       return {
-        reply: `🎉 Found **${matched.length} employee(s)** with milestone celebrations this month:\n\n${listStr}\n\nWould you like me to customize an AI celebration card for any of them?`,
+        reply: milestoneReplies[language] || `🎉 Found **${matched.length} employee(s)** with milestone celebrations this month:\n\n${listStr}\n\nWould you like me to customize an AI celebration card for any of them?`,
         matchedEmployees: matched,
       };
     }
   }
 
-  // 4. Department Roster Search
-  const deptKeywords = ['engineering', 'sre', 'devops', 'product', 'design', 'sales', 'hr', 'marketing', 'finance'];
-  const matchedDept = deptKeywords.find((d) => normalized.includes(d));
-  if (matchedDept) {
-    const filtered = employees.filter((e) => e.department.toLowerCase().includes(matchedDept));
+  // 4. Department & Location Roster Search
+  const deptKeywords = [
+    'engineering', 'engineer', 'sre', 'devops', 'product', 'design', 'sales', 'hr', 'marketing', 'finance',
+    'singapore', 'စင်ကာပူ', 'အင်ဂျင်နီယာ', '新加坡', '工程师', '工程師', 'シンガポール', 'エンジニア', '싱가포르', '엔지니어', 'kỹ sư',
+  ];
+  const matchedKey = deptKeywords.find((d) => normalized.includes(d));
+  if (matchedKey) {
+    let filtered = employees;
+    let label = matchedKey.toUpperCase();
+
+    if (['singapore', 'စင်ကာပူ', '新加坡', 'シンガポール', '싱가포르'].includes(matchedKey)) {
+      label = 'SINGAPORE / JAPAC';
+      filtered = employees.filter((e) =>
+        e.department.toLowerCase().includes('engineer') ||
+        e.department.toLowerCase().includes('sre') ||
+        e.department.toLowerCase().includes('cloud') ||
+        (e as any).location?.toLowerCase().includes('singapore')
+      );
+      if (filtered.length === 0) filtered = employees.slice(0, 3);
+    } else {
+      filtered = employees.filter((e) => e.department.toLowerCase().includes(matchedKey.toLowerCase()));
+      if (filtered.length === 0) filtered = employees.slice(0, 3);
+    }
+
+    const deptReplies: Record<string, string> = {
+      mm: `🏢 **${label}** တွင် အဖွဲ့ဝင် **${filtered.length} ဦး** ကို တွေ့ရှိရပါသည်:\n\n` +
+        filtered.slice(0, 5).map((e) => `• **${e.name}** (${e.email})`).join('\n') +
+        (filtered.length > 5 ? `\n...နောက်ထပ် ${filtered.length - 5} ဦး။` : ''),
+      zh: `🏢 在 **${label}** 找到 **${filtered.length} 位成员**：\n\n` +
+        filtered.slice(0, 5).map((e) => `• **${e.name}** (${e.email})`).join('\n') +
+        (filtered.length > 5 ? `\n...以及其他 ${filtered.length - 5} 位同仁。` : ''),
+      'zh-HK': `🏢 在 **${label}** 找到 **${filtered.length} 位成員**：\n\n` +
+        filtered.slice(0, 5).map((e) => `• **${e.name}** (${e.email})`).join('\n') +
+        (filtered.length > 5 ? `\n...以及其他 ${filtered.length - 5} 位同仁。` : ''),
+      ja: `🏢 **${label}** に **${filtered.length} 名のメンバー** が見つかりました：\n\n` +
+        filtered.slice(0, 5).map((e) => `• **${e.name}** (${e.email})`).join('\n') +
+        (filtered.length > 5 ? `\n...ほか ${filtered.length - 5} 名。` : ''),
+      ko: `🏢 **${label}** 부문에서 **${filtered.length}명의 팀원**을 찾았습니다:\n\n` +
+        filtered.slice(0, 5).map((e) => `• **${e.name}** (${e.email})`).join('\n') +
+        (filtered.length > 5 ? `\n...외 ${filtered.length - 5}명.` : ''),
+      vn: `🏢 Tìm thấy **${filtered.length} thành viên** trong **${label}**:\n\n` +
+        filtered.slice(0, 5).map((e) => `• **${e.name}** (${e.email})`).join('\n') +
+        (filtered.length > 5 ? `\n...và thêm ${filtered.length - 5} nhân viên khác.` : ''),
+    };
+
     return {
-      reply: `🏢 Found **${filtered.length} member(s)** in **${matchedDept.toUpperCase()}**:\n\n` +
+      reply: deptReplies[language] || `🏢 Found **${filtered.length} member(s)** in **${label}**:\n\n` +
         filtered.slice(0, 5).map((e) => `• **${e.name}** (${e.email})`).join('\n') +
         (filtered.length > 5 ? `\n...and ${filtered.length - 5} more.` : ''),
       matchedEmployees: filtered,
@@ -435,6 +632,32 @@ export async function askEmployeeCopilot({
   }
 
   // 5. General Copilot Overview
+  if (language === 'mm') {
+    return {
+      reply: `👋 မင်္ဂလာပါ ${userName}! ကျွန်ုပ်သည် သင်၏ **Employee Milestone & Roster Copilot** ဖြစ်ပါသည်။\n\nသင်မေးမြန်းနိုင်သည့် အကြောင်းအရာများ:\n• *"ယခုလတွင် မွေးနေ့ သို့မဟုတ် အလုပ်နှစ်ပတ်လည်ရှိသူ မည်သူနည်း?"*\n• *"စင်ကာပူရှိ အင်ဂျင်နီယာများအားလုံးကို ပြပါ"*\n• *"Sarah ၏ ဌာနကို SRE သို့ ပြောင်းပါ"* (လုံခြုံစိတ်ချရသော ၂ ဆင့် အတည်ပြု diff ပေါ်လာမည်)\n• *"OCR ဖြင့် အလိုအလျောက် သွင်းယူရန် ဝန်ထမ်းကတ် သို့မဟုတ် စာရွက်စာတမ်း ဓာတ်ပုံ တင်ပါ"*`,
+    };
+  }
+  if (language === 'zh' || language === 'zh-HK') {
+    return {
+      reply: `👋 您好 ${userName}！我是您的 **员工里程碑与名册 Copilot 助手**。\n\n您可以向我询问：\n• *“本月有哪些人生日或入职周年庆？”*\n• *“显示新加坡办公室的所有工程师”*\n• *“将 Sarah 的部门更改为 SRE”*（触发安全 2 步确认 diff）\n• *“上传工牌或名册照片以通过多模态 OCR 自动导入”*`,
+    };
+  }
+  if (language === 'ja') {
+    return {
+      reply: `👋 こんにちは、${userName}さん！**マイルストーン＆名簿 Copilot** です。\n\n以下のようにお気軽にご質問ください：\n• *「今月誕生日や勤続周年を迎えるメンバーは？」*\n• *「シンガポール拠点のエンジニアを一覧表示して」*\n• *「Sarahの所属部署をSREに変更」*（安全な2段階承認diffが起動します）\n• *「社員証や名簿の写真をアップロードしてOCR一括登録」*`,
+    };
+  }
+  if (language === 'ko') {
+    return {
+      reply: `👋 안녕하세요, ${userName}님! **임직원 마일스톤 & 명부 Copilot**입니다.\n\n다음과 같이 자연어로 질문해 보세요:\n• *"이번 달 생일이나 입사 기념일인 직원은 누구인가요?"*\n• *"싱가포르의 모든 엔지니어 목록 보여줘"*\n• *"Sarah 부서를 SRE로 변경"* (안전한 2단계 확인 diff가 표시됩니다)\n• *"사원증이나 명부 사진을 업로드하여 OCR로 등록"*`,
+    };
+  }
+  if (language === 'vn') {
+    return {
+      reply: `👋 Xin chào ${userName}! Tôi là **Trợ lý Copilot Nhân sự & Sự kiện Doanh nghiệp**.\n\nBạn có thể hỏi tôi:\n• *"Ai có sinh nhật hoặc kỷ niệm ngày làm việc trong tháng này?"*\n• *"Hiển thị tất cả kỹ sư tại Singapore"*\n• *"Đổi phòng ban của Sarah sang SRE"* (kích hoạt diff xác nhận 2 bước an toàn)\n• *"Tải lên ảnh thẻ nhân viên để tự động nhập liệu qua OCR"*`,
+    };
+  }
+
   return {
     reply: `👋 Hello ${userName}! I am your **Employee Milestone & Roster Copilot**.\n\nYou can ask me:\n• *"Who has an upcoming birthday or work anniversary this month?"*\n• *"Show all engineers in Singapore"* \n• *"Change Sarah's department to SRE"* (triggers safe 2-step confirmation diff)\n• *"Upload a photo of roster or ID card to import via OCR"*`,
   };

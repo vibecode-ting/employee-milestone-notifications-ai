@@ -1,4 +1,5 @@
 import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 import {
   X, Lock, Check, Columns,
 } from 'lucide-react';
@@ -54,6 +55,7 @@ export function CustomColumnModal({
   onToggleColumn,
   onOpenUpgradeModal,
 }: CustomColumnModalProps) {
+  const { t } = useTranslation();
   const { appUser } = useAuth();
 
   const userRole: Role = appUser?.role || 'user';
@@ -84,12 +86,12 @@ export function CustomColumnModal({
             </div>
             <div>
               <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <span>Dynamic Custom Columns</span>
+                <span>{t('Dynamic Custom Columns')}</span>
                 <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30">
-                  PLG Gated
+                  {t('PLG Gated')}
                 </span>
               </h2>
-              <p className="text-xs text-slate-400">Customize schema fields for employee milestone tracking</p>
+              <p className="text-xs text-slate-400">{t('Customize schema fields for employee milestone tracking')}</p>
             </div>
           </div>
           <button
@@ -105,9 +107,9 @@ export function CustomColumnModal({
           <div className="mt-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-start gap-2.5">
             <Lock size={16} className="shrink-0 mt-0.5 text-amber-400" />
             <div>
-              <div className="font-bold">Pro & Ultra Tier Feature</div>
+              <div className="font-bold">{t('Pro & Ultra Tier Feature')}</div>
               <p className="text-[11px] text-amber-200/80 mt-0.5 leading-relaxed">
-                Free plan users can preview custom column schema. Unlock unlimited custom fields or try the 1-click sandbox demo!
+                {t('Free plan users can preview custom column schema. Unlock unlimited custom fields or try the 1-click sandbox demo!')}
               </p>
             </div>
           </div>
@@ -130,7 +132,7 @@ export function CustomColumnModal({
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-white">{col.label}</span>
+                    <span className="text-xs font-bold text-white">{t(col.label)}</span>
                     <span
                       className={`text-[9px] font-mono uppercase px-1.5 py-0.2 rounded font-semibold ${
                         col.requiredTier === 'pro_plus'
@@ -138,10 +140,10 @@ export function CustomColumnModal({
                           : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
                       }`}
                     >
-                      {col.requiredTier === 'pro_plus' ? 'Ultra' : 'Pro'}
+                      {col.requiredTier === 'pro_plus' ? t('Ultra') : t('Pro')}
                     </span>
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-0.5">{col.description}</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">{t(col.description)}</p>
                 </div>
 
                 {/* Toggle or Upgrade CTA */}
@@ -156,7 +158,7 @@ export function CustomColumnModal({
                     }`}
                   >
                     {isEnabled ? <Check size={12} /> : null}
-                    <span>{isEnabled ? 'Active' : 'Enable'}</span>
+                    <span>{isEnabled ? t('Active') : t('Enable')}</span>
                   </button>
                 ) : (
                   <button
@@ -165,7 +167,7 @@ export function CustomColumnModal({
                     className="px-2.5 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/40 text-xs font-bold flex items-center gap-1 transition-all cursor-pointer"
                   >
                     <Lock size={12} />
-                    <span>Unlock</span>
+                    <span>{t('Unlock')}</span>
                   </button>
                 )}
               </div>
@@ -176,14 +178,14 @@ export function CustomColumnModal({
         {/* Footer */}
         <div className="mt-5 pt-4 border-t border-slate-800 flex items-center justify-between">
           <span className="text-xs text-slate-400">
-            {activeColumns.length} custom column(s) active
+            {t('{{count}} custom column(s) active', { count: activeColumns.length })}
           </span>
           <button
             type="button"
             onClick={onClose}
             className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-all cursor-pointer"
           >
-            Done
+            {t('Done')}
           </button>
         </div>
       </div>

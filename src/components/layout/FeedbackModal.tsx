@@ -320,7 +320,7 @@ _Submitted via In-App Feedback Pipeline_`;
                   <span>{t('Diagnostics & Telemetry Auto-Attached')}</span>
                   {isDemo && (
                     <span className="text-[10px] bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400 px-1.5 py-0.2 rounded font-medium flex items-center gap-0.5">
-                      <ShieldAlert size={10} /> Demo IP Tracking
+                      <ShieldAlert size={10} /> {t('Demo IP Tracking')}
                     </span>
                   )}
                 </div>
@@ -332,25 +332,25 @@ _Submitted via In-App Feedback Pipeline_`;
               {showDiagnostics && (
                 <div className="text-[11px] font-mono space-y-1 pt-2 border-t border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400">User Email:</span>
+                    <span className="text-slate-400">{t('User Email:')}</span>
                     <span className="font-semibold text-slate-700 dark:text-zinc-200">{effectiveEmail}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400">{isDemo ? 'User ID (IPv4):' : 'User ID:'}</span>
+                    <span className="text-slate-400">{isDemo ? t('User ID (IPv4):') : t('User ID:')}</span>
                     <span className="font-semibold text-slate-700 dark:text-zinc-200 truncate max-w-[200px]">
                       {effectiveUserId}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400">IPv4 Address:</span>
-                    <span>{loadingIp ? 'Fetching...' : telemetry.ip}</span>
+                    <span className="text-slate-400">{t('IPv4 Address:')}</span>
+                    <span>{loadingIp ? t('Fetching...') : telemetry.ip}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400">Location / Zone:</span>
+                    <span className="text-slate-400">{t('Location / Zone:')}</span>
                     <span>{telemetry.timezone} ({telemetry.locale})</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400">Screen Resolution:</span>
+                    <span className="text-slate-400">{t('Screen Resolution:')}</span>
                     <span>{telemetry.screenSize}</span>
                   </div>
                 </div>
