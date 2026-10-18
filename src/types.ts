@@ -156,6 +156,31 @@ export interface CopilotMessage {
   timestamp: string;
   diff?: CopilotDiff;
   source?: 'text' | 'voice' | 'ocr';
+  imageDataUrl?: string;
 }
+
+export interface FeedbackItem {
+  id: string;
+  title: string;
+  description: string;
+  category: 'bug' | 'feature' | 'improvement' | 'general';
+  userId: string;
+  userEmail: string;
+  userRole?: string;
+  isDemo?: boolean;
+  telemetry?: {
+    ip: string;
+    timezone: string;
+    locale: string;
+    userAgent: string;
+    screenSize: string;
+    windowSize: string;
+    platform: string;
+  };
+  status: 'pending' | 'reviewed' | 'resolved';
+  createdAt: string;
+  githubDispatched?: boolean;
+}
+
 
 

@@ -1,8 +1,13 @@
-import React, { useState, Component, Suspense, lazy, type ReactNode } from 'react';
+import React, { useState, useEffect, Component, Suspense, lazy, type ReactNode } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import AuthRoute from './components/auth/AuthRoute';
 import Navbar from './components/layout/Navbar';
+import { CopilotSidebar } from './components/copilot/CopilotSidebar';
+import { getDemoEmployees } from './utils/demoData';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { db } from './lib/firebase';
+import type { Employee } from './types';
 
 const Login = lazy(() => import('./views/Login'));
 const Dashboard = lazy(() => import('./views/Dashboard'));
@@ -70,10 +75,61 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 function AppLayout() {
   const { appUser } = useAuth();
   const [employeeCount, setEmployeeCount] = useState(0);
+  const [showCopilot, setShowCopilot] = useState(false);
+  const [employees, setEmployees] = useState<Employee[]>(() =>
+    getDemoEmployees(appUser?.uid || 'demo_user_123')
+  );
+
+  useEffect(() => {
+    const userId = appUser?.uid || 'demo-uid';
+    const isDemo =
+      userId.startsWith('demo') ||
+      !import.meta.env.VITE_FIREBASE_API_KEY ||
+      import.meta.env.VITE_FIREBASE_API_KEY.includes('DemoFallback') ||
+      import.meta.env.VITE_FIREBASE_PROJECT_ID === 'demo-milestone';
+
+    if (isDemo) {
+      const loadDemo = () => {
+        const data = getDemoEmployees(userId);
+        setEmployees(data);
+        setEmployeeCount(data.length);
+      };
+      loadDemo();
+
+      const handleUpdate = () => loadDemo();
+      window.addEventListener('demo_employees_updated', handleUpdate);
+      window.addEventListener('storage', handleUpdate);
+      return () => {
+        window.removeEventListener('demo_employees_updated', handleUpdate);
+        window.removeEventListener('storage', handleUpdate);
+      };
+    }
+
+    try {
+      const q = query(collection(db, 'employees'), where('userId', '==', userId));
+      return onSnapshot(
+        q,
+        (snap) => {
+          const data = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Employee));
+          setEmployees(data);
+          setEmployeeCount(data.length);
+        },
+        () => {
+          const data = getDemoEmployees(userId);
+          setEmployees(data);
+          setEmployeeCount(data.length);
+        }
+      );
+    } catch {
+      const data = getDemoEmployees(userId);
+      setEmployees(data);
+      setEmployeeCount(data.length);
+    }
+  }, [appUser]);
 
   return (
     <div className="flex min-h-screen overflow-x-hidden">
-      <Navbar employeeCount={employeeCount} />
+      <Navbar employeeCount={employeeCount} onOpenCopilot={() => setShowCopilot(true)} />
       <main className="flex-1 p-6 transition-all duration-300 min-w-0 max-w-full overflow-x-hidden">
         <Suspense fallback={<RouteLoadingFallback />}>
           <Routes>
@@ -98,6 +154,13 @@ function AppLayout() {
           </Routes>
         </Suspense>
       </main>
+
+      {/* Universal HR Copilot (Accessible for all user roles across any page) */}
+      <CopilotSidebar
+        isOpen={showCopilot}
+        onClose={() => setShowCopilot(false)}
+        employees={employees}
+      />
     </div>
   );
 }

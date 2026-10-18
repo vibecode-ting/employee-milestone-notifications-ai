@@ -3,6 +3,9 @@ import { X, Send, MessageSquare, Bug, Lightbulb, Sparkles, CheckCircle2, Laptop,
 import { useAuth } from '../../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../lib/utils';
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from '../../lib/firebase';
+import type { FeedbackItem } from '../../types';
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -121,7 +124,7 @@ _Submitted via In-App Feedback Pipeline_`;
     } catch {}
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
 
@@ -131,8 +134,53 @@ _Submitted via In-App Feedback Pipeline_`;
     const repoUrl = 'https://github.com/vibecode-ting/employee-milestone-notifications-ai/issues/new';
     const finalUrl = `${repoUrl}?title=${encodeURIComponent(issueTitle)}&body=${encodeURIComponent(body)}&labels=${encodeURIComponent(labels)}`;
 
-    // Open GitHub issue in new tab
+    // 1. Open GitHub issue in new tab
     window.open(finalUrl, '_blank', 'noopener,noreferrer');
+
+    // 2. Persist feedback record to database
+    const newFeedback: FeedbackItem = {
+      id: `fb-${Date.now()}`,
+      title: title.trim(),
+      description: description.trim(),
+      category,
+      userId: effectiveUserId,
+      userEmail: effectiveEmail,
+      userRole: appUser?.role || 'user',
+      isDemo: Boolean(isDemo),
+      telemetry,
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+      githubDispatched: true,
+    };
+
+    // Save to local storage for instant feedback review & offline/demo
+    try {
+      const stored: FeedbackItem[] = JSON.parse(localStorage.getItem('app_feedbacks_list') || '[]');
+      const updated = [newFeedback, ...stored].slice(0, 50);
+      localStorage.setItem('app_feedbacks_list', JSON.stringify(updated));
+      window.dispatchEvent(new Event('feedbacks_updated'));
+      window.dispatchEvent(new Event('storage'));
+    } catch {}
+
+    // Save to Firestore
+    try {
+      await addDoc(collection(db, 'feedback'), {
+        title: newFeedback.title,
+        description: newFeedback.description,
+        category: newFeedback.category,
+        userId: newFeedback.userId,
+        userEmail: newFeedback.userEmail,
+        userRole: newFeedback.userRole,
+        isDemo: newFeedback.isDemo,
+        telemetry: newFeedback.telemetry,
+        status: newFeedback.status,
+        createdAt: newFeedback.createdAt,
+        githubDispatched: true,
+      });
+    } catch (err) {
+      console.warn('Firestore feedback write fallback:', err);
+    }
+
     setSubmitted(true);
   };
 
