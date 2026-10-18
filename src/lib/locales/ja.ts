@@ -509,6 +509,53 @@ const translation = {
   'Schedule celebration card for automatic dispatch': '祝賀カードの自動配信をスケジュール',
   'Dispatch celebration card immediately across employee channels': '社内チャネルへ祝賀カードを即時配信',
 
+// HRChronicle AI Brand & Subtitle
+  'HRChronicle AI': 'HRChronicle AI',
+  'Intelligent HR Annual Date Notifications & Multilingual Workforce Copilot': 'インテリジェント人事記念日通知＆多言語ワークフォースAIコパイロット',
+  'JAPAC Milestone Intelligence Network': 'JAPAC マイルストーン・インテリジェンス・ネットワーク',
+  'JAPAC Recognition Intelligence': 'JAPAC 従業員表彰・祝福インテリジェンス',
+
+  // Phase 4 - Tone & Milestone Generator
+  'Recent Achievements': '最近の主な実績',
+  'Professional': 'フォーマル＆プロフェッショナル',
+  'Warm & Celebratory': '温かく心温まるお祝い',
+  'Inspirational & Visionary': 'インスピレーションと展望',
+  'Generate Milestone Message': 'マイルストーンメッセージを生成',
+  'Play Audio Greeting': '音声メッセージを再生',
+  'Stop Audio': '音声を停止',
+  'Synthesizing speech via Cloud TTS...': 'Cloud TTSで音声を合成中...',
+  'Audio Greeting Ready': '音声メッセージの準備が完了しました',
+  'Voice Input': '音声入力',
+  'Listening... Speak now': '聞き取り中... お話しください',
+
+  // Phase 4 - 30-Day BigQuery HR Annual Dates & Morale Radar
+  '30-Day Annual Dates & Morale Radar': '30日間年次重要日程＆モラールレーダー',
+  'Department Recognition Coverage': '部門別表彰カバー率 %',
+  'Morale Velocity Index': 'チームモラール速度指数',
+  'Projected Celebrations': '予測される祝福イベント数',
+  'Upcoming Dates Distribution': '直近の重要日程分布',
+
+  // Phase 4 - Multi-Channel Dispatch
+  'Multi-Channel Dispatch': 'マルチチャネル一括配信',
+  '1-Click Multi-Channel Dispatch': '1クリック全チャネル即時配信',
+  'Email Notification': 'メール通知',
+  'Google Chat Webhook': 'Google Chat Webhook',
+  'Milestone Certificate Badge': 'マイルストーン認定バッジ',
+  'Dispatch to All Channels': '全チャネルへ配信',
+  'Dispatching...': '配信中...',
+  'Dispatched Successfully!': '全チャネルへの配信が完了しました！',
+  'Ready to dispatch across multi-tier enterprise channels': 'エンタープライズマルチ階層チャネルへの配信準備完了',
+
+  // Phase 2 - 3D Globe Controls & Country Card
+  'JAPAC HR Milestone Country Card': 'JAPAC HR マイルストーン国別カード',
+  'Scroll or use buttons to navigate countries': 'スクロールまたはボタンで国を切り替え',
+  'Active Headcount': '在籍従業員数',
+  'Upcoming Anniversaries': '近日中の周年記念',
+  'Cultural Observance': '現地の文化的慣習・注意事項',
+  'Previous': '前へ',
+  'Next': '次へ',
+  'Center Singapore Hub': 'シンガポール拠点にリセット',
+
   // Localized: Feedback, Notifications, Navbar & Copilot
   'Feedback': 'フィードバック',
   'Notifications': 'お知らせ',
