@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import {
-  LayoutDashboard, Users, Settings, Shield, Zap, Moon, Sun, LogOut, Pin, PinOff,
+  LayoutDashboard, Users, Settings, Shield, Zap, Moon, Sun, LogOut, Pin, PinOff, Cake,
   Bell, MessageSquare, BarChart2, Bot, Radio, Sparkles,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -37,7 +37,7 @@ export default function Navbar({
   const { t } = useTranslation();
   const { appUser, signOut, isDemo, switchDemoPlan } = useAuth();
   const navigate = useNavigate();
-  const [pinned, setPinned] = useState(() => localStorage.getItem('sidebar_pinned') === 'true');
+  const [pinned, setPinned] = useState(() => localStorage.getItem('sidebar_pinned') !== 'false');
   const [hovered, setHovered] = useState(false);
   const open = pinned || hovered;
   const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'));
@@ -191,8 +191,16 @@ export default function Navbar({
         {/* Logo & Pin Header */}
         <div className="flex items-center justify-between px-4 py-5 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
-            <img src="/logo.svg" alt="HRChronicle AI" className={cn('transition-all duration-300', open ? 'w-10' : 'w-8')} />
-            {open && <span className="font-bold text-lg text-corp-blue dark:text-cobalt-400 whitespace-nowrap">HRChronicle AI</span>}
+            <div className={cn(
+              'rounded-xl flex items-center justify-center shrink-0 transition-all',
+              open ? 'w-10 h-10' : 'w-9 h-9',
+              dark
+                ? 'bg-gradient-to-br from-amber-400/20 to-orange-500/20 border border-amber-400/40 text-amber-400 shadow-lg shadow-amber-500/20'
+                : 'bg-slate-100 border-2 border-slate-900 text-slate-950 shadow-sm'
+            )}>
+              <Cake size={open ? 22 : 20} className={dark ? 'text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]' : 'text-slate-950'} />
+            </div>
+            {open && <span className="font-bold text-lg text-corp-blue dark:text-cobalt-400 whitespace-nowrap">HR Chronicle AI</span>}
           </div>
           {open && (
             <button
