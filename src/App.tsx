@@ -17,6 +17,9 @@ const Settings = lazy(() => import('./views/Settings'));
 const Pricing = lazy(() => import('./views/Pricing'));
 const AdminUsers = lazy(() => import('./views/AdminUsers'));
 const Analytics = lazy(() => import('./views/Analytics'));
+const Privacy = lazy(() => import('./views/Privacy'));
+const Terms = lazy(() => import('./views/Terms'));
+const Status = lazy(() => import('./views/Status'));
 
 function RouteLoadingFallback() {
   return (
@@ -173,6 +176,9 @@ export default function App() {
           <Suspense fallback={<RouteLoadingFallback />}>
             <Routes>
               <Route path="/login" element={<Login />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/status" element={<Status />} />
               <Route path="/*" element={<AppLayout />} />
             </Routes>
           </Suspense>
