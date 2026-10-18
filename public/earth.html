@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>JAPAC 3D Earth</title>
+  <title>JAPAC 3D Earth Network</title>
   <style>
     * {
       margin: 0;
@@ -34,7 +34,7 @@
       cursor: grabbing;
     }
 
-    /* 3D Projected Country Labels Layer (Flags + Country Names Only) */
+    /* 3D Projected Country Labels Layer */
     #labels-layer {
       position: absolute;
       inset: 0;
@@ -50,69 +50,110 @@
       transform: translate(-50%, -100%);
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 4px 9px;
+      gap: 5px;
+      padding: 4px 8px;
       border-radius: 6px;
-      background: rgba(4, 10, 22, 0.72);
-      border: 1px solid rgba(120, 180, 255, 0.22);
-      backdrop-filter: blur(4px);
-      color: rgba(225, 238, 255, 0.85);
+      background: rgba(3, 7, 18, 0.78);
+      border: 1px solid rgba(125, 211, 252, 0.28);
+      backdrop-filter: blur(6px);
+      color: rgba(240, 246, 255, 0.9);
       font-size: 11px;
       font-weight: 500;
       letter-spacing: 0.02em;
       white-space: nowrap;
-      transition: opacity 0.25s ease, border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
       will-change: transform, opacity;
       cursor: pointer;
     }
 
+    /* Pin leader line pointing to the globe marker */
+    .country-label::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1px;
+      height: 6px;
+      background: rgba(56, 189, 248, 0.65);
+    }
+
     .country-label:hover {
-      background: rgba(14, 165, 233, 0.35);
+      background: rgba(14, 165, 233, 0.4);
       border-color: rgba(56, 189, 248, 1);
       color: #ffffff;
-      box-shadow: 0 0 16px rgba(56, 189, 248, 0.5);
-      z-index: 25;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.55);
+      z-index: 30;
     }
 
     .country-label img.flag-icon {
-      width: 16px;
-      height: 12px;
+      width: 15px;
+      height: 11px;
       object-fit: cover;
       border-radius: 2px;
       box-shadow: 0 0 3px rgba(0, 0, 0, 0.6);
       flex-shrink: 0;
     }
 
-    /* Active slide country emphasis */
+    /* Active country emphasis */
     .country-label.is-active {
-      background: rgba(8, 24, 52, 0.92);
-      border-color: rgba(56, 189, 248, 0.95);
+      background: rgba(15, 23, 42, 0.95);
+      border-color: rgba(56, 189, 248, 1);
       color: #ffffff;
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 700;
       padding: 6px 12px;
-      box-shadow: 0 0 20px rgba(56, 189, 248, 0.45);
-      z-index: 20;
+      box-shadow: 0 0 24px rgba(56, 189, 248, 0.6);
+      z-index: 25;
+    }
+
+    .country-label.is-active::after {
+      background: rgba(56, 189, 248, 1);
+      height: 9px;
+      bottom: -9px;
     }
 
     .country-label.is-active img.flag-icon {
-      width: 20px;
-      height: 15px;
+      width: 18px;
+      height: 13px;
     }
 
     /* Singapore Hub anchor styling */
     .country-label.is-hub {
-      border-color: rgba(52, 211, 153, 0.75);
+      border-color: rgba(52, 211, 153, 0.85);
       color: #ecfdf5;
+      font-weight: 600;
+      box-shadow: 0 0 12px rgba(52, 211, 153, 0.35);
     }
 
-    /* Featured Myanmar styling when active */
-    .country-label.is-myanmar.is-active {
-      border-color: rgba(251, 191, 36, 0.95);
-      box-shadow: 0 0 24px rgba(251, 191, 36, 0.5);
+    .country-label.is-hub::after {
+      background: rgba(52, 211, 153, 0.9);
+      height: 8px;
+      bottom: -8px;
     }
 
-    /* Subtle interactive hint pill */
+    /* De-cluttering: compact SEA pins hide text until hovered or active */
+    .country-label.is-compact:not(:hover):not(.is-active) {
+      padding: 3px;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      justify-content: center;
+      background: rgba(3, 7, 18, 0.7);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+
+    .country-label.is-compact:not(:hover):not(.is-active) .country-name {
+      display: none;
+    }
+
+    .country-label.is-compact:not(:hover):not(.is-active) img.flag-icon {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+    }
+
+    /* Interactive hint */
     .scroll-hint {
       position: absolute;
       bottom: 20px;
@@ -123,15 +164,14 @@
       gap: 8px;
       padding: 6px 14px;
       border-radius: 9999px;
-      background: rgba(15, 23, 42, 0.65);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(15, 23, 42, 0.82);
+      border: 1px solid rgba(148, 163, 184, 0.25);
       backdrop-filter: blur(8px);
-      color: rgba(226, 232, 240, 0.75);
+      color: rgba(226, 232, 240, 0.85);
       font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.03em;
+      transition: opacity 0.35s ease;
       pointer-events: none;
-      transition: opacity 0.5s ease;
     }
 
     .scroll-dot {
@@ -140,12 +180,12 @@
       border-radius: 50%;
       background: #38bdf8;
       box-shadow: 0 0 8px #38bdf8;
-      animation: pulse-glow 2s infinite;
+      animation: pulse-dot 2s infinite ease-in-out;
     }
 
-    @keyframes pulse-glow {
+    @keyframes pulse-dot {
       0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.85); }
+      50% { opacity: 0.4; transform: scale(0.8); }
     }
   </style>
 </head>
@@ -154,7 +194,7 @@
   <div id="labels-layer"></div>
   <div class="scroll-hint" id="scroll-hint">
     <span class="scroll-dot"></span>
-    <span>Drag to rotate • Scroll to cycle • Click country to focus</span>
+    <span>Drag to rotate • Scroll to zoom • Click country to focus</span>
   </div>
 
   <script type="importmap">
@@ -169,66 +209,59 @@
     import * as THREE from 'three';
 
     // =========================================================================
-    // 1. COMPLETE JAPAC COUNTRIES & TERRITORIES (All 34 JAPAC Entities)
+    // 1. JAPAC COUNTRIES & COORDINATES (Accurate Geographic Mapping)
     // =========================================================================
     const JAPAC_COUNTRIES = [
-      // Hub
-      { code: 'sg', iso3: 'SGP', name: 'Singapore', lat: 1.3521, lon: 103.8198, isHub: true },
+      // Primary Singapore Hub
+      { code: 'sg', iso3: 'SGP', name: 'Singapore (Hub)', lat: 1.3521, lon: 103.8198, isHub: true, isKeyPin: true },
       // Southeast Asia
-      { code: 'mm', iso3: 'MMR', name: 'Myanmar', lat: 19.7633, lon: 96.0785, isMyanmar: true },
-      { code: 'th', iso3: 'THA', name: 'Thailand', lat: 15.8700, lon: 100.9925 },
-      { code: 'vn', iso3: 'VNM', name: 'Vietnam', lat: 14.0583, lon: 108.2772 },
-      { code: 'my', iso3: 'MYS', name: 'Malaysia', lat: 4.2105, lon: 101.9758 },
-      { code: 'id', iso3: 'IDN', name: 'Indonesia', lat: -2.5489, lon: 118.0149 },
-      { code: 'ph', iso3: 'PHL', name: 'Philippines', lat: 12.8797, lon: 121.7740 },
-      { code: 'kh', iso3: 'KHM', name: 'Cambodia', lat: 12.5657, lon: 104.9910 },
-      { code: 'la', iso3: 'LAO', name: 'Laos', lat: 19.8563, lon: 102.4955 },
-      { code: 'bn', iso3: 'BRN', name: 'Brunei', lat: 4.5353, lon: 114.7277 },
-      { code: 'tl', iso3: 'TLS', name: 'Timor-Leste', lat: -8.8742, lon: 125.7275 },
-      // East Asia
-      { code: 'jp', iso3: 'JPN', name: 'Japan', lat: 36.2048, lon: 138.2529 },
-      { code: 'kr', iso3: 'KOR', name: 'South Korea', lat: 35.9078, lon: 127.7669 },
-      { code: 'tw', iso3: 'TWN', name: 'Taiwan', lat: 23.6978, lon: 120.9605 },
-      { code: 'hk', iso3: 'HKG', name: 'Hong Kong', lat: 22.3193, lon: 114.1694 },
-      { code: 'mo', iso3: 'MAC', name: 'Macau', lat: 22.1987, lon: 113.5439 },
-      { code: 'mn', iso3: 'MNG', name: 'Mongolia', lat: 46.8625, lon: 103.8467 },
-      { code: 'cn', iso3: 'CHN', name: 'China', lat: 35.8617, lon: 104.1954 },
-      // South Asia
-      { code: 'in', iso3: 'IND', name: 'India', lat: 20.5937, lon: 78.9629 },
-      { code: 'bd', iso3: 'BGD', name: 'Bangladesh', lat: 23.6850, lon: 90.3563 },
-      { code: 'lk', iso3: 'LKA', name: 'Sri Lanka', lat: 7.8731, lon: 80.7718 },
-      { code: 'np', iso3: 'NPL', name: 'Nepal', lat: 28.3949, lon: 84.1240 },
-      { code: 'bt', iso3: 'BTN', name: 'Bhutan', lat: 27.5142, lon: 90.4336 },
-      { code: 'mv', iso3: 'MDV', name: 'Maldives', lat: 3.2028, lon: 73.2207 },
-      { code: 'pk', iso3: 'PAK', name: 'Pakistan', lat: 30.3753, lon: 69.3451 },
-      // Oceania & Pacific Islands
-      { code: 'au', iso3: 'AUS', name: 'Australia', lat: -25.2744, lon: 133.7751 },
-      { code: 'nz', iso3: 'NZL', name: 'New Zealand', lat: -40.9006, lon: 174.8860 },
-      { code: 'pg', iso3: 'PNG', name: 'Papua New Guinea', lat: -6.3150, lon: 143.9555 },
-      { code: 'fj', iso3: 'FJI', name: 'Fiji', lat: -17.7134, lon: 178.0650 },
-      { code: 'sb', iso3: 'SLB', name: 'Solomon Islands', lat: -9.6457, lon: 160.1562 },
-      { code: 'vu', iso3: 'VUT', name: 'Vanuatu', lat: -15.3767, lon: 166.9592 },
-      { code: 'ws', iso3: 'WSM', name: 'Samoa', lat: -13.7590, lon: -172.1046 },
-      { code: 'to', iso3: 'TON', name: 'Tonga', lat: -21.1790, lon: -175.1982 },
-      { code: 'ki', iso3: 'KIR', name: 'Kiribati', lat: 1.8709, lon: -157.3626 }
+      { code: 'my', iso3: 'MYS', name: 'Malaysia', lat: 4.2105, lon: 101.9758, isCompact: true },
+      { code: 'th', iso3: 'THA', name: 'Thailand', lat: 15.8700, lon: 100.9925, isCompact: true },
+      { code: 'vn', iso3: 'VNM', name: 'Vietnam', lat: 14.0583, lon: 108.2772, isCompact: true },
+      { code: 'ph', iso3: 'PHL', name: 'Philippines', lat: 12.8797, lon: 121.7740, isCompact: true },
+      { code: 'id', iso3: 'IDN', name: 'Indonesia', lat: -2.5489, lon: 118.0149, isCompact: true },
+      { code: 'mm', iso3: 'MMR', name: 'Myanmar', lat: 19.7633, lon: 96.0785, isKeyPin: true },
+      { code: 'kh', iso3: 'KHM', name: 'Cambodia', lat: 12.5657, lon: 104.9910, isCompact: true },
+      { code: 'la', iso3: 'LAO', name: 'Laos', lat: 19.8563, lon: 102.4955, isCompact: true },
+      { code: 'bn', iso3: 'BRN', name: 'Brunei', lat: 4.5353, lon: 114.7277, isCompact: true },
+      { code: 'tl', iso3: 'TLS', name: 'Timor-Leste', lat: -8.8742, lon: 125.7275, isCompact: true },
+      // East Asia (Upper-Right)
+      { code: 'jp', iso3: 'JPN', name: 'Japan', lat: 36.2048, lon: 138.2529, isKeyPin: true },
+      { code: 'kr', iso3: 'KOR', name: 'South Korea', lat: 35.9078, lon: 127.7669, isKeyPin: true },
+      { code: 'tw', iso3: 'TWN', name: 'Taiwan', lat: 23.6978, lon: 120.9605, isCompact: true },
+      { code: 'hk', iso3: 'HKG', name: 'Hong Kong', lat: 22.3193, lon: 114.1694, isCompact: true },
+      { code: 'cn', iso3: 'CHN', name: 'China', lat: 35.8617, lon: 104.1954, isKeyPin: true },
+      { code: 'mn', iso3: 'MNG', name: 'Mongolia', lat: 46.8625, lon: 103.8467, isCompact: true },
+      // South Asia (Upper-Left)
+      { code: 'in', iso3: 'IND', name: 'India', lat: 20.5937, lon: 78.9629, isKeyPin: true },
+      { code: 'bd', iso3: 'BGD', name: 'Bangladesh', lat: 23.6850, lon: 90.3563, isCompact: true },
+      { code: 'lk', iso3: 'LKA', name: 'Sri Lanka', lat: 7.8731, lon: 80.7718, isCompact: true },
+      { code: 'np', iso3: 'NPL', name: 'Nepal', lat: 28.3949, lon: 84.1240, isCompact: true },
+      { code: 'pk', iso3: 'PAK', name: 'Pakistan', lat: 30.3753, lon: 69.3451, isCompact: true },
+      // Oceania & Pacific (Bottom & East)
+      { code: 'au', iso3: 'AUS', name: 'Australia', lat: -25.2744, lon: 133.7751, isKeyPin: true },
+      { code: 'nz', iso3: 'NZL', name: 'New Zealand', lat: -40.9006, lon: 174.8860, isCompact: true },
+      { code: 'pg', iso3: 'PNG', name: 'Papua New Guinea', lat: -6.3150, lon: 143.9555, isCompact: true },
+      { code: 'fj', iso3: 'FJI', name: 'Fiji', lat: -17.7134, lon: 178.0650, isCompact: true },
+      { code: 'ki', iso3: 'KIR', name: 'Kiribati', lat: 1.8709, lon: -157.3626, isCompact: true }
     ];
 
-    const NAME_MAP = new Map(JAPAC_COUNTRIES.map(c => [c.name.toLowerCase(), c]));
-
     // =========================================================================
-    // 2. SCENE, CAMERA & RENDERER
+    // 2. SCENE, CAMERA & RENDERER SETUP
     // =========================================================================
     const container = document.getElementById('webgl-container');
     const labelsLayer = document.getElementById('labels-layer');
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 3000);
+    // Explicit UP vector ensuring North is strictly +Y with zero roll
+    camera.up.set(0, 1, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 0.85;
+    renderer.toneMappingExposure = 0.92;
     container.appendChild(renderer.domElement);
 
     const worldGroup = new THREE.Group();
@@ -236,6 +269,7 @@
 
     const EARTH_RADIUS = 10;
 
+    // Geographic Lat/Lon to Cartesian Vector3 on sphere
     function latLonToVector3(lat, lon, radius = EARTH_RADIUS) {
       const phi = (90 - lat) * (Math.PI / 180);
       const theta = (lon + 180) * (Math.PI / 180);
@@ -246,12 +280,12 @@
     }
 
     // =========================================================================
-    // 3. DEEP SPACE GALAXY, MILKY WAY NEBULA & STARFIELD
+    // 3. STELLAR STARFIELD & NEBULA
     // =========================================================================
     function createGalaxyAndStars() {
       const galaxyGroup = new THREE.Group();
 
-      const starCount = 20000;
+      const starCount = 18000;
       const starGeo = new THREE.BufferGeometry();
       const starPos = new Float32Array(starCount * 3);
       const starCol = new Float32Array(starCount * 3);
@@ -261,12 +295,12 @@
         new THREE.Color('#dbeafe'),
         new THREE.Color('#bfdbfe'),
         new THREE.Color('#fef3c7'),
-        new THREE.Color('#fde68a'),
+        new THREE.Color('#fed7aa'),
         new THREE.Color('#c7d2fe')
       ];
 
       for (let i = 0; i < starCount; i++) {
-        const r = 180 + Math.random() * 900;
+        const r = 200 + Math.random() * 800;
         const theta = Math.random() * Math.PI * 2;
         const phi = Math.acos(2 * Math.random() - 1);
 
@@ -275,7 +309,7 @@
         starPos[i * 3 + 2] = r * Math.cos(phi);
 
         const c = palette[Math.floor(Math.random() * palette.length)];
-        const brightness = 0.35 + Math.random() * 0.65;
+        const brightness = 0.4 + Math.random() * 0.6;
         starCol[i * 3] = c.r * brightness;
         starCol[i * 3 + 1] = c.g * brightness;
         starCol[i * 3 + 2] = c.b * brightness;
@@ -285,7 +319,7 @@
       starGeo.setAttribute('color', new THREE.BufferAttribute(starCol, 3));
 
       const starMat = new THREE.PointsMaterial({
-        size: 1.15,
+        size: 1.2,
         vertexColors: true,
         transparent: true,
         opacity: 0.9,
@@ -293,59 +327,19 @@
       });
       galaxyGroup.add(new THREE.Points(starGeo, starMat));
 
-      const mwCount = 10000;
-      const mwGeo = new THREE.BufferGeometry();
-      const mwPos = new Float32Array(mwCount * 3);
-      const mwCol = new Float32Array(mwCount * 3);
-
-      for (let i = 0; i < mwCount; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const radius = 220 + Math.random() * 450;
-        const spreadY = (Math.random() - 0.5) * (Math.random() - 0.5) * 160;
-
-        mwPos[i * 3] = Math.cos(angle) * radius;
-        mwPos[i * 3 + 1] = spreadY;
-        mwPos[i * 3 + 2] = Math.sin(angle) * radius;
-
-        const mixRatio = Math.random();
-        const c = new THREE.Color().setHSL(0.58 + mixRatio * 0.16, 0.65, 0.55 + Math.random() * 0.3);
-        mwCol[i * 3] = c.r;
-        mwCol[i * 3 + 1] = c.g;
-        mwCol[i * 3 + 2] = c.b;
-      }
-
-      mwGeo.setAttribute('position', new THREE.BufferAttribute(mwPos, 3));
-      mwGeo.setAttribute('color', new THREE.BufferAttribute(mwCol, 3));
-
-      const mwBand = new THREE.Points(
-        mwGeo,
-        new THREE.PointsMaterial({
-          size: 1.6,
-          vertexColors: true,
-          transparent: true,
-          opacity: 0.55,
-          blending: THREE.AdditiveBlending,
-          depthWrite: false
-        })
-      );
-      mwBand.rotation.z = 0.48;
-      mwBand.rotation.x = 0.25;
-      galaxyGroup.add(mwBand);
-
       scene.add(galaxyGroup);
-      return { group: galaxyGroup, starMat, mwMat: mwBand.material };
+      return { group: galaxyGroup, starMat };
     }
 
     const galaxyData = createGalaxyAndStars();
     const galaxyField = galaxyData.group;
     const starMatRef = galaxyData.starMat;
-    const mwMatRef = galaxyData.mwMat;
 
     // =========================================================================
-    // 3.5 SUNRISE & SUNSET SYSTEM (SUN BEAMS, CORONA, VOLUMETRIC RAYS)
+    // 4. ORBITAL SUNBURST & VOLUMETRIC RAYS (SUNRISE / SUNSET)
     // =========================================================================
     let currentTheme = 'dark';
-    let themeProgress = 0.0; // 0.0 = deep night space, 1.0 = radiant sunrise
+    let themeProgress = 0.0; // 0.0 = dark night space, 1.0 = radiant golden sunrise
 
     function createSunAndBeams() {
       const sunGroup = new THREE.Group();
@@ -355,11 +349,11 @@
       canvas.width = 512;
       canvas.height = 512;
       const ctx = canvas.getContext('2d');
-      const grad = ctx.createRadialGradient(256, 256, 8, 256, 256, 256);
-      grad.addColorStop(0.0, 'rgba(255, 255, 245, 1.0)');
-      grad.addColorStop(0.2, 'rgba(254, 240, 138, 0.95)');
-      grad.addColorStop(0.45, 'rgba(251, 146, 60, 0.55)');
-      grad.addColorStop(0.75, 'rgba(234, 88, 12, 0.2)');
+      const grad = ctx.createRadialGradient(256, 256, 12, 256, 256, 256);
+      grad.addColorStop(0.0, 'rgba(255, 255, 255, 1.0)');
+      grad.addColorStop(0.18, 'rgba(254, 240, 138, 0.95)');
+      grad.addColorStop(0.42, 'rgba(251, 146, 60, 0.6)');
+      grad.addColorStop(0.72, 'rgba(234, 88, 12, 0.22)');
       grad.addColorStop(1.0, 'rgba(0, 0, 0, 0.0)');
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, 512, 512);
@@ -374,23 +368,23 @@
         depthWrite: false
       });
       const sunCorona = new THREE.Sprite(sunCoronaMat);
-      sunCorona.scale.set(45, 45, 1);
+      sunCorona.scale.set(48, 48, 1);
       sunGroup.add(sunCorona);
 
-      // Radiant Volumetric Light Beams fan
+      // Volumetric Sun Rays Fan
       const beamGroup = new THREE.Group();
-      const beamCount = 16;
-      const beamGeo = new THREE.PlaneGeometry(4.2, 52);
-      beamGeo.translate(0, 26, 0);
+      const beamCount = 18;
+      const beamGeo = new THREE.PlaneGeometry(4.5, 56);
+      beamGeo.translate(0, 28, 0);
 
       const beamCanvas = document.createElement('canvas');
       beamCanvas.width = 128;
       beamCanvas.height = 512;
       const bCtx = beamCanvas.getContext('2d');
       const bGrad = bCtx.createLinearGradient(0, 0, 0, 512);
-      bGrad.addColorStop(0.0, 'rgba(255, 250, 220, 0.8)');
-      bGrad.addColorStop(0.25, 'rgba(252, 211, 77, 0.45)');
-      bGrad.addColorStop(0.65, 'rgba(249, 115, 22, 0.15)');
+      bGrad.addColorStop(0.0, 'rgba(255, 252, 235, 0.85)');
+      bGrad.addColorStop(0.22, 'rgba(253, 224, 71, 0.5)');
+      bGrad.addColorStop(0.6, 'rgba(249, 115, 22, 0.18)');
       bGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0.0)');
       bCtx.fillStyle = bGrad;
       bCtx.fillRect(0, 0, 128, 512);
@@ -409,14 +403,14 @@
         const angle = (b / beamCount) * Math.PI * 2;
         const beam = new THREE.Mesh(beamGeo, beamMat);
         beam.rotation.z = angle;
-        const s = 0.7 + (b % 3) * 0.35;
-        beam.scale.set(s, s * 1.1, 1);
+        const s = 0.75 + (b % 4) * 0.28;
+        beam.scale.set(s, s * 1.15, 1);
         beamGroup.add(beam);
       }
       sunGroup.add(beamGroup);
 
-      // Position sun slightly behind Earth's top-right horizon
-      sunGroup.position.set(16, 12, -22);
+      // Position sun over Earth's upper-right horizon
+      sunGroup.position.set(17, 13, -22);
       scene.add(sunGroup);
 
       return {
@@ -430,21 +424,20 @@
     const sunBeams = createSunAndBeams();
 
     // =========================================================================
-    // 4. REALISTIC EARTH GLOBE & ATMOSPHERE
+    // 5. LIGHTING ARRAYS & EARTH MESH
     // =========================================================================
     const ambientLight = new THREE.AmbientLight(0x475569, 0.85);
     scene.add(ambientLight);
 
-    const sunLight = new THREE.DirectionalLight(0xfff6e5, 1.25);
-    sunLight.position.set(35, 18, 40);
+    const sunLight = new THREE.DirectionalLight(0xfff5eb, 1.35);
+    sunLight.position.set(32, 20, 36);
     scene.add(sunLight);
 
-    const rimLight = new THREE.DirectionalLight(0x38bdf8, 0.55);
+    const rimLight = new THREE.DirectionalLight(0x38bdf8, 0.6);
     rimLight.position.set(-35, -15, -25);
     scene.add(rimLight);
 
-    // Front-facing illumination so any country in focus (including Pacific islands like Kiribati) is clearly visible
-    const cameraLight = new THREE.DirectionalLight(0x93c5fd, 0.7);
+    const cameraLight = new THREE.DirectionalLight(0x93c5fd, 0.65);
     cameraLight.position.set(0, 0, 1);
     camera.add(cameraLight);
     scene.add(camera);
@@ -452,9 +445,9 @@
     const textureLoader = new THREE.TextureLoader();
     const earthGeo = new THREE.SphereGeometry(EARTH_RADIUS, 96, 96);
     const earthMat = new THREE.MeshPhongMaterial({
-      color: new THREE.Color(0xaaaaaa),
-      specular: new THREE.Color(0x111c2d),
-      shininess: 12
+      color: new THREE.Color(0xffffff),
+      specular: new THREE.Color(0x223344),
+      shininess: 15
     });
 
     textureLoader.load(
@@ -465,6 +458,18 @@
         earthMat.needsUpdate = true;
       }
     );
+
+    textureLoader.load(
+      'https://unpkg.com/three-globe@2.31.0/example/img/earth-night.jpg',
+      (nightTex) => {
+        nightTex.colorSpace = THREE.SRGBColorSpace;
+        earthMat.emissiveMap = nightTex;
+        earthMat.emissive = new THREE.Color(0xffffff);
+        earthMat.emissiveIntensity = 0.85;
+        earthMat.needsUpdate = true;
+      }
+    );
+
     textureLoader.load(
       'https://unpkg.com/three-globe@2.31.0/example/img/earth-topology.png',
       (bump) => {
@@ -473,31 +478,49 @@
         earthMat.needsUpdate = true;
       }
     );
-    textureLoader.load(
-      'https://unpkg.com/three-globe@2.31.0/example/img/earth-water.png',
-      (spec) => {
-        earthMat.specularMap = spec;
-        earthMat.needsUpdate = true;
-      }
-    );
 
     const earthMesh = new THREE.Mesh(earthGeo, earthMat);
     worldGroup.add(earthMesh);
 
-    const atmosGeo = new THREE.SphereGeometry(EARTH_RADIUS * 1.022, 96, 96);
+    // Realistic Atmospheric Back-Light Shader (Sun-Scattering Rim)
+    const atmosGeo = new THREE.SphereGeometry(EARTH_RADIUS * 1.024, 96, 96);
     const atmosMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uSunrise: { value: 0.0 },
+        uSunPos: { value: new THREE.Vector3(17, 13, -22) }
+      },
       vertexShader: `
         varying vec3 vNormal;
+        varying vec3 vPosition;
         void main() {
           vNormal = normalize(normalMatrix * normal);
+          vPosition = position;
           gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }
       `,
       fragmentShader: `
         varying vec3 vNormal;
+        varying vec3 vPosition;
+        uniform float uSunrise;
+        uniform vec3 uSunPos;
+
         void main() {
-          float intensity = pow(0.62 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 3.2);
-          gl_FragColor = vec4(0.18, 0.52, 0.96, 1.0) * intensity * 0.65;
+          float rim = 1.0 - max(0.0, dot(vNormal, vec3(0.0, 0.0, 1.0)));
+          float intensity = pow(rim, 2.8);
+
+          // Cool sapphire space glow during night
+          vec3 nightColor = vec3(0.2, 0.62, 0.98) * intensity * 0.72;
+
+          // Warm golden-amber atmospheric sunrise scatter toward sun position
+          vec3 sunDir = normalize(uSunPos);
+          float sunDot = max(0.0, dot(normalize(vPosition), sunDir));
+          float sunScatter = pow(sunDot, 3.0) * 1.5;
+          vec3 sunriseColor = mix(vec3(0.96, 0.6, 0.18), vec3(1.0, 0.95, 0.85), sunDot) * (intensity * 1.35 + sunScatter);
+
+          vec3 finalColor = mix(nightColor, sunriseColor, uSunrise);
+          float finalAlpha = mix(intensity * 0.82, (intensity + sunScatter * 0.4) * 0.92, uSunrise);
+
+          gl_FragColor = vec4(finalColor, finalAlpha);
         }
       `,
       blending: THREE.AdditiveBlending,
@@ -508,7 +531,7 @@
     scene.add(new THREE.Mesh(atmosGeo, atmosMat));
 
     // =========================================================================
-    // 5. JAPAC COUNTRY MARKERS, ARCS & LABELS
+    // 6. JAPAC NETWORK ARCS, PARTICLES & DE-CLUTTERED LABELS
     // =========================================================================
     const singaporeHub = JAPAC_COUNTRIES[0];
     const sgPos = latLonToVector3(singaporeHub.lat, singaporeHub.lon, EARTH_RADIUS + 0.03);
@@ -519,11 +542,11 @@
     JAPAC_COUNTRIES.forEach((country, idx) => {
       const pos = latLonToVector3(country.lat, country.lon, EARTH_RADIUS + 0.03);
 
-      const markerGeo = new THREE.SphereGeometry(country.isHub ? 0.11 : 0.065, 16, 16);
+      const markerGeo = new THREE.SphereGeometry(country.isHub ? 0.12 : 0.065, 16, 16);
       const markerMat = new THREE.MeshBasicMaterial({
-        color: country.isHub ? 0x34d399 : (country.isMyanmar ? 0xfbbf24 : 0x38bdf8),
+        color: country.isHub ? 0x34d399 : (country.code === 'mm' ? 0xfbbf24 : 0x38bdf8),
         transparent: true,
-        opacity: 0.85
+        opacity: 0.9
       });
       const marker = new THREE.Mesh(markerGeo, markerMat);
       marker.position.copy(pos);
@@ -534,20 +557,17 @@
         // Build elevated Great-Circle 3D flight trajectory from country to Singapore hub
         const u1 = pos.clone().normalize();
         const u2 = sgPos.clone().normalize();
-        const angularDist = u1.angleTo(u2); // Great circle angular distance in radians (0 to PI)
+        const angularDist = u1.angleTo(u2);
 
-        // Great circle SLERP interpolation ensuring arc strictly floats above Earth's surface at all t
         const pointsCount = 64;
         const arcPoints = [];
-        // Elevation profile: higher peak for longer distances across the Pacific (Kiribati, Fiji, Samoa, NZ)
-        const peakAltitude = Math.min(4.8, Math.max(1.5, angularDist * 1.8));
+        const peakAltitude = Math.min(4.8, Math.max(1.4, angularDist * 1.8));
 
         const dot = Math.max(-1, Math.min(1, u1.dot(u2)));
         const theta = Math.acos(dot);
 
         for (let i = 0; i <= pointsCount; i++) {
           const t = i / pointsCount;
-          // Elevation uses sine wave so altitude is 0.04 at endpoints and peaks gracefully in the middle
           const alt = 0.04 + Math.sin(t * Math.PI) * peakAltitude;
 
           let slerpedPt;
@@ -570,9 +590,9 @@
         const arcGeo = new THREE.BufferGeometry().setFromPoints(curve.getPoints(80));
 
         arcMat = new THREE.LineBasicMaterial({
-          color: country.isMyanmar ? 0xfbbf24 : 0x38bdf8,
+          color: country.code === 'mm' ? 0xfbbf24 : 0x38bdf8,
           transparent: true,
-          opacity: 0.32,
+          opacity: 0.35,
           blending: THREE.AdditiveBlending,
           depthWrite: false
         });
@@ -580,9 +600,10 @@
         const arcLine = new THREE.Line(arcGeo, arcMat);
         worldGroup.add(arcLine);
 
+        // Travelling glowing packet pulse
         const pulseGeo = new THREE.SphereGeometry(0.08, 12, 12);
         const pulseMat = new THREE.MeshBasicMaterial({
-          color: country.isMyanmar ? 0xfde047 : 0x7dd3fc,
+          color: country.code === 'mm' ? 0xfde047 : 0x7dd3fc,
           transparent: true,
           opacity: 0.95
         });
@@ -593,19 +614,21 @@
           curve,
           mesh: pulseMesh,
           mat: pulseMat,
-          speed: 0.22 + (idx % 5) * 0.04,
-          offset: (idx * 0.13) % 1,
+          speed: 0.2 + (idx % 6) * 0.035,
+          offset: (idx * 0.11) % 1,
           code: country.code
         });
       }
 
+      // Label DOM Element
       const labelEl = document.createElement('div');
       labelEl.className = 'country-label' +
         (country.isHub ? ' is-hub' : '') +
-        (country.isMyanmar ? ' is-myanmar' : '');
+        (country.isCompact ? ' is-compact' : '');
       labelEl.style.pointerEvents = 'auto';
       labelEl.style.cursor = 'pointer';
       labelEl.title = `Focus on ${country.name}`;
+
       labelEl.addEventListener('click', (e) => {
         e.stopPropagation();
         notifyInteraction(true);
@@ -620,6 +643,7 @@
           }
         } catch (err) {}
       });
+
       labelEl.addEventListener('mouseenter', () => {
         notifyInteraction(true);
       });
@@ -630,6 +654,7 @@
       flagImg.alt = country.name;
 
       const nameSpan = document.createElement('span');
+      nameSpan.className = 'country-name';
       nameSpan.textContent = country.name;
 
       labelEl.appendChild(flagImg);
@@ -641,84 +666,45 @@
         pos3D: pos,
         markerMat,
         arcMat,
-        borderMaterials: [],
         labelEl
       });
     });
 
-    // Load Country Borders GeoJSON (Local first, then remote CDN fallback)
-    function loadGeoJSON() {
-      fetch('/data/world.geojson')
-        .catch(() => fetch('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson'))
-        .then(res => res.json())
-        .then(geojson => {
-          geojson.features.forEach(feature => {
-            const iso3 = feature.id;
-            const propName = (feature.properties && feature.properties.name || '').toLowerCase();
-
-            let matchedCountry = JAPAC_COUNTRIES.find(c => c.iso3 === iso3) || NAME_MAP.get(propName);
-            if (!matchedCountry) return;
-
-            const visual = countryVisuals.get(matchedCountry.code);
-            const baseColor = matchedCountry.isHub
-              ? 0x34d399
-              : (matchedCountry.isMyanmar ? 0xfbbf24 : 0x38bdf8);
-
-            const drawRing = (ring) => {
-              const pts = [];
-              for (let i = 0; i < ring.length; i++) {
-                const [lon, lat] = ring[i];
-                pts.push(latLonToVector3(lat, lon, EARTH_RADIUS + 0.02));
-              }
-              const geo = new THREE.BufferGeometry().setFromPoints(pts);
-              const mat = new THREE.LineBasicMaterial({
-                color: baseColor,
-                transparent: true,
-                opacity: 0.42,
-                blending: THREE.AdditiveBlending
-              });
-              const line = new THREE.Line(geo, mat);
-              worldGroup.add(line);
-              if (visual) visual.borderMaterials.push(mat);
-            };
-
-            const geom = feature.geometry;
-            if (geom.type === 'Polygon') {
-              geom.coordinates.forEach(ring => drawRing(ring));
-            } else if (geom.type === 'MultiPolygon') {
-              geom.coordinates.forEach(poly => poly.forEach(ring => drawRing(ring)));
-            }
-          });
-        })
-        .catch(() => {
-          // Silent fallback if network offline
-        });
-    }
-
-    loadGeoJSON();
-
     // =========================================================================
-    // 6. SLIDESHOW & INTERACTIVE ROTATION ENGINE
+    // 7. RIGOROUS ROTATION & ALIGNMENT (Euler YXZ - North Strictly UP)
     // =========================================================================
     let currentSlideIndex = 0;
     const totalSlides = JAPAC_COUNTRIES.length + 1;
 
-    let targetCameraZ = 34;
-    let currentCameraZ = 34;
+    let targetCameraZ = 34.0;
+    let currentCameraZ = 34.0;
+
+    let targetYaw = - (110.0 + 90) * (Math.PI / 180);
+    let currentYaw = targetYaw;
+    let targetPitch = 12.0 * (Math.PI / 180);
+    let currentPitch = targetPitch;
 
     const targetQuaternion = new THREE.Quaternion();
     const currentQuaternion = new THREE.Quaternion();
 
-    // Communication with parent window: notify when user is interacting to stop slide switching
+    function computeRotationForLatLon(lat, lon) {
+      const euler = new THREE.Euler(
+        lat * (Math.PI / 180),
+        - (lon + 90) * (Math.PI / 180),
+        0,
+        'YXZ'
+      );
+      return new THREE.Quaternion().setFromEuler(euler);
+    }
+
     let interactionNotifyTimeout = null;
     let lastInteractionReportTime = 0;
 
     function notifyInteraction(active = true) {
       const now = performance.now();
-
       const hint = document.getElementById('scroll-hint');
       if (hint) {
-        hint.style.opacity = active ? '0.35' : '0.85';
+        hint.style.opacity = active ? '0.3' : '0.85';
       }
 
       if (active && now - lastInteractionReportTime < 60) return;
@@ -751,21 +737,19 @@
       }
     }
 
-    function computeRotationForLatLon(lat, lon) {
-      const targetPoint = latLonToVector3(lat, lon, 1).normalize();
-      const cameraForward = new THREE.Vector3(0, 0, 1);
-      return new THREE.Quaternion().setFromUnitVectors(targetPoint, cameraForward);
-    }
-
     function applySlide(slideIndex) {
       currentSlideIndex = ((slideIndex % totalSlides) + totalSlides) % totalSlides;
 
       if (currentSlideIndex === 0) {
-        targetCameraZ = 34;
-        targetQuaternion.copy(computeRotationForLatLon(12.0, 115.0));
+        targetCameraZ = 34.0;
+        targetPitch = 12.0 * (Math.PI / 180);
+        targetYaw = - (110.0 + 90) * (Math.PI / 180);
+        targetQuaternion.copy(computeRotationForLatLon(12.0, 110.0));
       } else {
         const activeCountry = JAPAC_COUNTRIES[currentSlideIndex - 1];
-        targetCameraZ = 21.5;
+        targetCameraZ = 22.0;
+        targetPitch = activeCountry.lat * (Math.PI / 180);
+        targetYaw = - (activeCountry.lon + 90) * (Math.PI / 180);
         targetQuaternion.copy(computeRotationForLatLon(activeCountry.lat, activeCountry.lon));
       }
 
@@ -780,11 +764,8 @@
         vis.labelEl.classList.toggle('is-active', isCurrent);
 
         if (vis.arcMat) {
-          vis.arcMat.opacity = isOverview ? 0.28 : (isCurrent ? 0.95 : 0.12);
+          vis.arcMat.opacity = isOverview ? 0.35 : (isCurrent ? 0.95 : 0.12);
         }
-        vis.borderMaterials.forEach(mat => {
-          mat.opacity = isOverview ? 0.42 : (isCurrent ? 1.0 : 0.18);
-        });
       });
     }
 
@@ -793,7 +774,7 @@
     worldGroup.quaternion.copy(currentQuaternion);
     camera.position.set(0, 0, currentCameraZ);
 
-    // Mouse drag to rotate Earth smoothly
+    // Mouse drag interaction (Maintains North strictly UP, clamps pitch)
     let mouseStartX = null;
     let mouseStartY = null;
     let isMouseDown = false;
@@ -812,11 +793,9 @@
       const dx = e.clientX - mouseStartX;
       const dy = e.clientY - mouseStartY;
 
-      // Rotate globe interactively on drag: only the Earth moves smoothly
-      const rotY = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), dx * 0.005);
-      const rotX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), dy * 0.005);
-      targetQuaternion.multiplyQuaternions(rotY, targetQuaternion);
-      targetQuaternion.multiply(rotX);
+      targetYaw += dx * 0.005;
+      targetPitch = Math.max(-1.3, Math.min(1.3, targetPitch + dy * 0.005));
+      targetQuaternion.setFromEuler(new THREE.Euler(targetPitch, targetYaw, 0, 'YXZ'));
 
       mouseStartX = e.clientX;
       mouseStartY = e.clientY;
@@ -836,21 +815,12 @@
       container.style.cursor = 'grab';
     });
 
-    // Mouse wheel slide switching
-    let wheelCooldown = 0;
+    // Mouse wheel: Smooth zoom control
     window.addEventListener('wheel', (e) => {
       e.preventDefault();
       notifyInteraction(true);
-      const now = performance.now();
-      if (now - wheelCooldown < 200) return;
-      if (Math.abs(e.deltaY) < 4) return;
-
-      wheelCooldown = now;
-      if (e.deltaY > 0) {
-        applySlide(currentSlideIndex + 1);
-      } else {
-        applySlide(currentSlideIndex - 1);
-      }
+      const zoomDelta = e.deltaY * 0.025;
+      targetCameraZ = Math.max(18, Math.min(48, targetCameraZ + zoomDelta));
     }, { passive: false });
 
     // Double-click resets view to JAPAC overview
@@ -859,7 +829,7 @@
       applySlide(0);
     });
 
-    // Touch swipe & drag for mobile
+    // Touch swipe & pinch zoom for mobile
     let touchStartX = null;
     let touchStartY = null;
     window.addEventListener('touchstart', (e) => {
@@ -875,10 +845,9 @@
       if (e.touches.length === 1 && touchStartX !== null) {
         const dx = e.touches[0].clientX - touchStartX;
         const dy = e.touches[0].clientY - touchStartY;
-        const rotY = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), dx * 0.0045);
-        const rotX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), dy * 0.0045);
-        targetQuaternion.multiplyQuaternions(rotY, targetQuaternion);
-        targetQuaternion.multiply(rotX);
+        targetYaw += dx * 0.0045;
+        targetPitch = Math.max(-1.3, Math.min(1.3, targetPitch + dy * 0.0045));
+        targetQuaternion.setFromEuler(new THREE.Euler(targetPitch, targetYaw, 0, 'YXZ'));
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
       }
@@ -890,7 +859,7 @@
     }, { passive: true });
 
     // =========================================================================
-    // 7. ANIMATION & 3D PROJECTION LOOP
+    // 8. RENDER LOOP
     // =========================================================================
     const tempWorldVec = new THREE.Vector3();
     const tempNormalVec = new THREE.Vector3();
@@ -905,12 +874,13 @@
       currentCameraZ += (targetCameraZ - currentCameraZ) * 0.065;
       camera.position.z = currentCameraZ;
 
-      galaxyField.rotation.y += 0.00018;
+      galaxyField.rotation.y += 0.00015;
 
       const activeCode = currentSlideIndex === 0
         ? null
         : JAPAC_COUNTRIES[currentSlideIndex - 1].code;
 
+      // Update travelling pulses
       for (let i = 0; i < animatedPulses.length; i++) {
         const p = animatedPulses[i];
         p.offset = (p.offset + p.speed * 0.008) % 1;
@@ -919,6 +889,7 @@
         p.mat.opacity = (activeCode === null || activeCode === p.code) ? 0.95 : 0.18;
       }
 
+      // Update 3D label positions & visibility
       const halfW = (container.clientWidth || window.innerWidth) * 0.5;
       const halfH = (container.clientHeight || window.innerHeight) * 0.5;
       cameraDirVec.copy(camera.position).normalize();
@@ -935,12 +906,12 @@
           const screenX = (tempWorldVec.x * halfW) + halfW;
           const screenY = -(tempWorldVec.y * halfH) + halfH;
 
-          vis.labelEl.style.transform = `translate(-50%, -120%) translate3d(${screenX.toFixed(1)}px, ${screenY.toFixed(1)}px, 0)`;
+          vis.labelEl.style.transform = `translate(-50%, -100%) translate3d(${screenX.toFixed(1)}px, ${screenY.toFixed(1)}px, 0)`;
 
           if (activeCode === null) {
-            vis.labelEl.style.opacity = Math.min(0.88, (facingDot - 0.22) * 1.6).toFixed(2);
+            vis.labelEl.style.opacity = Math.min(0.9, (facingDot - 0.22) * 1.6).toFixed(2);
           } else {
-            vis.labelEl.style.opacity = isActive ? '1' : (vis.data.isHub ? '0.85' : '0.32');
+            vis.labelEl.style.opacity = isActive ? '1' : (vis.data.isHub ? '0.85' : '0.3');
           }
         } else {
           vis.labelEl.style.opacity = '0';
@@ -951,29 +922,33 @@
       const targetThemeVal = currentTheme === 'light' ? 1.0 : 0.0;
       themeProgress += (targetThemeVal - themeProgress) * 0.045;
 
-      // Stars fade out on sunrise, reappear on sunset
+      // Atmospheric shader sunrise uniform
+      atmosMat.uniforms.uSunrise.value = themeProgress;
+
+      // Stars fade out on sunrise, reappear in dark space
       if (starMatRef) {
         starMatRef.opacity = Math.max(0.0, (1.0 - themeProgress) * 0.9);
       }
-      if (mwMatRef) {
-        mwMatRef.opacity = Math.max(0.0, (1.0 - themeProgress) * 0.55);
-      }
 
-      // Sun beams and corona brighten during sunrise, dim during sunset
+      // Sun beams and corona brighten during sunrise
       if (sunBeams) {
         sunBeams.coronaMat.opacity = themeProgress * 0.95;
-        sunBeams.beamMat.opacity = themeProgress * 0.72;
+        sunBeams.beamMat.opacity = themeProgress * 0.75;
         sunBeams.beamGroup.rotation.z += 0.0018;
 
-        // Dynamic lighting adjustment
-        sunLight.intensity = 1.25 + themeProgress * 1.35;
+        sunLight.intensity = 1.35 + themeProgress * 1.4;
         ambientLight.intensity = 0.85 + themeProgress * 0.65;
 
         // Dynamic background tint transition
-        const bgR = (2 + themeProgress * 14) / 255;
-        const bgG = (6 + themeProgress * 28) / 255;
+        const bgR = (2 + themeProgress * 16) / 255;
+        const bgG = (6 + themeProgress * 30) / 255;
         const bgB = (23 + themeProgress * 55) / 255;
         renderer.setClearColor(new THREE.Color(bgR, bgG, bgB), 1);
+      }
+
+      // City night lights glow in dark mode, wash out in daylight
+      if (earthMat.emissiveMap) {
+        earthMat.emissiveIntensity = Math.max(0.0, (1.0 - themeProgress) * 0.9);
       }
 
       renderer.render(scene, camera);
@@ -981,7 +956,7 @@
 
     animate();
 
-    // Listen for theme changes & country selections from parent window
+    // Listen for theme and slide messages from parent window
     window.addEventListener('message', (event) => {
       if (!event.data) return;
       if (event.data.type === 'SET_THEME') {
