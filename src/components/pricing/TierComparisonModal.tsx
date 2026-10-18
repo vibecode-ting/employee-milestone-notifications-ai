@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   X, Check, Sparkles, Zap, Shield, Crown, ArrowRight,
@@ -12,6 +13,7 @@ interface TierComparisonModalProps {
 }
 
 export function TierComparisonModal({ isOpen, onClose, highlightTier = 'pro' }: TierComparisonModalProps) {
+  const { t } = useTranslation();
   const { appUser, switchDemoPlan, isDemo } = useAuth();
   const [, setSelectedPlan] = useState<Role>(highlightTier);
 
@@ -25,75 +27,75 @@ export function TierComparisonModal({ isOpen, onClose, highlightTier = 'pro' }: 
   const TIERS = [
     {
       role: 'user' as Role,
-      name: 'Free Forever',
-      badge: 'Starter',
+      name: t('Free Forever'),
+      badge: t('Starter'),
       price: '$0',
-      period: 'forever',
-      description: 'Ideal for small startups & testing the platform.',
-      limit: '100 Employees',
+      period: t('forever'),
+      description: t('Ideal for small startups & testing the platform.'),
+      limit: t('100 Employees'),
       color: 'slate',
       icon: Shield,
       features: [
-        'Up to 100 Employee Roster',
-        'Standard Email Notifications',
-        'Basic Milestone Templates',
-        '3D JAPAC Network Visualization',
-        'Standard Search & Filters',
-        'Community Support',
+        t('Up to 100 Employee Roster'),
+        t('Standard Email Notifications'),
+        t('Basic Milestone Templates'),
+        t('3D JAPAC Network Visualization'),
+        t('Standard Search & Filters'),
+        t('Community Support'),
       ],
       notIncluded: [
-        'AI Milestone Card Customizer (GenAI)',
-        'Non-Admin Employee AI Copilot',
-        'Dynamic Custom Columns (T-Shirt, Budget, etc.)',
-        'BigQuery HR Analytics & Forecasting',
-        'Multi-channel Telegram & Teams bots',
+        t('AI Milestone Card Customizer (GenAI)'),
+        t('Non-Admin Employee AI Copilot'),
+        t('Dynamic Custom Columns (T-Shirt, Budget, etc.)'),
+        t('BigQuery HR Analytics & Forecasting'),
+        t('Multi-channel Telegram & Teams bots'),
       ],
     },
     {
       role: 'pro' as Role,
-      name: 'Pro Tier',
-      badge: 'Most Popular',
+      name: t('Pro Tier'),
+      badge: t('Most Popular'),
       price: '$5',
-      period: 'per 6 mo',
-      description: 'Full GenAI power for growing teams & HR operations.',
-      limit: '1,000 Employees',
+      period: t('per 6 mo'),
+      description: t('Full GenAI power for growing teams & HR operations.'),
+      limit: t('1,000 Employees'),
       color: 'indigo',
       popular: true,
       icon: Zap,
       features: [
-        'Up to 1,000 Employee Roster',
-        '✨ Gen AI Milestone Card Studio (Gemini)',
-        '🤖 Non-Admin Employee Copilot (Safe Edits)',
-        '🎨 Dynamic Custom Columns (Unlimited Fields)',
-        'Multimodal OCR Roster Import',
-        'Voice STT & Audio Listen Readouts',
-        'Teams, Telegram, & SMTP Integrations',
-        'Priority Slack & Email Support',
+        t('Up to 1,000 Employee Roster'),
+        t('✨ Gen AI Milestone Card Studio (Gemini)'),
+        t('🤖 Non-Admin Employee Copilot (Safe Edits)'),
+        t('🎨 Dynamic Custom Columns (Unlimited Fields)'),
+        t('Multimodal OCR Roster Import'),
+        t('Voice STT & Audio Listen Readouts'),
+        t('Teams, Telegram, & SMTP Integrations'),
+        t('Priority Slack & Email Support'),
       ],
       notIncluded: [
-        'Enterprise BigQuery HR Analytics Data Warehouse',
-        'Custom SSO / SAML & SCIM Sync',
+        t('Enterprise BigQuery HR Analytics Data Warehouse'),
+        t('Custom SSO / SAML & SCIM Sync'),
       ],
     },
     {
       role: 'pro_plus' as Role,
-      name: 'Ultra Enterprise',
-      badge: 'All Inclusive',
+      name: t('Ultra Enterprise'),
+      badge: t('All Inclusive'),
       price: '$15',
-      period: 'per 6 mo',
-      description: 'Enterprise scale, BigQuery analytics, & unlimited roster.',
-      limit: 'Unlimited Employees',
+      period: t('per 6 mo'),
+      description: t('Enterprise scale, BigQuery analytics, & unlimited roster.'),
+      limit: t('Unlimited Employees'),
       color: 'gold',
       icon: Crown,
       features: [
-        'Unlimited Employee Roster',
-        'Everything in Pro Tier',
-        '📊 BigQuery HR Analytics & Forecasting',
-        'Tenure Cohort & Retention Risk Heatmaps',
-        'Text-Embedding-004 Semantic Search',
-        'Instant Multi-channel AI Dispatch',
-        'Direct Cloud DB Sync (Postgres, BigQuery)',
-        'Dedicated Solution Architect',
+        t('Unlimited Employee Roster'),
+        t('Everything in Pro Tier'),
+        t('📊 BigQuery HR Analytics & Forecasting'),
+        t('Tenure Cohort & Retention Risk Heatmaps'),
+        t('Text-Embedding-004 Semantic Search'),
+        t('Instant Multi-channel AI Dispatch'),
+        t('Direct Cloud DB Sync (Postgres, BigQuery)'),
+        t('Dedicated Solution Architect'),
       ],
       notIncluded: [],
     },
@@ -120,20 +122,20 @@ export function TierComparisonModal({ isOpen, onClose, highlightTier = 'pro' }: 
         <div className="text-center max-w-2xl mx-auto mb-8">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-400/30 text-indigo-400 text-xs font-semibold mb-3">
             <Sparkles size={14} />
-            <span>Product-Led Growth (PLG) Architecture</span>
+            <span>{t('Product-Led Growth (PLG) Architecture')}</span>
           </div>
           <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
-            Choose Your Milestone Intelligence Tier
+            {t('Choose Your Milestone Intelligence Tier')}
           </h2>
           <p className="text-sm text-slate-400 mt-2">
-            Show, don't hide: Explore how our AI transforms team recognition, or test with 1-click sandbox mode.
+            {t("Show, don't hide: Explore how our AI transforms team recognition, or test with 1-click sandbox mode.")}
           </p>
 
           {/* Sandbox Switcher Banner */}
           {isDemo && (
             <div className="mt-4 inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-purple-500/15 border border-purple-500/30 text-purple-300 text-xs">
-              <span className="font-semibold">⚡ Active Sandbox Demo:</span>
-              <span className="text-slate-300">Click any tier below to instantly simulate and unlock that plan without paying!</span>
+              <span className="font-semibold">{t('⚡ Active Sandbox Demo:')}</span>
+              <span className="text-slate-300">{t('Click any tier below to instantly simulate and unlock that plan without paying!')}</span>
             </div>
           )}
         </div>
@@ -166,7 +168,7 @@ export function TierComparisonModal({ isOpen, onClose, highlightTier = 'pro' }: 
                     </div>
                     {isCurrent && (
                       <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-xs font-semibold">
-                        Current Plan
+                        {t('Current Plan')}
                       </span>
                     )}
                   </div>
@@ -187,7 +189,7 @@ export function TierComparisonModal({ isOpen, onClose, highlightTier = 'pro' }: 
                   {/* Feature Checklist */}
                   <div className="mt-5 space-y-2.5">
                     <div className="text-xs font-bold uppercase tracking-wider text-slate-300">
-                      Included Features:
+                      {t('Included Features:')}
                     </div>
                     {tier.features.map((f, idx) => (
                       <div key={idx} className="flex items-start gap-2.5 text-xs text-slate-300">
@@ -218,10 +220,10 @@ export function TierComparisonModal({ isOpen, onClose, highlightTier = 'pro' }: 
                       }`}
                     >
                       {isCurrent ? (
-                        'Active in Demo'
+                        t('Active in Demo')
                       ) : (
                         <>
-                          <span>⚡ Test {tier.name}</span>
+                          <span>⚡ {t('Test {{name}}', { name: tier.name })}</span>
                           <ArrowRight size={13} />
                         </>
                       )}
@@ -235,7 +237,7 @@ export function TierComparisonModal({ isOpen, onClose, highlightTier = 'pro' }: 
                           : 'bg-slate-800 hover:bg-slate-700 text-white'
                       }`}
                     >
-                      <span>Upgrade to {tier.name}</span>
+                      <span>{t('Upgrade to {{name}}', { name: tier.name })}</span>
                       <ArrowRight size={13} />
                     </a>
                   )}
@@ -247,9 +249,9 @@ export function TierComparisonModal({ isOpen, onClose, highlightTier = 'pro' }: 
 
         {/* Footer Note */}
         <div className="mt-8 pt-6 border-t border-slate-800 text-center text-xs text-slate-400">
-          <span>Enterprise custom plans with SSO / SAML available for 5,000+ employees. </span>
+          <span>{t('Enterprise custom plans with SSO / SAML available for 5,000+ employees.')} </span>
           <a href="mailto:support@milestone.app" className="text-indigo-400 underline hover:text-indigo-300">
-            Contact enterprise sales
+            {t('Contact enterprise sales')}
           </a>
         </div>
       </div>

@@ -569,11 +569,11 @@ export default function Pricing() {
                 <div className="p-4 rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 space-y-2.5">
                   <div>
                     <label className="block text-[11px] font-semibold text-slate-600 dark:text-zinc-400 mb-1">
-                      Cardholder Name
+                      {t('Cardholder Name')}
                     </label>
                     <input
                       type="text"
-                      placeholder="e.g. John Doe"
+                      placeholder={t('e.g. John Doe')}
                       value={cardHolder}
                       onChange={(e) => setCardHolder(e.target.value)}
                       className="glass-input text-xs py-1.5 px-2.5"
@@ -581,7 +581,7 @@ export default function Pricing() {
                   </div>
                   <div>
                     <label className="block text-[11px] font-semibold text-slate-600 dark:text-zinc-400 mb-1">
-                      Card Number
+                      {t('Card Number')}
                     </label>
                     <input
                       type="text"
@@ -594,7 +594,7 @@ export default function Pricing() {
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <label className="block text-[11px] font-semibold text-slate-600 dark:text-zinc-400 mb-1">
-                        Expiry (MM/YY)
+                        {t('Expiry (MM/YY)')}
                       </label>
                       <input
                         type="text"
@@ -606,7 +606,7 @@ export default function Pricing() {
                     </div>
                     <div>
                       <label className="block text-[11px] font-semibold text-slate-600 dark:text-zinc-400 mb-1">
-                        CVC / CVV
+                        {t('CVC / CVV')}
                       </label>
                       <input
                         type="password"
@@ -649,7 +649,7 @@ export default function Pricing() {
               onClick={() => setStep('pricing')}
               className="btn-secondary text-xs py-2 px-4 cursor-pointer"
             >
-              Back
+              {t('Back')}
             </button>
             <button
               type="button"
@@ -677,7 +677,7 @@ export default function Pricing() {
               <h2 className="font-bold text-slate-800 dark:text-white text-sm">
                 {selectedPlan.name} · {getConvertedPrice(selectedPlan.priceUsd, selectedCurrency)}
               </h2>
-              <p className="text-[11px] text-slate-400">Order pending payment verification</p>
+              <p className="text-[11px] text-slate-400">{t('Order pending payment verification')}</p>
             </div>
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400 text-xs font-mono font-bold animate-pulse">
               <Clock size={13} />
@@ -697,11 +697,11 @@ export default function Pricing() {
                   ? selectedMmkWallet.name
                   : selectedCurrency.code === 'CRYPTO' || paymentType === 'crypto'
                   ? selectedCryptoWallet.name
-                  : 'Card Payment Gateway'}
+                  : t('Card Payment Gateway')}
               </div>
 
               <div className="text-[11px] text-slate-500">
-                Account Name: <strong>Milestone App Billing</strong>
+                {t('Account Name:')} <strong>{t('Milestone App Billing')}</strong>
               </div>
 
               <div className="flex items-center justify-center sm:justify-start gap-1 font-mono text-xs text-corp-blue dark:text-gold-400 font-semibold truncate">
@@ -722,14 +722,14 @@ export default function Pricing() {
                     )
                   }
                   className="p-1 rounded text-slate-400 hover:text-slate-600 cursor-pointer"
-                  title="Copy account"
+                  title={t('Copy account')}
                 >
                   {copied ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
                 </button>
               </div>
 
               <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold">
-                Amount to transfer: {getConvertedPrice(selectedPlan.priceUsd, selectedCurrency)}
+                {t('Amount to transfer:')} {getConvertedPrice(selectedPlan.priceUsd, selectedCurrency)}
               </div>
             </div>
           </div>
@@ -763,7 +763,7 @@ export default function Pricing() {
                   {t('Click to upload payment screenshot')}
                 </p>
                 <p className="text-[10px] text-slate-400 mt-1">
-                  Required: PNG, JPG, or screenshot with transaction ID & amount
+                  {t('Required: PNG, JPG, or screenshot with transaction ID & amount')}
                 </p>
               </div>
             ) : (
@@ -779,7 +779,7 @@ export default function Pricing() {
                       {slipFile?.name}
                     </p>
                     <p className="text-[10px] text-slate-400">
-                      {Math.round((slipFile?.size || 0) / 1024)} KB · Click change to replace
+                      {Math.round((slipFile?.size || 0) / 1024)} KB · {t('Click change to replace')}
                     </p>
                   </div>
                   <button
@@ -787,7 +787,7 @@ export default function Pricing() {
                     onClick={() => fileInputRef.current?.click()}
                     className="btn-secondary text-[11px] py-1 px-2.5 cursor-pointer"
                   >
-                    Change
+                    {t('Change')}
                   </button>
                 </div>
 
@@ -795,7 +795,7 @@ export default function Pricing() {
                 {ocrLoading && (
                   <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-corp-blue dark:text-gold-400 text-xs flex items-center gap-2 border border-blue-200 dark:border-blue-900/50">
                     <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                    <span>Scanning payment slip with OCR for transaction ID & amount...</span>
+                    <span>{t('Scanning payment slip with OCR for transaction ID & amount...')}</span>
                   </div>
                 )}
 
@@ -804,11 +804,11 @@ export default function Pricing() {
                   <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/50 border border-red-300 dark:border-red-800 text-red-700 dark:text-red-300 text-xs space-y-1">
                     <div className="flex items-center gap-2 font-bold">
                       <AlertCircle size={15} className="shrink-0 text-red-500" />
-                      <span>Invalid Payment Slip</span>
+                      <span>{t('Invalid Payment Slip')}</span>
                     </div>
                     <p className="text-[11px] pl-6 text-red-600 dark:text-red-300">
                       {ocrResult.error ||
-                        'Not found transaction ID and amount. Please upload a genuine payment transfer screenshot.'}
+                        t('Not found transaction ID and amount. Please upload a genuine payment transfer screenshot.')}
                     </p>
                   </div>
                 )}
@@ -818,13 +818,13 @@ export default function Pricing() {
                   <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-800 text-xs space-y-2">
                     <div className="flex items-center gap-1.5 font-bold text-emerald-800 dark:text-emerald-300">
                       <CheckCircle2 size={16} className="text-emerald-500" />
-                      <span>Payment Slip Verified by OCR</span>
+                      <span>{t('Payment Slip Verified by OCR')}</span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 text-[11px] pt-1 border-t border-emerald-200 dark:border-emerald-900/60 font-mono">
                       <div>
                         <span className="text-slate-500 dark:text-zinc-400 block font-sans text-[10px]">
-                          Transaction ID:
+                          {t('Transaction ID:')}
                         </span>
                         <strong className="text-emerald-900 dark:text-emerald-200">
                           {ocrResult.data.transactionId}
@@ -832,7 +832,7 @@ export default function Pricing() {
                       </div>
                       <div>
                         <span className="text-slate-500 dark:text-zinc-400 block font-sans text-[10px]">
-                          Verified Amount:
+                          {t('Verified Amount:')}
                         </span>
                         <strong className="text-emerald-900 dark:text-emerald-200">
                           {ocrResult.data.amount}
@@ -840,7 +840,7 @@ export default function Pricing() {
                       </div>
                       <div>
                         <span className="text-slate-500 dark:text-zinc-400 block font-sans text-[10px]">
-                          Target Account:
+                          {t('Target Account:')}
                         </span>
                         <span className="text-slate-700 dark:text-zinc-300">
                           {ocrResult.data.accountNumber}
@@ -848,7 +848,7 @@ export default function Pricing() {
                       </div>
                       <div>
                         <span className="text-slate-500 dark:text-zinc-400 block font-sans text-[10px]">
-                          OCR Confidence:
+                          {t('OCR Confidence:')}
                         </span>
                         <span className="text-emerald-600 dark:text-emerald-400 font-bold">
                           {ocrResult.data.confidence}%

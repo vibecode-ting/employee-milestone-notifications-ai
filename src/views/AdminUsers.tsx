@@ -224,10 +224,10 @@ export default function AdminUsers() {
         <div>
           <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
             <Shield className="text-corp-blue dark:text-gold-500" size={24} />
-            User Management & Role Upgrades
+            {t('User Management & Role Upgrades')}
           </h1>
           <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">
-            Audit tenant accounts, upgrade user roles, and manage subscription quotas.
+            {t('Audit tenant accounts, upgrade user roles, and manage subscription quotas.')}
           </p>
         </div>
       </div>
@@ -235,33 +235,33 @@ export default function AdminUsers() {
       {/* KPI Stats Bar */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="glass-panel p-4">
-          <div className="text-xs font-semibold text-slate-500 dark:text-zinc-400 uppercase">Total Tenants</div>
+          <div className="text-xs font-semibold text-slate-500 dark:text-zinc-400 uppercase">{t('Total Tenants')}</div>
           <div className="text-2xl font-extrabold text-slate-900 dark:text-white mt-1">{totalTenants}</div>
-          <div className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-0.5">{activeTenants} Active</div>
+          <div className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-0.5">{activeTenants} {t('Active')}</div>
         </div>
 
         <div className="glass-panel p-4">
-          <div className="text-xs font-semibold text-slate-500 dark:text-zinc-400 uppercase">Tracked Employees</div>
+          <div className="text-xs font-semibold text-slate-500 dark:text-zinc-400 uppercase">{t('Tracked Employees')}</div>
           <div className="text-2xl font-extrabold text-slate-900 dark:text-white mt-1">
             {totalEmployeesAcrossTenants.toLocaleString()}
           </div>
-          <div className="text-[11px] text-slate-400 mt-0.5">Across all tenants</div>
+          <div className="text-[11px] text-slate-400 mt-0.5">{t('Across all tenants')}</div>
         </div>
 
         <div className="glass-panel p-4">
-          <div className="text-xs font-semibold text-slate-500 dark:text-zinc-400 uppercase">Quota Warnings</div>
+          <div className="text-xs font-semibold text-slate-500 dark:text-zinc-400 uppercase">{t('Quota Warnings')}</div>
           <div className="text-2xl font-extrabold text-amber-600 dark:text-amber-400 mt-1">
             {quotaAlertsCount}
           </div>
-          <div className="text-[11px] text-amber-600 dark:text-amber-400 mt-0.5">Utilizing &gt;80% limit</div>
+          <div className="text-[11px] text-amber-600 dark:text-amber-400 mt-0.5">{t('Utilizing >80% limit')}</div>
         </div>
 
         <div className="glass-panel p-4">
-          <div className="text-xs font-semibold text-slate-500 dark:text-zinc-400 uppercase">Paid Subscribers</div>
+          <div className="text-xs font-semibold text-slate-500 dark:text-zinc-400 uppercase">{t('Paid Subscribers')}</div>
           <div className="text-2xl font-extrabold text-purple-600 dark:text-purple-400 mt-1">
             {users.filter((u) => u.role === 'pro' || u.role === 'pro_plus').length}
           </div>
-          <div className="text-[11px] text-purple-600 dark:text-purple-400 mt-0.5">Pro & Ultra tiers</div>
+          <div className="text-[11px] text-purple-600 dark:text-purple-400 mt-0.5">{t('Pro & Ultra tiers')}</div>
         </div>
       </div>
 
@@ -274,7 +274,7 @@ export default function AdminUsers() {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search tenant email or UID..."
+            placeholder={t('Search tenant email or UID...')}
             className="glass-input glass-input-with-icon !pl-11 text-xs w-full py-2"
           />
         </div>
@@ -294,7 +294,7 @@ export default function AdminUsers() {
                     : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800'
                 )}
               >
-                {r === 'all' ? 'All Roles' : r === 'pro_plus' ? 'Ultra' : r}
+                {r === 'all' ? t('All Roles') : r === 'pro_plus' ? t('Ultra') : t(r)}
               </button>
             ))}
           </div>
@@ -305,9 +305,9 @@ export default function AdminUsers() {
             onChange={(e) => setQuotaFilter(e.target.value as any)}
             className="glass-input text-xs py-1.5 px-2.5 cursor-pointer"
           >
-            <option value="all">All Quotas</option>
-            <option value="warning">Near Limit (&gt;80%)</option>
-            <option value="normal">Safe (&lt;80%)</option>
+            <option value="all">{t('All Quotas')}</option>
+            <option value="warning">{t('Near Limit (>80%)')}</option>
+            <option value="normal">{t('Safe (<80%)')}</option>
           </select>
         </div>
       </div>
@@ -318,19 +318,19 @@ export default function AdminUsers() {
           <table className="w-full text-xs">
             <thead>
               <tr className="table-header">
-                <th className="px-4 py-3 text-left">Tenant User</th>
-                <th className="px-4 py-3 text-left">Plan / Tier</th>
-                <th className="px-4 py-3 text-left min-w-[200px]">Quota Consumption</th>
-                <th className="px-4 py-3 text-left">Account Status</th>
-                <th className="px-4 py-3 text-left">Activity</th>
-                <th className="px-4 py-3 text-right">Actions</th>
+                <th className="px-4 py-3 text-left">{t('Tenant User')}</th>
+                <th className="px-4 py-3 text-left">{t('Plan / Tier')}</th>
+                <th className="px-4 py-3 text-left min-w-[200px]">{t('Quota Consumption')}</th>
+                <th className="px-4 py-3 text-left">{t('Account Status')}</th>
+                <th className="px-4 py-3 text-left">{t('Activity')}</th>
+                <th className="px-4 py-3 text-right">{t('Actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-zinc-800/80">
               {filteredUsers.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
-                    No tenants match the specified criteria.
+                    {t('No tenants match the specified criteria.')}
                   </td>
                 </tr>
               ) : (
@@ -377,7 +377,7 @@ export default function AdminUsers() {
                               {u.email}
                               {isSelf && (
                                 <span className="text-[10px] bg-slate-200 dark:bg-zinc-800 px-1.5 py-0.2 rounded font-mono text-slate-600 dark:text-zinc-400">
-                                  You
+                                  {t('You')}
                                 </span>
                               )}
                               <GeminiBadge role={u.role} size="sm" showIcon={false} />
@@ -401,10 +401,10 @@ export default function AdminUsers() {
                               u.role === 'pro' && 'text-corp-blue dark:text-gold-500 font-bold'
                             )}
                           >
-                            <option value="user">Free (100 cap)</option>
-                            <option value="pro">Pro (1,000 cap)</option>
-                            <option value="pro_plus">Ultra (Unlimited)</option>
-                            <option value="admin">System Admin</option>
+                            <option value="user">{t('Free (100 cap)')}</option>
+                            <option value="pro">{t('Pro (1,000 cap)')}</option>
+                            <option value="pro_plus">{t('Ultra (Unlimited)')}</option>
+                            <option value="admin">{t('System Admin')}</option>
                           </select>
                         </div>
                       </td>
@@ -427,7 +427,7 @@ export default function AdminUsers() {
                                   : 'text-slate-600 dark:text-zinc-400 bg-slate-100 dark:bg-zinc-800'
                               )}
                             >
-                              {isUnlimited ? 'Unlimited' : `${percent}%`}
+                              {isUnlimited ? t('Unlimited') : `${percent}%`}
                             </span>
                           </div>
 
@@ -466,7 +466,7 @@ export default function AdminUsers() {
                               u.status === 'suspended' ? 'bg-red-500' : 'bg-emerald-500'
                             )}
                           />
-                          {u.status === 'suspended' ? 'Suspended' : 'Active'}
+                          {u.status === 'suspended' ? t('Suspended') : t('Active')}
                         </span>
                       </td>
 
@@ -474,7 +474,7 @@ export default function AdminUsers() {
                       <td className="px-4 py-3 text-slate-500 dark:text-zinc-400 whitespace-nowrap">
                         <div className="flex items-center gap-1 text-[11px]">
                           <Clock size={12} className="text-slate-400" />
-                          {u.lastActive || 'Today'}
+                          {u.lastActive || t('Today')}
                         </div>
                       </td>
 
@@ -488,10 +488,10 @@ export default function AdminUsers() {
                               setTargetRole(u.role === 'user' ? 'pro' : u.role === 'pro' ? 'pro_plus' : 'pro_plus');
                             }}
                             className="btn-primary text-xs py-1 px-2.5 flex items-center gap-1 cursor-pointer disabled:opacity-40"
-                            title="Upgrade role"
+                            title={t('Upgrade role')}
                           >
                             <ArrowUpCircle size={13} />
-                            Upgrade
+                            {t('Upgrade')}
                           </button>
                           <button
                             disabled={isSelf}
@@ -503,7 +503,7 @@ export default function AdminUsers() {
                                 : 'bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300 hover:bg-red-100'
                             )}
                           >
-                            {u.status === 'suspended' ? 'Reactivate' : 'Suspend'}
+                            {u.status === 'suspended' ? t('Reactivate') : t('Suspend')}
                           </button>
                         </div>
                       </td>
@@ -532,7 +532,7 @@ export default function AdminUsers() {
                   <Zap size={18} />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">Upgrade User Role</h3>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">{t('Upgrade User Role')}</h3>
                   <p className="text-[11px] text-slate-500 dark:text-zinc-400">{upgradingUser.email}</p>
                 </div>
               </div>
@@ -546,14 +546,14 @@ export default function AdminUsers() {
 
             <div className="space-y-3">
               <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300">
-                Select Target Role & Quota:
+                {t('Select Target Role & Quota:')}
               </label>
 
               {([
-                { role: 'pro', label: 'Pro (Growth Tier)', cap: '1,000 Employees', color: 'border-corp-blue text-corp-blue dark:text-gold-400' },
-                { role: 'pro_plus', label: 'Ultra (Enterprise)', cap: 'Unlimited Employees', color: 'border-purple-600 text-purple-600 dark:text-purple-400' },
-                { role: 'admin', label: 'System Admin', cap: 'Full Platform Access', color: 'border-emerald-600 text-emerald-600 dark:text-emerald-400' },
-                { role: 'user', label: 'Free (Starter)', cap: '100 Employees', color: 'border-slate-400 text-slate-600 dark:text-zinc-400' },
+                { role: 'pro', label: t('Pro (Growth Tier)'), cap: t('1,000 Employees'), color: 'border-corp-blue text-corp-blue dark:text-gold-400' },
+                { role: 'pro_plus', label: t('Ultra (Enterprise)'), cap: t('Unlimited Employees'), color: 'border-purple-600 text-purple-600 dark:text-purple-400' },
+                { role: 'admin', label: t('System Admin'), cap: t('Full Platform Access'), color: 'border-emerald-600 text-emerald-600 dark:text-emerald-400' },
+                { role: 'user', label: t('Free (Starter)'), cap: t('100 Employees'), color: 'border-slate-400 text-slate-600 dark:text-zinc-400' },
               ] as const).map((opt) => (
                 <label
                   key={opt.role}
@@ -589,7 +589,7 @@ export default function AdminUsers() {
                 onClick={() => setUpgradingUser(null)}
                 className="btn-secondary text-xs py-2 px-3.5 cursor-pointer"
               >
-                Cancel
+                {t('Cancel')}
               </button>
               <button
                 type="button"
@@ -597,7 +597,7 @@ export default function AdminUsers() {
                 className="btn-primary text-xs py-2 px-4 flex items-center gap-1.5 cursor-pointer"
               >
                 <ArrowUpCircle size={14} />
-                Confirm Upgrade
+                {t('Confirm Upgrade')}
               </button>
             </div>
           </div>
